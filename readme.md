@@ -1,5 +1,5 @@
 # Team and Roles
-Dara Alegrae - Scrum Master, Developer
+Dara Alegre - Scrum Master, Developer
 Bryan Sandoval - Product Owner, Developer 
 Anthony Cortez - Developer
 Jonathan De La Paz Posadas - Developer
