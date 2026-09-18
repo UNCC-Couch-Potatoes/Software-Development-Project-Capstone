@@ -3,31 +3,48 @@ import './style.css';
 import { Link } from 'react-router-dom';
 
 function Profile() {
-  const [isEditing, setIsEditing] = useState(false);
 
-  const [name, setName] = useState('Your Name');
-  const [bio, setBio] = useState(
-    'Welcome to my profile! Tell other users a little about yourself here.'
+  // Load the saved profile from localStorage
+  const [savedProfile, setSavedProfile] = useState(() => {
+    const storedProfile = localStorage.getItem('profileData');
+
+    if (storedProfile) {
+      return JSON.parse(storedProfile);
+    }
+
+    return {
+      name: 'Your Name',
+      bio: 'Welcome to my profile! Tell other users a little about yourself here.',
+      skills: [
+        'JavaScript',
+        'React',
+        'Web Development'
+      ],
+      interests: [
+        'Gaming',
+        'Technology'
+      ],
+      profilePicture: null
+    };
+  });
+
+  // Editable profile information
+  const [name, setName] = useState(savedProfile.name);
+  const [bio, setBio] = useState(savedProfile.bio);
+  const [skills, setSkills] = useState(savedProfile.skills);
+  const [interests, setInterests] = useState(savedProfile.interests);
+  const [profilePicture, setProfilePicture] = useState(
+    savedProfile.profilePicture
   );
 
-  const [skills, setSkills] = useState([
-    'JavaScript',
-    'React',
-    'Web Development'
-  ]);
-
-  const [interests, setInterests] = useState([
-    'Gaming',
-    'Technology'
-  ]);
+  const [isEditing, setIsEditing] = useState(false);
 
   const [newSkill, setNewSkill] = useState('');
   const [newInterest, setNewInterest] = useState('');
 
-  const [profilePicture, setProfilePicture] = useState(null);
-
   const [dateJoined] = useState('September 2026');
 
+  // Previous Posts
   const [posts] = useState([
     {
       id: 1,
@@ -41,34 +58,64 @@ function Profile() {
     }
   ]);
 
+
+  // Profile Picture
   function handlePictureChange(event) {
     const file = event.target.files[0];
 
     if (file) {
-      const imageURL = URL.createObjectURL(file);
-      setProfilePicture(imageURL);
+
+      // Optional file size limit: 5 MB
+      const maxSize = 5 * 1024 * 1024;
+
+      if (file.size > maxSize) {
+        alert('Profile picture must be smaller than 5 MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        setProfilePicture(reader.result);
+      };
+
+      reader.readAsDataURL(file);
     }
   }
+
 
   function removePicture() {
     setProfilePicture(null);
   }
 
+
+  // Skills
   function addSkill() {
     if (newSkill.trim() !== '') {
-      setSkills([...skills, newSkill.trim()]);
+
+      setSkills([
+        ...skills,
+        newSkill.trim()
+      ]);
+
       setNewSkill('');
     }
   }
 
+
   function removeSkill(skillToRemove) {
     setSkills(
-      skills.filter((skill) => skill !== skillToRemove)
+      skills.filter(
+        (skill) => skill !== skillToRemove
+      )
     );
   }
 
+
+  // Interests
   function addInterest() {
     if (newInterest.trim() !== '') {
+
       setInterests([
         ...interests,
         newInterest.trim()
@@ -78,6 +125,7 @@ function Profile() {
     }
   }
 
+
   function removeInterest(interestToRemove) {
     setInterests(
       interests.filter(
@@ -86,54 +134,130 @@ function Profile() {
     );
   }
 
+
+  // SAVE PROFILE
   function saveProfile() {
+
+    const updatedProfile = {
+      name: name,
+      bio: bio,
+      skills: skills,
+      interests: interests,
+      profilePicture: profilePicture
+    };
+
+    // Save profile to browser storage
+    localStorage.setItem(
+      'profileData',
+      JSON.stringify(updatedProfile)
+    );
+
+    // Update the saved version
+    setSavedProfile(updatedProfile);
+
+    // Exit editing mode
+    setIsEditing(false);
+
+    // Clear temporary inputs
+    setNewSkill('');
+    setNewInterest('');
+  }
+
+
+  // CANCEL EDITING
+  function cancelEditing() {
+
+    // Restore the last saved information
+    setName(savedProfile.name);
+    setBio(savedProfile.bio);
+    setSkills(savedProfile.skills);
+    setInterests(savedProfile.interests);
+    setProfilePicture(savedProfile.profilePicture);
+
+    // Clear temporary inputs
+    setNewSkill('');
+    setNewInterest('');
+
+    // Exit editing mode
     setIsEditing(false);
   }
+
 
   return (
     <>
       {/* Navigation Bar */}
       <div id="navbar">
+
         <Link to="/">Home</Link>
-        <Link to="/Blogs">Blogs</Link>
-        <Link to="/Jams">Jams</Link>
-        <Link to="/Jobs">Jobs</Link>
-        <Link to="/Profile">Profile</Link>
-        <Link to="/Resources">Resources</Link>
+
+        <Link to="/Blogs">
+          Blogs
+        </Link>
+
+        <Link to="/Jams">
+          Jams
+        </Link>
+
+        <Link to="/Jobs">
+          Jobs
+        </Link>
+
+        <Link to="/Profile">
+          Profile
+        </Link>
+
+        <Link to="/Resources">
+          Resources
+        </Link>
+
       </div>
+
 
       <main className="profile-container">
 
-        {/* Profile Header */}
+        {/* PROFILE HEADER */}
         <section className="profile-header">
 
           <div className="profile-image-container">
+
             {profilePicture ? (
+
               <img
                 src={profilePicture}
                 alt="Profile"
                 className="profile-picture"
               />
+
             ) : (
+
               <div className="profile-placeholder">
                 Profile Picture
               </div>
+
             )}
+
           </div>
 
-          <h1>{name}</h1>
+
+          <h1>
+            {name}
+          </h1>
+
 
           <p>
             Member since {dateJoined}
           </p>
 
+
           {!isEditing && (
+
             <button
               className="edit-profile-button"
               onClick={() => setIsEditing(true)}
             >
               Edit Profile
             </button>
+
           )}
 
         </section>
@@ -144,11 +268,17 @@ function Profile() {
 
           <section className="edit-profile">
 
-            <h2>Edit Profile</h2>
+            <h2>
+              Edit Profile
+            </h2>
 
-            {/* Name */}
+
+            {/* NAME */}
             <div className="form-section">
-              <label>Name</label>
+
+              <label>
+                Name
+              </label>
 
               <input
                 type="text"
@@ -157,13 +287,16 @@ function Profile() {
                   setName(event.target.value)
                 }
               />
+
             </div>
 
 
-            {/* Profile Picture */}
+            {/* PROFILE PICTURE */}
             <div className="form-section">
 
-              <label>Profile Picture</label>
+              <label>
+                Profile Picture
+              </label>
 
               <input
                 type="file"
@@ -171,7 +304,9 @@ function Profile() {
                 onChange={handlePictureChange}
               />
 
+
               {profilePicture && (
+
                 <button
                   type="button"
                   onClick={removePicture}
@@ -179,15 +314,18 @@ function Profile() {
                 >
                   Remove Picture
                 </button>
+
               )}
 
             </div>
 
 
-            {/* Bio */}
+            {/* BIO */}
             <div className="form-section">
 
-              <label>Bio</label>
+              <label>
+                Bio
+              </label>
 
               <textarea
                 value={bio}
@@ -200,18 +338,23 @@ function Profile() {
             </div>
 
 
-            {/* Skills */}
+            {/* SKILLS */}
             <div className="form-section">
 
-              <label>Skills / Expertise</label>
+              <label>
+                Skills / Expertise
+              </label>
+
 
               <div className="tag-container">
 
                 {skills.map((skill) => (
+
                   <span
                     className="tag"
                     key={skill}
                   >
+
                     {skill}
 
                     <button
@@ -224,9 +367,11 @@ function Profile() {
                     </button>
 
                   </span>
+
                 ))}
 
               </div>
+
 
               <div className="add-item">
 
@@ -238,6 +383,7 @@ function Profile() {
                     setNewSkill(event.target.value)
                   }
                 />
+
 
                 <button
                   type="button"
@@ -251,18 +397,23 @@ function Profile() {
             </div>
 
 
-            {/* Interests */}
+            {/* INTERESTS */}
             <div className="form-section">
 
-              <label>Interests</label>
+              <label>
+                Interests
+              </label>
+
 
               <div className="tag-container">
 
                 {interests.map((interest) => (
+
                   <span
                     className="tag"
                     key={interest}
                   >
+
                     {interest}
 
                     <button
@@ -275,9 +426,11 @@ function Profile() {
                     </button>
 
                   </span>
+
                 ))}
 
               </div>
+
 
               <div className="add-item">
 
@@ -289,6 +442,7 @@ function Profile() {
                     setNewInterest(event.target.value)
                   }
                 />
+
 
                 <button
                   type="button"
@@ -302,16 +456,17 @@ function Profile() {
             </div>
 
 
-            {/* Save / Cancel */}
+            {/* SAVE / CANCEL */}
             <div className="profile-buttons">
 
               <button
                 type="button"
-                onClick={() => setIsEditing(false)}
+                onClick={cancelEditing}
                 className="cancel-button"
               >
                 Cancel
               </button>
+
 
               <button
                 type="button"
@@ -330,30 +485,39 @@ function Profile() {
           /* VIEW PROFILE */
           <section className="profile-information">
 
-            {/* Bio */}
+            {/* BIO */}
             <div className="profile-section">
 
-              <h2>Bio</h2>
+              <h2>
+                Bio
+              </h2>
 
-              <p>{bio}</p>
+              <p>
+                {bio}
+              </p>
 
             </div>
 
 
-            {/* Skills */}
+            {/* SKILLS */}
             <div className="profile-section">
 
-              <h2>Skills / Expertise</h2>
+              <h2>
+                Skills / Expertise
+              </h2>
+
 
               <div className="tag-container">
 
                 {skills.map((skill) => (
+
                   <span
                     className="tag"
                     key={skill}
                   >
                     {skill}
                   </span>
+
                 ))}
 
               </div>
@@ -361,20 +525,25 @@ function Profile() {
             </div>
 
 
-            {/* Interests */}
+            {/* interests */}
             <div className="profile-section">
 
-              <h2>Interests</h2>
+              <h2>
+                Interests
+              </h2>
+
 
               <div className="tag-container">
 
                 {interests.map((interest) => (
+
                   <span
                     className="tag"
                     key={interest}
                   >
                     {interest}
                   </span>
+
                 ))}
 
               </div>
@@ -382,34 +551,51 @@ function Profile() {
             </div>
 
 
-            {/* Previous Posts */}
+            {/* previous posts */}
             <div className="profile-section">
 
-              <h2>Previous Posts</h2>
+              <h2>
+                Previous Posts
+              </h2>
+
 
               {posts.map((post) => (
+
                 <article
                   className="previous-post"
                   key={post.id}
                 >
-                  <h3>{post.title}</h3>
-                  <p>{post.content}</p>
+
+                  <h3>
+                    {post.title}
+                  </h3>
+
+                  <p>
+                    {post.content}
+                  </p>
+
                 </article>
+
               ))}
 
             </div>
 
 
-            {/* Date Joined */}
+            {/* DATE JOINED */}
             <div className="profile-section">
 
-              <h2>Date Joined</h2>
+              <h2>
+                Date Joined
+              </h2>
 
-              <p>{dateJoined}</p>
+              <p>
+                {dateJoined}
+              </p>
 
             </div>
 
           </section>
+
         )}
 
       </main>
