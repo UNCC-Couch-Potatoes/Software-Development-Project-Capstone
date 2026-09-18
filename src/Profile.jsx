@@ -2,85 +2,120 @@ import { useState } from 'react';
 import './style.css';
 import { Link } from 'react-router-dom';
 
-function Profile() {
+const defaultProfile = {
+  name: 'Your Name',
+  bio: 'Welcome to my profile! Tell other users a little about yourself here.',
+  skills: [
+    'JavaScript',
+    'React',
+    'Web Development'
+  ],
+  interests: [
+    'Gaming',
+    'Technology'
+  ],
+  profilePicture: null,
+  dateJoined: 'September 2026'
+};
 
-  // Load the saved profile from localStorage
-  const [savedProfile, setSavedProfile] = useState(() => {
-    const storedProfile = localStorage.getItem('profileData');
+const defaultPosts = [
+  {
+    id: 1,
+    title: 'My First Post',
+    content: 'This is an example of a previous post.'
+  },
+  {
+    id: 2,
+    title: 'Welcome!',
+    content: 'This is another example post on my profile.'
+  }
+];
 
-    if (storedProfile) {
-      return JSON.parse(storedProfile);
-    }
+function getStoredProfile() {
+  const storedProfile = localStorage.getItem('profileData');
 
+  if (!storedProfile) {
+    return defaultProfile;
+  }
+
+  try {
     return {
-      name: 'Your Name',
-      bio: 'Welcome to my profile! Tell other users a little about yourself here.',
-      skills: [
-        'JavaScript',
-        'React',
-        'Web Development'
-      ],
-      interests: [
-        'Gaming',
-        'Technology'
-      ],
-      profilePicture: null
+      ...defaultProfile,
+      ...JSON.parse(storedProfile)
     };
-  });
+  } catch {
+    return defaultProfile;
+  }
+}
 
-  // Editable profile information
-  const [name, setName] = useState(savedProfile.name);
-  const [bio, setBio] = useState(savedProfile.bio);
-  const [skills, setSkills] = useState(savedProfile.skills);
-  const [interests, setInterests] = useState(savedProfile.interests);
-  const [profilePicture, setProfilePicture] = useState(
-    savedProfile.profilePicture
+function getStoredPosts() {
+  const storedPosts = localStorage.getItem('posts');
+
+  if (!storedPosts) {
+    return defaultPosts;
+  }
+
+  try {
+    return JSON.parse(storedPosts);
+  } catch {
+    return defaultPosts;
+  }
+}
+
+function Profile() {
+  const [savedProfile, setSavedProfile] = useState(
+    getStoredProfile
   );
 
   const [isEditing, setIsEditing] = useState(false);
 
+  const [name, setName] = useState(savedProfile.name);
+  const [bio, setBio] = useState(savedProfile.bio);
+
+  const [skills, setSkills] = useState(
+    savedProfile.skills
+  );
+
+  const [interests, setInterests] = useState(
+    savedProfile.interests
+  );
+
   const [newSkill, setNewSkill] = useState('');
   const [newInterest, setNewInterest] = useState('');
 
-  const [dateJoined] = useState('September 2026');
+  const [profilePicture, setProfilePicture] = useState(
+    savedProfile.profilePicture
+  );
 
-  // Previous Posts
-  const [posts] = useState([
-    {
-      id: 1,
-      title: 'My First Post',
-      content: 'This is an example of a previous post.'
-    },
-    {
-      id: 2,
-      title: 'Welcome!',
-      content: 'This is another example post on my profile.'
-    }
-  ]);
+  const [dateJoined, setDateJoined] = useState(
+    savedProfile.dateJoined
+  );
+
+  const [posts] = useState(getStoredPosts);
 
 
-  // Profile Picture
   function handlePictureChange(event) {
     const file = event.target.files[0];
 
-    if (file) {
-
-      // Optional file size limit: 5 MB
-      const maxSize = 5 * 1024 * 1024;
-
-      if (file.size > maxSize) {
-        alert('Profile picture must be smaller than 5 MB.');
-        return;
-      }
-
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        setProfilePicture(reader.result);
-      };
-
-      reader.readAsDataURL(file);
+    if (!file) {
+      return;
     }
+
+    const maxSize = 5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      alert('Profile picture must be smaller than 5 MB.');
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setProfilePicture(reader.result);
+    };
+
+    reader.readAsDataURL(file);
   }
 
 
@@ -89,13 +124,13 @@ function Profile() {
   }
 
 
-  // Skills
   function addSkill() {
-    if (newSkill.trim() !== '') {
+    const skill = newSkill.trim();
 
-      setSkills([
-        ...skills,
-        newSkill.trim()
+    if (skill !== '') {
+      setSkills((currentSkills) => [
+        ...currentSkills,
+        skill
       ]);
 
       setNewSkill('');
@@ -104,21 +139,21 @@ function Profile() {
 
 
   function removeSkill(skillToRemove) {
-    setSkills(
-      skills.filter(
+    setSkills((currentSkills) =>
+      currentSkills.filter(
         (skill) => skill !== skillToRemove
       )
     );
   }
 
 
-  // Interests
   function addInterest() {
-    if (newInterest.trim() !== '') {
+    const interest = newInterest.trim();
 
-      setInterests([
-        ...interests,
-        newInterest.trim()
+    if (interest !== '') {
+      setInterests((currentInterests) => [
+        ...currentInterests,
+        interest
       ]);
 
       setNewInterest('');
@@ -127,58 +162,101 @@ function Profile() {
 
 
   function removeInterest(interestToRemove) {
-    setInterests(
-      interests.filter(
+    setInterests((currentInterests) =>
+      currentInterests.filter(
         (interest) => interest !== interestToRemove
       )
     );
   }
 
 
-  // SAVE PROFILE
   function saveProfile() {
-
     const updatedProfile = {
-      name: name,
-      bio: bio,
-      skills: skills,
-      interests: interests,
-      profilePicture: profilePicture
+      name: name.trim(),
+      bio: bio.trim(),
+      skills,
+      interests,
+      profilePicture,
+      dateJoined
     };
 
-    // Save profile to browser storage
     localStorage.setItem(
       'profileData',
       JSON.stringify(updatedProfile)
     );
 
-    // Update the saved version
     setSavedProfile(updatedProfile);
-
-    // Exit editing mode
     setIsEditing(false);
-
-    // Clear temporary inputs
-    setNewSkill('');
-    setNewInterest('');
   }
 
 
-  // CANCEL EDITING
   function cancelEditing() {
-
-    // Restore the last saved information
     setName(savedProfile.name);
-    setBio(savedProfile.bio);
-    setSkills(savedProfile.skills);
-    setInterests(savedProfile.interests);
-    setProfilePicture(savedProfile.profilePicture);
 
-    // Clear temporary inputs
+    setBio(savedProfile.bio);
+
+    setSkills([
+      ...savedProfile.skills
+    ]);
+
+    setInterests([
+      ...savedProfile.interests
+    ]);
+
+    setProfilePicture(
+      savedProfile.profilePicture
+    );
+
+    setDateJoined(
+      savedProfile.dateJoined
+    );
+
     setNewSkill('');
     setNewInterest('');
 
-    // Exit editing mode
+    setIsEditing(false);
+  }
+
+
+  function clearProfile() {
+    const confirmed = window.confirm(
+      'Are you sure you want to reset your profile to the default profile?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    localStorage.removeItem('profileData');
+
+    setSavedProfile({
+      ...defaultProfile,
+      skills: [...defaultProfile.skills],
+      interests: [...defaultProfile.interests]
+    });
+
+    setName(defaultProfile.name);
+    setBio(defaultProfile.bio);
+
+    setSkills([
+      ...defaultProfile.skills
+    ]);
+
+    setInterests([
+      ...defaultProfile.interests
+    ]);
+
+    setProfilePicture(
+      defaultProfile.profilePicture
+    );
+
+    setDateJoined(
+      defaultProfile.dateJoined
+    );
+
+    setNewSkill('');
+    setNewInterest('');
+
     setIsEditing(false);
   }
 
@@ -187,61 +265,38 @@ function Profile() {
     <>
       {/* Navigation Bar */}
       <div id="navbar">
-
         <Link to="/">Home</Link>
-
-        <Link to="/Blogs">
-          Blogs
-        </Link>
-
-        <Link to="/Jams">
-          Jams
-        </Link>
-
-        <Link to="/Jobs">
-          Jobs
-        </Link>
-
-        <Link to="/Profile">
-          Profile
-        </Link>
-
-        <Link to="/Resources">
-          Resources
-        </Link>
-
+        <Link to="/Blogs">Blogs</Link>
+        <Link to="/Jams">Jams</Link>
+        <Link to="/Jobs">Jobs</Link>
+        <Link to="/Profile">Profile</Link>
+        <Link to="/Resources">Resources</Link>
       </div>
 
 
       <main className="profile-container">
 
-        {/* PROFILE HEADER */}
+        {/* Profile Header */}
         <section className="profile-header">
 
           <div className="profile-image-container">
 
             {profilePicture ? (
-
               <img
                 src={profilePicture}
                 alt="Profile"
                 className="profile-picture"
               />
-
             ) : (
-
               <div className="profile-placeholder">
                 Profile Picture
               </div>
-
             )}
 
           </div>
 
 
-          <h1>
-            {name}
-          </h1>
+          <h1>{name}</h1>
 
 
           <p>
@@ -250,14 +305,12 @@ function Profile() {
 
 
           {!isEditing && (
-
             <button
               className="edit-profile-button"
               onClick={() => setIsEditing(true)}
             >
               Edit Profile
             </button>
-
           )}
 
         </section>
@@ -268,17 +321,13 @@ function Profile() {
 
           <section className="edit-profile">
 
-            <h2>
-              Edit Profile
-            </h2>
+            <h2>Edit Profile</h2>
 
 
-            {/* NAME */}
+            {/* Name */}
             <div className="form-section">
 
-              <label>
-                Name
-              </label>
+              <label>Name</label>
 
               <input
                 type="text"
@@ -291,12 +340,10 @@ function Profile() {
             </div>
 
 
-            {/* PROFILE PICTURE */}
+            {/* Profile Picture */}
             <div className="form-section">
 
-              <label>
-                Profile Picture
-              </label>
+              <label>Profile Picture</label>
 
               <input
                 type="file"
@@ -304,9 +351,7 @@ function Profile() {
                 onChange={handlePictureChange}
               />
 
-
               {profilePicture && (
-
                 <button
                   type="button"
                   onClick={removePicture}
@@ -314,18 +359,15 @@ function Profile() {
                 >
                   Remove Picture
                 </button>
-
               )}
 
             </div>
 
 
-            {/* BIO */}
+            {/* Bio */}
             <div className="form-section">
 
-              <label>
-                Bio
-              </label>
+              <label>Bio</label>
 
               <textarea
                 value={bio}
@@ -338,23 +380,18 @@ function Profile() {
             </div>
 
 
-            {/* SKILLS */}
+            {/* Skills */}
             <div className="form-section">
 
-              <label>
-                Skills / Expertise
-              </label>
-
+              <label>Skills / Expertise</label>
 
               <div className="tag-container">
 
-                {skills.map((skill) => (
-
+                {skills.map((skill, index) => (
                   <span
                     className="tag"
-                    key={skill}
+                    key={`${skill}-${index}`}
                   >
-
                     {skill}
 
                     <button
@@ -367,7 +404,6 @@ function Profile() {
                     </button>
 
                   </span>
-
                 ))}
 
               </div>
@@ -384,7 +420,6 @@ function Profile() {
                   }
                 />
 
-
                 <button
                   type="button"
                   onClick={addSkill}
@@ -397,23 +432,18 @@ function Profile() {
             </div>
 
 
-            {/* INTERESTS */}
+            {/* Interests */}
             <div className="form-section">
 
-              <label>
-                Interests
-              </label>
-
+              <label>Interests</label>
 
               <div className="tag-container">
 
-                {interests.map((interest) => (
-
+                {interests.map((interest, index) => (
                   <span
                     className="tag"
-                    key={interest}
+                    key={`${interest}-${index}`}
                   >
-
                     {interest}
 
                     <button
@@ -426,7 +456,6 @@ function Profile() {
                     </button>
 
                   </span>
-
                 ))}
 
               </div>
@@ -443,7 +472,6 @@ function Profile() {
                   }
                 />
 
-
                 <button
                   type="button"
                   onClick={addInterest}
@@ -456,7 +484,7 @@ function Profile() {
             </div>
 
 
-            {/* SAVE / CANCEL */}
+            {/* Save / Cancel */}
             <div className="profile-buttons">
 
               <button
@@ -485,39 +513,30 @@ function Profile() {
           /* VIEW PROFILE */
           <section className="profile-information">
 
-            {/* BIO */}
+            {/* Bio */}
             <div className="profile-section">
 
-              <h2>
-                Bio
-              </h2>
+              <h2>Bio</h2>
 
-              <p>
-                {bio}
-              </p>
+              <p>{bio}</p>
 
             </div>
 
 
-            {/* SKILLS */}
+            {/* Skills */}
             <div className="profile-section">
 
-              <h2>
-                Skills / Expertise
-              </h2>
-
+              <h2>Skills / Expertise</h2>
 
               <div className="tag-container">
 
-                {skills.map((skill) => (
-
+                {skills.map((skill, index) => (
                   <span
                     className="tag"
-                    key={skill}
+                    key={`${skill}-${index}`}
                   >
                     {skill}
                   </span>
-
                 ))}
 
               </div>
@@ -525,25 +544,20 @@ function Profile() {
             </div>
 
 
-            {/* interests */}
+            {/* Interests */}
             <div className="profile-section">
 
-              <h2>
-                Interests
-              </h2>
-
+              <h2>Interests</h2>
 
               <div className="tag-container">
 
-                {interests.map((interest) => (
-
+                {interests.map((interest, index) => (
                   <span
                     className="tag"
-                    key={interest}
+                    key={`${interest}-${index}`}
                   >
                     {interest}
                   </span>
-
                 ))}
 
               </div>
@@ -551,46 +565,44 @@ function Profile() {
             </div>
 
 
-            {/* previous posts */}
+            {/* Previous Posts */}
             <div className="profile-section">
 
-              <h2>
-                Previous Posts
-              </h2>
-
+              <h2>Previous Posts</h2>
 
               {posts.map((post) => (
-
                 <article
                   className="previous-post"
                   key={post.id}
                 >
-
-                  <h3>
-                    {post.title}
-                  </h3>
-
-                  <p>
-                    {post.content}
-                  </p>
-
+                  <h3>{post.title}</h3>
+                  <p>{post.content}</p>
                 </article>
-
               ))}
 
             </div>
 
 
-            {/* DATE JOINED */}
+            {/* Date Joined */}
             <div className="profile-section">
 
-              <h2>
-                Date Joined
-              </h2>
+              <h2>Date Joined</h2>
 
-              <p>
-                {dateJoined}
-              </p>
+              <p>{dateJoined}</p>
+
+            </div>
+
+
+            {/* Clear Profile */}
+            <div className="clear-profile-section">
+
+              <button
+                type="button"
+                className="clear-profile-button"
+                onClick={clearProfile}
+              >
+                Clear Profile
+              </button>
 
             </div>
 
