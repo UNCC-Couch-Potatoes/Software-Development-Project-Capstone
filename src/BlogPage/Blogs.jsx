@@ -1,6 +1,6 @@
 import React from 'react';
-import './style.css'
 import { Link } from 'react-router-dom';
+import BlogPost from './BlogPost.jsx';
 
 function Blogs(){
     return(
@@ -13,7 +13,9 @@ function Blogs(){
           <Link to="/Profile">Profile</Link>
           <Link to="/Resources">Resources</Link>
         </div>
-        </>
+        
+        <BlogPost/>
+    </>
     )};
 
 export default Blogs;

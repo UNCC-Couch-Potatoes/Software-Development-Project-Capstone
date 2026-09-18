@@ -2,7 +2,7 @@ import React from 'react';
 import './style.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Home';
-import Blogs from './Blogs';
+import Blogs from './Blogpage/Blogs';
 import Jams from './Jams';
 import Jobs from './Jobs';
 import Profile from './Profile';

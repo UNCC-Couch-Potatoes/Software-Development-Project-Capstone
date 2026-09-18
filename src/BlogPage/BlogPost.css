@@ -1,0 +1,10 @@
+.Post { 
+    display : flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 10vh 20vw;
+    font-size: large;
+    background-color: azure;
+    height: 30vh;
+    align-self: center;
+}
