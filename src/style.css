@@ -25,9 +25,9 @@ body{
   text-decoration: none;
 }
 
-/* =========================
+/* 
    PROFILE PAGE
-   ========================= */
+*/
 
 .profile-container {
   width: 90%;
@@ -207,7 +207,7 @@ body{
   color: white;
 }
 
-/* Make sure the profile works on smaller screens */
+/* Profile works on smaller screens */
 
 @media (max-width: 600px) {
 
