@@ -1,14 +1,17 @@
 :root {
   font-family: Inter, sans-serif;
-  font-feature-settings: 'liga' 1, 'calt' 1; /* Fixes contextual alternates for Chrome */
+  font-feature-settings: 'liga' 1, 'calt' 1;
 }
-body{
+
+body {
   margin: 0;
   padding: 0;
   background-color: #262630;
-  height: 100%;
-
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
+
 /* Style the navbar */
 #navbar {
   position: sticky;
@@ -16,7 +19,6 @@ body{
   top: 0;
   overflow: hidden;
   background-color: #3c3c4d;
-
 }
 
 /* Navbar links */
@@ -29,42 +31,46 @@ body{
   text-decoration: none;
 }
 
+
+/* =========================
+   RESOURCES PAGE
+   ========================= */
+
 /* Page content */
 .resource_content {
-  /*padding-top:  55px;*/
   display: grid !important;
   width: 100vw;
   height: 100vh;
-  
-  /* Use fractions (fr) instead of percentages to handle the gap properly */
-  grid-template-columns: 1fr 5fr; /* For a 25/75 split (1 part vs 3 parts) */
-  /* For a 20/80 split, use: grid-template-columns: 1fr 4fr; */
-  
-  grid-template-rows: 100%; /* Forces the grid rows to clamp to 100% of the screen */
-  text-align: left; /* Restores standard text alignment */
+
+  /* Use fractions instead of percentages to handle the gap properly */
+  grid-template-columns: 1fr 5fr;
+
+  /* Forces the grid rows to clamp to 100% of the screen */
+  grid-template-rows: 100%;
+
+  text-align: left;
 }
 
-.sidebar{
-   height: 100%;
-  overflow-y: auto; 
+.sidebar {
+  height: 100%;
+  overflow-y: auto;
   color: #ffffff;
 }
 
-
-.actual_content{
-  
-  /* These two properties isolate the scroll inside this specific cell */
+.actual_content {
   height: 100%;
-  overflow-y: auto; 
+  overflow-y: auto;
   background-color: #373742;
 }
-/* Add this anywhere in your CSS file */
-.sidebar h1, .actual_content h1 {
+
+/* Resource page headings */
+.sidebar h1,
+.actual_content h1 {
   color: #ffffff !important;
   margin: 0;
   padding: 15px;
   font-size: 24px;
-  display: block; /* Ensures it acts as a visible block element */
+  display: block;
 }
 
 .search_bar {
@@ -74,12 +80,10 @@ body{
   background-color: #4b4b57;
 }
 
-
-.tags{
+.tags {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
-
 
 
 /* =========================
@@ -264,10 +268,13 @@ body{
   color: white;
 }
 
-/* Make sure the profile works on smaller screens */
 
+/* =========================
+   RESPONSIVE DESIGN
+   ========================= */
+
+/* Profile works on smaller screens */
 @media (max-width: 600px) {
-
   .profile-container {
     width: 95%;
     padding: 10px;
@@ -284,10 +291,4 @@ body{
   .profile-buttons {
     flex-direction: column;
   }
-
 }
-
-
-
-
-

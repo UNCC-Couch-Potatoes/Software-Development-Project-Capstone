@@ -3,52 +3,119 @@ import './style.css';
 import './resources.css';
 import { Link } from 'react-router-dom';
 
-function Profile() {
-  const [isEditing, setIsEditing] = useState(false);
-
-  const [name, setName] = useState('Your Name');
-  const [bio, setBio] = useState(
-    'Welcome to my profile! Tell other users a little about yourself here.'
-  );
-
-  const [skills, setSkills] = useState([
+const defaultProfile = {
+  name: 'Your Name',
+  bio: 'Welcome to my profile! Tell other users a little about yourself here.',
+  skills: [
     'JavaScript',
     'React',
     'Web Development'
-  ]);
-
-  const [interests, setInterests] = useState([
+  ],
+  interests: [
     'Gaming',
     'Technology'
-  ]);
+  ],
+  profilePicture: null,
+  dateJoined: 'September 2026'
+};
+
+const defaultPosts = [
+  {
+    id: 1,
+    title: 'My First Post',
+    content: 'This is an example of a previous post.'
+  },
+  {
+    id: 2,
+    title: 'Welcome!',
+    content: 'This is another example post on my profile.'
+  }
+];
+
+function getStoredProfile() {
+  const storedProfile = localStorage.getItem('profileData');
+
+  if (!storedProfile) {
+    return defaultProfile;
+  }
+
+  try {
+    return {
+      ...defaultProfile,
+      ...JSON.parse(storedProfile)
+    };
+  } catch {
+    return defaultProfile;
+  }
+}
+
+function getStoredPosts() {
+  const storedPosts = localStorage.getItem('posts');
+
+  if (!storedPosts) {
+    return defaultPosts;
+  }
+
+  try {
+    return JSON.parse(storedPosts);
+  } catch {
+    return defaultPosts;
+  }
+}
+
+function Profile() {
+  const [savedProfile, setSavedProfile] = useState(
+    getStoredProfile
+  );
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [name, setName] = useState(savedProfile.name);
+  const [bio, setBio] = useState(savedProfile.bio);
+
+  const [skills, setSkills] = useState(
+    savedProfile.skills
+  );
+
+  const [interests, setInterests] = useState(
+    savedProfile.interests
+  );
 
   const [newSkill, setNewSkill] = useState('');
   const [newInterest, setNewInterest] = useState('');
 
-  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(
+    savedProfile.profilePicture
+  );
 
-  const [dateJoined] = useState('September 2026');
+  const [dateJoined, setDateJoined] = useState(
+    savedProfile.dateJoined
+  );
 
-  const [posts] = useState([
-    {
-      id: 1,
-      title: 'My First Post',
-      content: 'This is an example of a previous post.'
-    },
-    {
-      id: 2,
-      title: 'Welcome!',
-      content: 'This is another example post on my profile.'
-    }
-  ]);
+  const [posts] = useState(getStoredPosts);
 
   function handlePictureChange(event) {
     const file = event.target.files[0];
 
-    if (file) {
-      const imageURL = URL.createObjectURL(file);
-      setProfilePicture(imageURL);
+    if (!file) {
+      return;
     }
+
+    const maxSize = 5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      alert('Profile picture must be smaller than 5 MB.');
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setProfilePicture(reader.result);
+    };
+
+    reader.readAsDataURL(file);
   }
 
   function removePicture() {
@@ -56,23 +123,33 @@ function Profile() {
   }
 
   function addSkill() {
-    if (newSkill.trim() !== '') {
-      setSkills([...skills, newSkill.trim()]);
+    const skill = newSkill.trim();
+
+    if (skill !== '') {
+      setSkills((currentSkills) => [
+        ...currentSkills,
+        skill
+      ]);
+
       setNewSkill('');
     }
   }
 
   function removeSkill(skillToRemove) {
-    setSkills(
-      skills.filter((skill) => skill !== skillToRemove)
+    setSkills((currentSkills) =>
+      currentSkills.filter(
+        (skill) => skill !== skillToRemove
+      )
     );
   }
 
   function addInterest() {
-    if (newInterest.trim() !== '') {
-      setInterests([
-        ...interests,
-        newInterest.trim()
+    const interest = newInterest.trim();
+
+    if (interest !== '') {
+      setInterests((currentInterests) => [
+        ...currentInterests,
+        interest
       ]);
 
       setNewInterest('');
@@ -80,14 +157,97 @@ function Profile() {
   }
 
   function removeInterest(interestToRemove) {
-    setInterests(
-      interests.filter(
+    setInterests((currentInterests) =>
+      currentInterests.filter(
         (interest) => interest !== interestToRemove
       )
     );
   }
 
   function saveProfile() {
+    const updatedProfile = {
+      name: name.trim(),
+      bio: bio.trim(),
+      skills,
+      interests,
+      profilePicture,
+      dateJoined
+    };
+
+    localStorage.setItem(
+      'profileData',
+      JSON.stringify(updatedProfile)
+    );
+
+    setSavedProfile(updatedProfile);
+    setIsEditing(false);
+  }
+
+  function cancelEditing() {
+    setName(savedProfile.name);
+    setBio(savedProfile.bio);
+
+    setSkills([
+      ...savedProfile.skills
+    ]);
+
+    setInterests([
+      ...savedProfile.interests
+    ]);
+
+    setProfilePicture(
+      savedProfile.profilePicture
+    );
+
+    setDateJoined(
+      savedProfile.dateJoined
+    );
+
+    setNewSkill('');
+    setNewInterest('');
+
+    setIsEditing(false);
+  }
+
+  function clearProfile() {
+    const confirmed = window.confirm(
+      'Are you sure you want to reset your profile to the default profile?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    localStorage.removeItem('profileData');
+
+    setSavedProfile({
+      ...defaultProfile,
+      skills: [...defaultProfile.skills],
+      interests: [...defaultProfile.interests]
+    });
+
+    setName(defaultProfile.name);
+    setBio(defaultProfile.bio);
+
+    setSkills([
+      ...defaultProfile.skills
+    ]);
+
+    setInterests([
+      ...defaultProfile.interests
+    ]);
+
+    setProfilePicture(
+      defaultProfile.profilePicture
+    );
+
+    setDateJoined(
+      defaultProfile.dateJoined
+    );
+
+    setNewSkill('');
+    setNewInterest('');
+
     setIsEditing(false);
   }
 
@@ -149,6 +309,7 @@ function Profile() {
 
             {/* Name */}
             <div className="form-section">
+
               <label>Name</label>
 
               <input
@@ -158,6 +319,7 @@ function Profile() {
                   setName(event.target.value)
                 }
               />
+
             </div>
 
 
@@ -208,10 +370,10 @@ function Profile() {
 
               <div className="tag-container">
 
-                {skills.map((skill) => (
+                {skills.map((skill, index) => (
                   <span
                     className="tag"
-                    key={skill}
+                    key={`${skill}-${index}`}
                   >
                     {skill}
 
@@ -259,10 +421,10 @@ function Profile() {
 
               <div className="tag-container">
 
-                {interests.map((interest) => (
+                {interests.map((interest, index) => (
                   <span
                     className="tag"
-                    key={interest}
+                    key={`${interest}-${index}`}
                   >
                     {interest}
 
@@ -308,7 +470,7 @@ function Profile() {
 
               <button
                 type="button"
-                onClick={() => setIsEditing(false)}
+                onClick={cancelEditing}
                 className="cancel-button"
               >
                 Cancel
@@ -348,10 +510,10 @@ function Profile() {
 
               <div className="tag-container">
 
-                {skills.map((skill) => (
+                {skills.map((skill, index) => (
                   <span
                     className="tag"
-                    key={skill}
+                    key={`${skill}-${index}`}
                   >
                     {skill}
                   </span>
@@ -369,10 +531,10 @@ function Profile() {
 
               <div className="tag-container">
 
-                {interests.map((interest) => (
+                {interests.map((interest, index) => (
                   <span
                     className="tag"
-                    key={interest}
+                    key={`${interest}-${index}`}
                   >
                     {interest}
                   </span>
@@ -410,7 +572,22 @@ function Profile() {
 
             </div>
 
+
+            {/* Clear Profile */}
+            <div className="clear-profile-section">
+
+              <button
+                type="button"
+                className="clear-profile-button"
+                onClick={clearProfile}
+              >
+                Clear Profile
+              </button>
+
+            </div>
+
           </section>
+
         )}
 
       </main>
