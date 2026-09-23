@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:frontend": "vite",
+    "dev:backend": "./backend/mvnw -f backend/pom.xml spring-boot:run",
     "build": "vite build",
+    "build:backend": "./backend/mvnw -f backend/pom.xml package",
+    "test:backend": "./backend/mvnw -f backend/pom.xml test",
     "lint": "oxlint",
     "preview": "vite preview"
   },
