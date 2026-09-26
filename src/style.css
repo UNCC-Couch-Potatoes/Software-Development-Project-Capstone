@@ -1,294 +1,563 @@
 :root {
-  font-family: Inter, sans-serif;
-  font-feature-settings: 'liga' 1, 'calt' 1;
+font-family: Inter, sans-serif;
+font-feature-settings: 'liga' 1, 'calt' 1;
 }
 
+
+
+
 body {
-  margin: 0;
-  padding: 0;
-  background-color: #262630;
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
+margin: 0;
+padding: 0;
+background-color: #262630;
+min-height: 100vh;
+overflow-x: hidden;
+overflow-y: auto;
 }
+
+
+
 
 /* Style the navbar */
 #navbar {
-  position: sticky;
-  padding: 5px 5px 5px 5px;
-  top: 0;
-  overflow: hidden;
-  background-color: #3c3c4d;
+position: sticky;
+padding: 5px 5px 5px 5px;
+top: 0;
+overflow: hidden;
+background-color: #3c3c4d;
 }
+
+
+
 
 /* Navbar links */
 #navbar a {
-  float: left;
-  display: block;
-  color: #ffffff;
-  text-align: center;
-  padding: 10px;
-  text-decoration: none;
+float: left;
+display: block;
+color: #ffffff;
+text-align: center;
+padding: 10px;
+text-decoration: none;
 }
+
+
+
+
+.navbar-search {
+/* Makes sure search bar stays top right */
+margin-left: auto;
+width: 300px;
+}
+
+
+
+
+.navbar-search input {
+width: 100%;
+box-sizing: border-box;
+padding: 8px 12px;
+background: #262630;
+color: white;
+border: 1px solid #666677;
+border-radius: 6px;
+font: inherit;
+}
+
+
+
+
+.navbar-search input::placeholder {
+color: #bcbcca;
+}
+
+
+
+
+
+
 
 
 /* =========================
-   RESOURCES PAGE
-   ========================= */
+ RESOURCES PAGE
+ ========================= */
+
+
+
 
 /* Page content */
 .resource_content {
-  display: grid !important;
-  width: 100vw;
-  height: 100vh;
+display: grid !important;
+width: 100vw;
+height: 100vh;
 
-  /* Use fractions instead of percentages to handle the gap properly */
-  grid-template-columns: 1fr 5fr;
 
-  /* Forces the grid rows to clamp to 100% of the screen */
-  grid-template-rows: 100%;
 
-  text-align: left;
+
+/* Use fractions instead of percentages to handle the gap properly */
+grid-template-columns: 1fr 5fr;
+
+
+
+
+/* Forces the grid rows to clamp to 100% of the screen */
+grid-template-rows: 100%;
+
+
+
+
+text-align: left;
 }
+
+
+
 
 .sidebar {
-  height: 100%;
-  overflow-y: auto;
-  color: #ffffff;
+height: 100%;
+overflow-y: auto;
+color: #ffffff;
 }
 
+
+
+
 .actual_content {
-  height: 100%;
-  overflow-y: auto;
-  background-color: #373742;
+height: 100%;
+overflow-y: auto;
+background-color: #373742;
 }
+
+
+
 
 /* Resource page headings */
 .sidebar h1,
 .actual_content h1 {
-  color: #ffffff !important;
-  margin: 0;
-  padding: 15px;
-  font-size: 24px;
-  display: block;
+color: #ffffff !important;
+margin: 0;
+padding: 15px;
+font-size: 24px;
+display: block;
 }
+
+
+
 
 .search_bar {
-  margin: none;
-  line-height: none;
-  padding: 7px 10px;
-  background-color: #4b4b57;
+margin: none;
+line-height: none;
+padding: 7px 10px;
+background-color: #4b4b57;
 }
 
+
+
+
 .tags {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+display: grid;
+grid-template-columns: 1fr 1fr;
 }
+
+
+
+
+
+
 
 
 /* =========================
-   PROFILE PAGE
-   ========================= */
+ PROFILE PAGE
+ ========================= */
+
+
+
 
 .profile-container {
-  width: 90%;
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 20px;
-  box-sizing: border-box;
-  color: white;
+width: 90%;
+max-width: 900px;
+margin: 30px auto;
+padding: 20px;
+box-sizing: border-box;
+color: white;
 }
+
+
+
 
 .profile-header {
-  text-align: center;
-  padding: 30px;
-  background-color: #30303b;
-  border-radius: 12px;
-  margin-bottom: 25px;
+text-align: center;
+padding: 30px;
+background-color: #30303b;
+border-radius: 12px;
+margin-bottom: 25px;
 }
 
+
+
+
 .profile-image-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+display: flex;
+justify-content: center;
+margin-bottom: 20px;
 }
+
+
+
 
 .profile-picture,
 .profile-placeholder {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+width: 150px;
+height: 150px;
+border-radius: 50%;
 }
+
+
+
 
 .profile-picture {
-  object-fit: cover;
+object-fit: cover;
 }
 
+
+
+
 .profile-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #555566;
-  color: white;
+display: flex;
+align-items: center;
+justify-content: center;
+background-color: #555566;
+color: white;
 }
+
+
+
 
 .edit-profile-button,
 .save-button,
 .cancel-button,
 .remove-button,
 .add-item button {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 10px;
+padding: 10px 18px;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+margin-top: 10px;
 }
+
+
+
 
 .edit-profile-button:hover,
 .save-button:hover,
 .add-item button:hover {
-  opacity: 0.8;
+opacity: 0.8;
 }
+
+
+
 
 .profile-information {
-  margin-top: 20px;
+margin-top: 20px;
 }
+
+
+
 
 .profile-section {
-  background-color: #30303b;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 10px;
+background-color: #30303b;
+padding: 20px;
+margin-bottom: 20px;
+border-radius: 10px;
 }
+
+
+
 
 .profile-section h2 {
-  margin-top: 0;
+margin-top: 0;
 }
+
+
+
 
 .profile-section p {
-  line-height: 1.6;
+line-height: 1.6;
 }
+
+
+
 
 .tag-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
 }
+
+
+
 
 .tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 20px;
-  background-color: #3c3c4d;
-  color: white;
+display: inline-flex;
+align-items: center;
+gap: 6px;
+padding: 8px 12px;
+border-radius: 20px;
+background-color: #3c3c4d;
+color: white;
 }
+
+
+
 
 .tag button {
-  border: none;
-  background: transparent;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
+border: none;
+background: transparent;
+color: white;
+cursor: pointer;
+font-size: 16px;
 }
+
+
+
 
 .previous-post {
-  padding: 15px;
-  margin-bottom: 15px;
-  border: 1px solid #555;
-  border-radius: 8px;
-  background-color: #262630;
+padding: 15px;
+margin-bottom: 15px;
+border: 1px solid #555;
+border-radius: 8px;
+background-color: #262630;
 }
+
+
+
 
 .edit-profile {
-  background-color: #30303b;
-  padding: 25px;
-  border-radius: 12px;
+background-color: #30303b;
+padding: 25px;
+border-radius: 12px;
 }
+
+
+
 
 .edit-profile h2 {
-  margin-top: 0;
+margin-top: 0;
 }
+
+
+
 
 .form-section {
-  margin-bottom: 25px;
+margin-bottom: 25px;
 }
 
+
+
+
 .form-section label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 8px;
+display: block;
+font-weight: bold;
+margin-bottom: 8px;
 }
+
+
+
 
 .form-section input,
 .form-section textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #555;
-  border-radius: 6px;
-  box-sizing: border-box;
-  background-color: #262630;
-  color: white;
+width: 100%;
+padding: 10px;
+border: 1px solid #555;
+border-radius: 6px;
+box-sizing: border-box;
+background-color: #262630;
+color: white;
 }
+
+
+
 
 .form-section textarea {
-  resize: vertical;
+resize: vertical;
 }
+
+
+
 
 .add-item {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
+display: flex;
+gap: 10px;
+margin-top: 10px;
 }
+
+
+
 
 .add-item input {
-  flex: 1;
+flex: 1;
 }
+
+
+
 
 .profile-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 30px;
+display: flex;
+gap: 10px;
+margin-top: 30px;
 }
+
+
+
 
 .cancel-button {
-  background-color: #555;
-  color: white;
+background-color: #555;
+color: white;
 }
+
+
+
 
 .save-button {
-  background-color: #3c3c4d;
-  color: white;
+background-color: #3c3c4d;
+color: white;
 }
 
+
+
+
 .remove-button {
-  display: block;
-  background-color: #555;
-  color: white;
+display: block;
+background-color: #555;
+color: white;
 }
+
+
 
 
 /* =========================
-   RESPONSIVE DESIGN
-   ========================= */
+ JOBS PAGE
+ ========================= */
+
+
+
+
+.jobs-container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 30px auto;
+  color: white;
+}
+
+
+
+
+.jobs-header {
+  margin-bottom: 30px;
+}
+
+
+
+
+.jobs-header h1 {
+  margin-top: 0;
+}
+
+
+
+
+.jobs-header p {
+  color: #d0d0db;
+  line-height: 1.6;
+}
+
+
+
+
+.jobs-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+
+
+.jobs-count {
+  color: #d0d0db;
+  font-size: 14px;
+  margin: 0;
+}
+
+
+
+
+.job-card {
+  background: #30303b;
+  border-radius: 10px;
+  padding: 20px;
+  color: white;
+}
+
+
+
+
+.job-card h2 {
+  margin-top: 0;
+  color: white;
+}
+
+
+
+
+.job-card h3 {
+  color: #d0d0db;
+}
+
+
+
+
+.job-card p {
+  color: #e0e0e8;
+}
+
+
+
+
+
+
+
+
+/* =========================
+ RESPONSIVE DESIGN
+ ========================= */
+
+
+
 
 /* Profile works on smaller screens */
 @media (max-width: 600px) {
-  .profile-container {
-    width: 95%;
-    padding: 10px;
-  }
+.profile-container {
+  width: 95%;
+  padding: 10px;
+}
 
-  .profile-header {
-    padding: 20px;
-  }
 
-  .add-item {
-    flex-direction: column;
-  }
 
-  .profile-buttons {
-    flex-direction: column;
-  }
+
+.profile-header {
+  padding: 20px;
+}
+
+
+
+
+.add-item {
+  flex-direction: column;
+}
+
+
+
+
+.profile-buttons {
+  flex-direction: column;
+}
 }
