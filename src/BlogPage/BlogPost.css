@@ -1,10 +1,14 @@
 .Post { 
     display : flex;
     flex-direction: column;
-    justify-content: center;
-    margin: 10vh 20vw;
-    font-size: large;
+    justify-content: left;
+    margin: 20px;
+    width: 600px;
+    height: fit-content;
     background-color: azure;
-    height: 30vh;
-    align-self: center;
+
+}
+
+.BlogParagaph { 
+    text-overflow: clip;
 }

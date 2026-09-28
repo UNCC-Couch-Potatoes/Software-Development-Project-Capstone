@@ -1,0 +1,26 @@
+#blog-page { 
+    display: flex;
+    justify-content: left;
+    height: 100vh;
+    /*grid-template-columns:*/
+}
+
+#posts { 
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: space-around;
+    background-color: rgb(28, 26, 42);
+    width: 100vw;
+    overflow: scroll;
+    scrollbar-color: rgb(89, 78, 108) rgb(48, 44, 55);
+}
+
+#following { 
+    background-color: rgb(44, 44, 62);
+    width: 20vw;
+    overflow: scroll;
+    scrollbar-color: rgb(89, 78, 108) rgb(48, 44, 55);
+    scrollbar-width: thin;
+}
