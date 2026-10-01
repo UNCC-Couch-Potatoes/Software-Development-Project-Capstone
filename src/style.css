@@ -32,9 +32,7 @@ body {
 }
 
 
-/* =========================
-   RESOURCES PAGE
-   ========================= */
+/* resource page */
 
 /* Page content */
 .resource_content {
@@ -86,9 +84,7 @@ body {
 }
 
 
-/* =========================
-   PROFILE PAGE
-   ========================= */
+/* profile page */
 
 .profile-container {
   width: 90%;
@@ -269,9 +265,7 @@ body {
 }
 
 
-/* =========================
-   RESPONSIVE DESIGN
-   ========================= */
+/* responsive design */
 
 /* Profile works on smaller screens */
 @media (max-width: 600px) {
