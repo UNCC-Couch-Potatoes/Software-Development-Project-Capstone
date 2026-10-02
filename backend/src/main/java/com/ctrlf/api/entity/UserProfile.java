@@ -12,17 +12,10 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "UserProfile")
 public class UserProfile {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UserId")
     private Long userId;
-
-    @Column(name = "Username", nullable = false, unique = true, length = 30)
-    private String username;
-
-    @Column(name = "Email", nullable = false, unique = true, length = 100)
-    private String email;
 
     @Column(name = "Password", nullable = false, length = 30)
     private String password;
@@ -47,65 +40,11 @@ public class UserProfile {
 
     protected UserProfile() {}
 
-    public UserProfile(
-    String username,
-    String email,
-    String password,
-    String firstName,
-    String lastName,
-    String skills,
-    String interests,
-    String bio,
-    LocalDate joinDate
-) {
-    this.username = username;
-    this.email = email;
-    this.password = password;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.skills = skills;
-    this.interests = interests;
-    this.bio = bio;
-    this.joinDate = joinDate;
-}
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getSkills() {
-        return skills;
-    }
-
-    public String getInterests() {
-        return interests;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public LocalDate getJoinDate() {
-        return joinDate;
-    }
+    public Long getUserId() { return userId; }
+    public String getFirstName() { return firstName; }
+    public String getLastName() { return lastName; }
+    public String getSkills() { return skills; }
+    public String getInterests() { return interests; }
+    public String getBio() { return bio; }
+    public LocalDate getJoinDate() { return joinDate; }
 }
