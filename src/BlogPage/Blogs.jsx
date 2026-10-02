@@ -5,7 +5,7 @@ import './Blogs.css';
 
 /* 
  * Todos 
- * [ ] Populate page with posts along a grid
+ * [x] Populate page with posts along a grid
  * [ ] Make seperate components for 
  *   [ ] Top 
  *   [ ] Content 

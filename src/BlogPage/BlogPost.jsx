@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import './BlogPost.css';
 
+
+//TODO: 
+
 export default class BlogPost extends Component {
   render() {
     return (
