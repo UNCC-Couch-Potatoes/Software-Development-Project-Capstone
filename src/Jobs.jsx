@@ -10,9 +10,6 @@ import { Link } from 'react-router-dom';
 function Jobs() {
   const [query, setQuery] = useState('');
 
-
-
-
   const jobs = [
       {
           title: 'Game Developer',
@@ -31,17 +28,11 @@ function Jobs() {
       }
   ];
 
-
-
-
   // Goes through jobs list and returns job(s) that have the typed words in them
   const visibleJobs = jobs.filter((job) => {
       const searchable = `${job.title} ${job.company} ${job.description}`.toLowerCase();
       return searchable.includes(query.toLowerCase());
   });
-
-
-
 
   return (
       <>
@@ -54,9 +45,6 @@ function Jobs() {
               <Link to="/Profile">Profile</Link>
               <Link to="/Resources">Resources</Link>
 
-
-
-
               <div className="navbar-search">
                   <input
                       type="search"
@@ -66,15 +54,7 @@ function Jobs() {
                   />
               </div>
           </div>
-
-
-
-
           <main className="jobs-container">
-
-
-
-
               <header className="jobs-header">
                   <h1>Jobs</h1>
                   <p>
@@ -82,20 +62,12 @@ function Jobs() {
                       art, design, audio, and more.
                   </p>
               </header>
-
-
-
-
               {/* Shows how many jobs are currently being displayed */}
               <section className="jobs-results">
                   <p className="jobs-count">
                       {visibleJobs.length}{' '}
                       {visibleJobs.length === 1 ? 'job' : 'jobs'} found
                   </p>
-
-
-
-
                   {/* Creates cards for each job listing */}
                   {visibleJobs.map((job) => (
                       <article className="job-card" key={job.title}>
@@ -104,10 +76,6 @@ function Jobs() {
                           <p>{job.description}</p>
                       </article>
                   ))}
-
-
-
-
                   {visibleJobs.length === 0 && (
                       <div className="job-card">
                           <h2>No jobs found</h2>

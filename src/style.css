@@ -522,6 +522,90 @@ color: white;
 
 
 
+/* =========================
+ BLOGS PAGE
+ ========================= */
+
+
+
+.blogs-container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 30px auto;
+  color: white;
+}
+
+
+
+
+.blogs-header {
+  margin-bottom: 30px;
+}
+
+
+
+
+.blogs-header h1 {
+  margin-top: 0;
+}
+
+
+
+
+.blogs-header p {
+  color: #d0d0db;
+  line-height: 1.6;
+}
+
+
+
+
+.blogs-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+
+
+.blogs-count {
+  color: #d0d0db;
+  font-size: 14px;
+  margin: 0;
+}
+
+
+
+
+.blog-card {
+  background: #30303b;
+  border-radius: 10px;
+  padding: 20px;
+  color: white;
+}
+
+
+
+
+.blog-card h2 {
+  margin-top: 0;
+  color: white;
+}
+
+
+
+
+.blog-card h3 {
+  color: #d0d0db;
+}
+
+
+
+
+.blog-card p {
+  color: #e0e0e8;
+}
 
 
 
