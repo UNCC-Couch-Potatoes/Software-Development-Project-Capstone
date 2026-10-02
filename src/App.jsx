@@ -2,17 +2,22 @@ import React from 'react';
 import './style.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Home';
+import Login from './Login';
+import Register from './Register';
 import Blogs from './Blogs';
 import Jams from './Jams';
 import Jobs from './Jobs';
 import Profile from './Profile';
 import Resources from './Resources';
+
 function App() {
   return (
     <Router>
       <Routes>
         {/* path="/" represents your landing/index page */}
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/jams" element={<Jams />} />
         <Route path="/jobs" element={<Jobs />} />

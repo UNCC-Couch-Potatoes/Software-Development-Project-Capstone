@@ -1,8 +1,37 @@
+/* =========================
+   BASE
+   ========================= */
+
 :root {
 font-family: Inter, sans-serif;
 font-feature-settings: 'liga' 1, 'calt' 1;
 }
 
+<<<<<<< HEAD
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #262630;
+  height: 100%;
+}
+
+/* =========================
+   NAVBAR
+   ========================= */
+
+#navbar {
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+  padding: 5px;
+  background-color: #3c3c4d;
+}
+
+=======
 
 
 
@@ -31,6 +60,7 @@ background-color: #3c3c4d;
 
 
 /* Navbar links */
+>>>>>>> origin/main
 #navbar a {
 float: left;
 display: block;
@@ -40,7 +70,19 @@ padding: 10px;
 text-decoration: none;
 }
 
+/* =========================
+   RESOURCES PAGE
+   ========================= */
 
+<<<<<<< HEAD
+.resource_content {
+  display: grid !important;
+  width: 100vw;
+  height: 100vh;
+  grid-template-columns: 1fr 5fr;
+  grid-template-rows: 100%;
+  text-align: left;
+=======
 
 
 .navbar-search {
@@ -94,6 +136,7 @@ grid-template-rows: 100%;
 
 
 text-align: left;
+>>>>>>> origin/main
 }
 
 
@@ -114,10 +157,13 @@ overflow-y: auto;
 background-color: #373742;
 }
 
+<<<<<<< HEAD
+=======
 
 
 
 /* Resource page headings */
+>>>>>>> origin/main
 .sidebar h1,
 .actual_content h1 {
 color: #ffffff !important;
@@ -131,10 +177,15 @@ display: block;
 
 
 .search_bar {
+<<<<<<< HEAD
+  padding: 7px 10px;
+  background-color: #4b4b57;
+=======
 margin: none;
 line-height: none;
 padding: 7px 10px;
 background-color: #4b4b57;
+>>>>>>> origin/main
 }
 
 
@@ -145,7 +196,10 @@ display: grid;
 grid-template-columns: 1fr 1fr;
 }
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/main
 /* =========================
    PROFILE PAGE
    ========================= */
@@ -170,8 +224,20 @@ border-radius: 12px;
 margin-bottom: 25px;
 }
 
+<<<<<<< HEAD
+.profile-header h1 {
+  margin: 0 0 8px;
+  color: #ffffff;
+}
+
+.profile-header p {
+  margin: 0;
+  color: #aaaab5;
+}
+=======
 
 
+>>>>>>> origin/main
 
 .profile-image-container {
 display: flex;
@@ -224,11 +290,25 @@ margin-top: 10px;
 
 
 
+<<<<<<< HEAD
+.edit-profile-button {
+  background-color: #f4f4f6;
+  color: #262630;
+  font-weight: 600;
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+}
+=======
+>>>>>>> origin/main
 
 .edit-profile-button:hover,
 .save-button:hover,
 .add-item button:hover {
+<<<<<<< HEAD
+  opacity: 0.85;
+=======
 opacity: 0.8;
+>>>>>>> origin/main
 }
 
 
@@ -248,8 +328,17 @@ margin-bottom: 20px;
 border-radius: 10px;
 }
 
+<<<<<<< HEAD
+.profile-section {
+  background-color: #30303b;
+  padding: 25px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+}
+=======
 
 
+>>>>>>> origin/main
 
 .profile-section h2 {
 margin-top: 0;
@@ -307,8 +396,11 @@ background-color: #262630;
 }
 
 
+<<<<<<< HEAD
+=======
 
 
+>>>>>>> origin/main
 .edit-profile {
 background-color: #30303b;
 padding: 25px;
@@ -409,7 +501,118 @@ background-color: #555;
 color: white;
 }
 
+/* =========================
+   AUTH PAGES (Login / Register)
+   ========================= */
 
+<<<<<<< HEAD
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.profile-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-form-field label {
+  display: block;
+  margin: 0;
+
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.profile-form-field input {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+
+  box-sizing: border-box;
+
+  background-color: #262630;
+  border: 1px solid #555563;
+  border-radius: 12px;
+
+  color: #ffffff;
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+
+  margin: 0;
+
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.profile-form-field input::placeholder {
+  color: #858592;
+}
+
+.profile-form-field input:focus {
+  outline: none;
+  border-color: #777789;
+}
+
+a.edit-profile-button,
+a.edit-profile-button:visited,
+a.edit-profile-button:hover,
+a.edit-profile-button:active {
+  color: #262630;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 0;
+}
+
+a.edit-profile-button:hover {
+  background-color: #e8e8eb;
+}
+
+.edit-profile-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-footer {
+  text-align: center;
+}
+
+.auth-footer p {
+  margin: 0 0 14px;
+  color: #aaaab5;
+}
+
+.login-error {
+  margin: 0;
+  padding: 12px;
+
+  background-color: #3d292d;
+  border: 1px solid #70454d;
+  border-radius: 8px;
+
+  color: #f0aeb5;
+  text-align: center;
+}
+
+.login-success {
+  margin: 0;
+  padding: 12px;
+
+  background-color: #29392d;
+  border: 1px solid #457049;
+  border-radius: 8px;
+
+  color: #aef0b5;
+  text-align: center;
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+=======
 
 
 /* =========================
@@ -535,6 +738,7 @@ color: white;
    RESPONSIVE DESIGN
    ========================= */
 /* Profile works on smaller screens */
+>>>>>>> origin/main
 @media (max-width: 600px) {
 .profile-container {
   width: 95%;
@@ -543,6 +747,95 @@ color: white;
 
 
 
+<<<<<<< HEAD
+  .profile-buttons {
+    flex-direction: column;
+  }
+
+  .profile-form {
+    gap: 24px;
+  }
+  /* =========================
+   EDIT PROFILE FORM
+   ========================= */
+
+.edit-profile {
+  background-color: #30303b;
+  padding: 25px;
+  border-radius: 12px;
+}
+
+.edit-profile h2 {
+  margin-top: 0;
+}
+
+.form-section {
+  margin-bottom: 25px;
+}
+
+.form-section label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+.form-section input,
+.form-section textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #555563;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: #262630;
+  color: #ffffff;
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+}
+
+.form-section textarea {
+  resize: vertical;
+  min-height: 120px;
+  margin-top: 8px;
+}
+
+.form-section input::placeholder,
+.form-section textarea::placeholder {
+  color: #858592;
+}
+
+.form-section input:focus,
+.form-section textarea:focus {
+  outline: none;
+  border-color: #777789;
+}
+
+.add-item {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.add-item input {
+  flex: 1;
+}
+
+.add-item button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #f4f4f6;
+  color: #262630;
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.add-item button:hover {
+  opacity: 0.85;
+}
+=======
 
 .profile-header {
   padding: 20px;
@@ -591,4 +884,5 @@ font: inherit;
 
 .navbar-search input::placeholder {
 color: #bcbcca;
+>>>>>>> origin/main
 }
