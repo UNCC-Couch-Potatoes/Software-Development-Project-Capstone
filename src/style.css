@@ -64,25 +64,13 @@ font: inherit;
 }
 
 
-
-
 .navbar-search input::placeholder {
-color: #bcbcca;
+  color: #bcbcca;
 }
 
-
-
-
-
-
-
-
 /* =========================
- RESOURCES PAGE
- ========================= */
-
-
-
+   RESOURCES PAGE
+   ========================= */
 
 /* Page content */
 .resource_content {
@@ -158,18 +146,9 @@ grid-template-columns: 1fr 1fr;
 }
 
 
-
-
-
-
-
-
 /* =========================
- PROFILE PAGE
- ========================= */
-
-
-
+   PROFILE PAGE
+   ========================= */
 
 .profile-container {
 width: 90%;
@@ -447,30 +426,22 @@ color: white;
   color: white;
 }
 
-
-
+/* =========================
+   JOBS PAGE
+   ========================= */
 
 .jobs-header {
   margin-bottom: 30px;
 }
 
-
-
-
 .jobs-header h1 {
   margin-top: 0;
 }
-
-
-
 
 .jobs-header p {
   color: #d0d0db;
   line-height: 1.6;
 }
-
-
-
 
 .jobs-results {
   display: flex;
@@ -478,17 +449,11 @@ color: white;
   gap: 20px;
 }
 
-
-
-
 .jobs-count {
   color: #d0d0db;
   font-size: 14px;
   margin: 0;
 }
-
-
-
 
 .job-card {
   background: #30303b;
@@ -497,36 +462,22 @@ color: white;
   color: white;
 }
 
-
-
-
 .job-card h2 {
   margin-top: 0;
   color: white;
 }
 
-
-
-
 .job-card h3 {
   color: #d0d0db;
 }
-
-
-
 
 .job-card p {
   color: #e0e0e8;
 }
 
-
-
-
 /* =========================
- BLOGS PAGE
- ========================= */
-
-
+   BLOGS PAGE
+   ========================= */
 
 .blogs-container {
   width: 90%;
@@ -535,30 +486,18 @@ color: white;
   color: white;
 }
 
-
-
-
 .blogs-header {
   margin-bottom: 30px;
 }
-
-
-
 
 .blogs-header h1 {
   margin-top: 0;
 }
 
-
-
-
 .blogs-header p {
   color: #d0d0db;
   line-height: 1.6;
 }
-
-
-
 
 .blogs-results {
   display: flex;
@@ -566,17 +505,11 @@ color: white;
   gap: 20px;
 }
 
-
-
-
 .blogs-count {
   color: #d0d0db;
   font-size: 14px;
   margin: 0;
 }
-
-
-
 
 .blog-card {
   background: #30303b;
@@ -585,38 +518,22 @@ color: white;
   color: white;
 }
 
-
-
-
 .blog-card h2 {
   margin-top: 0;
   color: white;
 }
 
-
-
-
 .blog-card h3 {
   color: #d0d0db;
 }
-
-
-
 
 .blog-card p {
   color: #e0e0e8;
 }
 
-
-
-
 /* =========================
- RESPONSIVE DESIGN
- ========================= */
-
-
-
-
+   RESPONSIVE DESIGN
+   ========================= */
 /* Profile works on smaller screens */
 @media (max-width: 600px) {
 .profile-container {
