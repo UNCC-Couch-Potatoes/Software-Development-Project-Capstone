@@ -4,10 +4,23 @@ import './style.css';
 import './resources.css';
 
 // defining tags that we can use to filter on the db 
+
+
+
+// Curated summaries keep previews reliable without fetching third-party pages.
+const resources = [
+ { name: 'Godot Engine', url: 'https://godotengine.org/', tags: ['Programming', 'Game Engines', '2D', '3D'], description: 'An open-source engine for creating 2D and 3D games. Explore its scene-based workflow, scripting tools, documentation, and community resources to bring your next project to life.' },
+ { name: 'Kenney', url: 'https://kenney.nl/', tags: ['Art', 'Assets', '2D', '3D'], description: 'Browse game assets, starter kits, and tools for building your next game. A useful starting point when you need artwork for a prototype or a foundation for a new project.' },
+ { name: 'Red Blob Games', url: 'https://www.redblobgames.com/', tags: ['Programming', 'Tutorials', 'Game Design'], description: 'Interactive explanations of the math and algorithms behind games. Learn about pathfinding, hexagonal grids, procedural maps, and more through visual examples and implementation guides.' },
+ { name: 'Freesound', url: 'https://freesound.org/', tags: ['Audio', 'Sound Design', 'Assets'], description: 'Explore a community library of sound recordings for effects, ambience, and audio experiments. Check each sound’s license and attribution requirements before using it in your game.' },
+];
+
+
+// tags for any categories that we may want to have
 const tagGroups = [
-  { title: 'Development', tags: ['Programming', 'Game Engines', 'Game Design', 'Tutorials'] },
-  { title: 'Art & assets', tags: ['Art', 'Assets', '2D', '3D'] },
-  { title: 'Audio', tags: ['Audio', 'Sound Design'] },
+ { title: 'Development', tags: ['Programming', 'Game Engines', 'Game Design', 'Tutorials'] },
+ { title: 'Art & assets', tags: ['Art', 'Assets', '2D', '3D'] },
+ { title: 'Audio', tags: ['Audio', 'Sound Design'] },
 ];
 
 //shortening website link 
@@ -334,5 +347,6 @@ function Resources() {
     </>
   );
 }
+
 
 export default Resources;
