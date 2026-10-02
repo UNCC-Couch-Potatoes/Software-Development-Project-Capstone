@@ -148,6 +148,14 @@ function Resources() {
         <Link to="/Jobs">Jobs</Link>
         <Link to="/Profile">Profile</Link>
         <Link to="/Resources">Resources</Link>
+        <div className="navbar-search">
+           <input
+               type="search"
+               placeholder="Search tools, topics, or skills..."
+               value={query}
+               onChange={(event) => setQuery(event.target.value)}
+           />
+       </div>
       </div>
 
       {/*Making the initial resources title card */}
@@ -170,17 +178,6 @@ function Resources() {
             {filtersOpen ? 'Hide filters' : 'Show filters'}
             {selectedTags.length > 0 && ` (${selectedTags.length})`}
           </button>
-          {/*Search bar space */}
-          <div className="resources-search">
-            <label htmlFor="resource-search">Search resources</label>
-            <input
-              id="resource-search"
-              type="search"
-              placeholder="Search names, descriptions, or tags…"
-              value={query}
-              onChange={handleQueryChange}
-            />
-          </div>
 
           {/* Sorting tab thing */}
           <div className="resources-sort">

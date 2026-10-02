@@ -292,3 +292,36 @@ body {
     flex-direction: column;
   }
 }
+
+
+
+
+
+
+
+.navbar-search {
+/* Makes sure search bar stays top right */
+margin-left: auto;
+width: 300px;
+}
+
+
+
+
+.navbar-search input {
+width: 100%;
+box-sizing: border-box;
+padding: 8px 12px;
+background: #262630;
+color: white;
+border: 1px solid #666677;
+border-radius: 6px;
+font: inherit;
+}
+
+
+
+
+.navbar-search input::placeholder {
+color: #bcbcca;
+}
