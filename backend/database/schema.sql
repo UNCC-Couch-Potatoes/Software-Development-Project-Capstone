@@ -11,8 +11,6 @@ CREATE TABLE IF NOT EXISTS Resources (
 -- Table relating to User stuff
 CREATE TABLE IF NOT EXISTS UserProfile (
     UserId BIGINT NOT NULL AUTO_INCREMENT,
-    Username VARCHAR(30) NOT NULL UNIQUE,
-    Email VARCHAR(100) NOT NULL UNIQUE,
     Password VARCHAR(30) NOT NULL,
     FirstName VARCHAR(30) NOT NULL,
     LastName VARCHAR(30) NOT NULL,

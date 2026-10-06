@@ -21,7 +21,6 @@
 /Users/dara/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/JobApplicationResponse.java
 /Users/dara/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/JobResponse.java
 /Users/dara/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/LoginRequest.java
-/Users/dara/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/LoginResponse.java
 /Users/dara/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/RegisterRequest.java
 /Users/dara/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/ResourceResponse.java
 /Users/dara/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/UserProfileResponse.java
