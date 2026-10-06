@@ -11,14 +11,18 @@ CREATE TABLE IF NOT EXISTS Resources (
 -- Table relating to User stuff
 CREATE TABLE IF NOT EXISTS UserProfile (
     UserId BIGINT NOT NULL AUTO_INCREMENT,
-    Password VARCHAR(30) NOT NULL,
+    Username VARCHAR(30) NOT NULL,
+    Email VARCHAR(100) NOT NULL,
+    Password VARCHAR(100) NOT NULL,
     FirstName VARCHAR(30) NOT NULL,
     LastName VARCHAR(30) NOT NULL,
     Skills VARCHAR(1000) NOT NULL,
     Interests VARCHAR(1000) NOT NULL,
     Bio VARCHAR(1000) NOT NULL,
     JoinDate DATE NOT NULL,
-    PRIMARY KEY (UserId)
+    PRIMARY KEY (UserId),
+    UNIQUE KEY UQ_UserProfile_Username (Username),
+    UNIQUE KEY UQ_UserProfile_Email (Email)
 );
 
 CREATE TABLE IF NOT EXISTS Followers (
