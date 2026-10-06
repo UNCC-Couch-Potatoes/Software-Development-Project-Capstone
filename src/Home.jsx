@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './style.css';
 import './home.css';
@@ -190,6 +191,21 @@ function DiscoveryRow({ eyebrow, title, route, items, type }) {
 }
 
 function Home() {
+  const [user, setUser] = useState(null);
+
+  // Ask the backend who is logged in
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setUser(data))
+      .catch(() => setUser(null));
+  }, []);
+
+  const fullName = user ? `${user.firstName} ${user.lastName}`.trim() : '';
+  const initials = user
+    ? `${(user.firstName || '')[0] || ''}${(user.lastName || '')[0] || ''}`.toUpperCase()
+    : '';
+
   return (
     <>
       <div id="navbar">
@@ -204,10 +220,10 @@ function Home() {
       <div className="home-shell">
         <aside className="home-sidebar" aria-label="Your activity">
           <div className="home-user-summary">
-            <div className="home-avatar" aria-hidden="true">JD</div>
+            <div className="home-avatar" aria-hidden="true">{initials}</div>
             <div>
               <p>Welcome back</p>
-              <h2>Jonathan D</h2>
+              <h2>{fullName || 'Loading...'}</h2>
             </div>
           </div>
           <h2 className="home-sidebar-intro">Your Work</h2>
