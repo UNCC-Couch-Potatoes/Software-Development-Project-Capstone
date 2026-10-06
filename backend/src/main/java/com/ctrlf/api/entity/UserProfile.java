@@ -58,6 +58,14 @@ public class UserProfile {
         this.bio = "";
         this.joinDate = LocalDate.now();
     }
+        public void updateProfile(String firstName, String lastName, String bio,
+                              String skills, String interests) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.bio = bio;
+        this.skills = skills;
+        this.interests = interests;
+    }
 
     public Long getUserId() { return userId; }
     public String getUsername() { return username; }

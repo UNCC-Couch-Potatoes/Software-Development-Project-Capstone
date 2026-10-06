@@ -340,3 +340,57 @@
     width: 100%;
   }
 }
+/* ---------- Saving to the backend ---------- */
+
+.profile-page .profile-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.profile-page .profile-hint {
+  display: block;
+  margin-top: 0.35rem;
+  color: #8f8fa0;
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.profile-page .profile-bio {
+  white-space: pre-wrap;
+}
+
+.profile-page .profile-status {
+  text-align: center;
+}
+
+.profile-page .profile-message {
+  margin: 0 0 1.25rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 9px;
+  font-size: 0.9rem;
+}
+
+.profile-page .profile-message-success {
+  border: 1px solid #3a7f5a;
+  background: #2a3d33;
+  color: #b3ffd1;
+}
+
+.profile-page .profile-message-error {
+  border: 1px solid #7f3a45;
+  background: #3d2a2f;
+  color: #ffb3bd;
+}
+
+.profile-page .profile-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .profile-page .profile-field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
