@@ -148,3 +148,16 @@
 .login-footer a:hover {
   text-decoration: underline;
 }
+/* Side-by-side first/last name on the create account page */
+.login-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 420px) {
+  .login-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

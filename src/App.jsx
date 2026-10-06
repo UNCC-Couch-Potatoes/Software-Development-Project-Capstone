@@ -9,7 +9,7 @@ import Jams from './Jams';
 import Jobs from './Jobs';
 import Profile from './Profile';
 import Resources from './Resources';
-// import Register from './Register';   // uncomment when the register page exists
+import Register from './Register';
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
       <Routes>
         {/* Public pages */}
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/register" element={<Register />} /> */}
+        <Route path="/register" element={<Register />} />
 
         {/* Protected pages: require login */}
         <Route element={<ProtectedRoute />}>
