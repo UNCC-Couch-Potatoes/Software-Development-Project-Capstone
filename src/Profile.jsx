@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './style.css';
 import './resources.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const defaultProfile = {
   name: 'Your Name',
@@ -64,6 +64,8 @@ function getStoredPosts() {
 }
 
 function Profile() {
+  const navigate = useNavigate();
+
   const [savedProfile, setSavedProfile] = useState(
     getStoredProfile
   );
@@ -93,6 +95,17 @@ function Profile() {
   );
 
   const [posts] = useState(getStoredPosts);
+
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } finally {
+      navigate('/login');
+    }
+  }
 
   function handlePictureChange(event) {
     const file = event.target.files[0];
@@ -289,13 +302,30 @@ function Profile() {
           </p>
 
           {!isEditing && (
-            <button
-              className="edit-profile-button"
-              onClick={() => setIsEditing(true)}
-            >
-              Edit Profile
-            </button>
-          )}
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '4rem',
+      marginTop: '1rem'
+    }}
+  >
+    <button
+      className="edit-profile-button"
+      onClick={() => setIsEditing(true)}
+    >
+      Edit Profile
+    </button>
+
+    <button
+      type="button"
+      className="edit-profile-button"
+      onClick={handleLogout}
+    >
+      Logout
+    </button>
+  </div>
+)}
 
         </section>
 

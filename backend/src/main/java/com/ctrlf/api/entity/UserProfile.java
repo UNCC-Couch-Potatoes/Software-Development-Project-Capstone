@@ -17,7 +17,13 @@ public class UserProfile {
     @Column(name = "UserId")
     private Long userId;
 
-    @Column(name = "Password", nullable = false, length = 30)
+    @Column(name = "Username", nullable = false, unique = true, length = 30)
+    private String username;
+
+    @Column(name = "Email", nullable = false, unique = true, length = 100)
+    private String email;
+
+    @Column(name = "Password", nullable = false, length = 100)
     private String password;
 
     @Column(name = "FirstName", nullable = false, length = 30)
@@ -40,7 +46,23 @@ public class UserProfile {
 
     protected UserProfile() {}
 
+    public UserProfile(String username, String email, String passwordHash,
+                       String firstName, String lastName) {
+        this.username = username;
+        this.email = email;
+        this.password = passwordHash;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.skills = "";
+        this.interests = "";
+        this.bio = "";
+        this.joinDate = LocalDate.now();
+    }
+
     public Long getUserId() { return userId; }
+    public String getUsername() { return username; }
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
     public String getSkills() { return skills; }
