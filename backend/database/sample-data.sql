@@ -3,3 +3,8 @@ INSERT INTO Resources (SiteName, Overview, SiteLink, Tags) VALUES
     ('Kenney', 'Game assets, starter kits, and tools for prototypes and production.', 'https://kenney.nl/', '|Art|Assets|2D|3D|'),
     ('Red Blob Games', 'Interactive explanations of game mathematics and algorithms.', 'https://www.redblobgames.com/', '|Programming|Tutorials|Game Design|'),
     ('Freesound', 'A community library of sound recordings for effects and ambience.', 'https://freesound.org/', '|Audio|Sound Design|Assets|');
+
+INSERT INTO UserProfile (Username,Email,Password,FirstName,LastName,Skills,Interests,Bio,Joindate) VALUES
+    ("timmyturner123","big_t@gmail.com","$2a$10$bn8/itnfgYRazYKLKhrG3u1ZoK69dULL/LGszVH8.lS0BRf7mbvWS", "Timmy","Turner", " ", " ", " ", '2026-01-01');
+    
+    

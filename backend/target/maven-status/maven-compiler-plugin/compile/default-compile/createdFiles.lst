@@ -8,6 +8,7 @@ com/ctrlf/api/entity/JamEntrant.class
 com/ctrlf/api/controller/StatusController$ApiStatus.class
 com/ctrlf/api/dto/JamResponse.class
 com/ctrlf/api/dto/JobResponse.class
+com/ctrlf/api/dto/UpdateProfileRequest.class
 com/ctrlf/api/dto/CommentThreadResponse.class
 com/ctrlf/api/repository/BlogRepository.class
 com/ctrlf/api/CtrlFApiApplication.class
