@@ -1,0 +1,10 @@
+#following { 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: rgb(44, 44, 62);
+    width: 20vw;
+    overflow: scroll;
+    scrollbar-color: rgb(89, 78, 108) rgb(48, 44, 55);
+    scrollbar-width: thin;
+}

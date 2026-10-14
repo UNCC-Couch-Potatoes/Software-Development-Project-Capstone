@@ -1,17 +1,27 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import BlogPost from './BlogPost.jsx';
+import PostList from './BlogPageComponents/PostList.jsx';
+import FollowingList from './BlogPageComponents/FollowingList.jsx';
 import './Blogs.css';
 
 /* 
  * Todos 
  * [x] Populate page with posts along a grid
  * [ ] Make seperate components for 
- *   [ ] Top 
- *   [ ] Content 
- *   [ ] Action Bar
+ *   [/] Top 
+ *   [/] Content 
+ *   [/] Action Bar
+ * [] Start pulling from array for post information 
+ * [] Make a following Bar, this should include 
+ *      everyone and anyone you follow
+ * [] When clicking on a person you following 
+ *      filter to be that person
  */
 function Blogs(){
+
+    //Grab a the length of the posts array, this will be our limit
+    //We will "load" in a handful of posts, if the scroll value reaches
+    //a certain point we will reload?
     return(
     <>
     <div id="navbar">
@@ -23,33 +33,8 @@ function Blogs(){
         <Link to="/Resources">Resources</Link>
     </div>
     <div id="blog-page">
-        <div id="following">
-        Following
-        </div>
-
-        <div id="posts">
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        <BlogPost/>
-        </div>
+        <FollowingList/>
+        <PostList/>
     </div>
     </>
     )};

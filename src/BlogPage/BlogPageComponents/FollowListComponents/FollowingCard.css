@@ -1,0 +1,24 @@
+.followingCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    height: 50px;
+    text-overflow: ellipsis;
+    background-color: rgb(103, 103, 122);
+}
+
+.profilePicture {
+    width: 5vw;
+    height: 5vw;
+    max-width: 100%;
+    max-height:max-content;
+}
+
+.userName {
+    font-size: 1.2rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    height: 100%;
+    margin:0%;
+}
