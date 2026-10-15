@@ -24,7 +24,10 @@ position: sticky;
 padding: 5px 5px 5px 5px;
 top: 0;
 z-index: 100;
-overflow: hidden;
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+overflow: visible;
 background-color: #3c3c4d;
 }
 
@@ -532,9 +535,7 @@ color: white;
   color: #e0e0e8;
 }
 
-/* =========================
-   RESPONSIVE DESIGN
-   ========================= */
+
 /* Profile works on smaller screens */
 @media (max-width: 600px) {
 .profile-container {
@@ -593,3 +594,30 @@ font: inherit;
 .navbar-search input::placeholder {
 color: #bcbcca;
 }
+/* Resource navigation stays available on every page. */
+.navbar-resources { position: relative; }
+.navbar-resources-heading { display: flex; align-items: center; }
+.navbar-dropdown-toggle {
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+.navbar-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 180px;
+  padding: 6px;
+  border: 1px solid #666677;
+  border-radius: 8px;
+  background: #30303b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+#navbar .navbar-dropdown a { float: none; text-align: left; border-radius: 4px; }
+#navbar a:hover, .navbar-dropdown-toggle:hover { background: #505063; }
+#navbar :is(a, button):focus-visible { outline: 2px solid #c5c5ff; outline-offset: -2px; }
+#navbar .navbar-search { max-width: 100%; }

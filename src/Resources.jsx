@@ -1,14 +1,9 @@
+import useResourceTags from './useResourceTags';
+import ResourceTagGroup from './ResourceTagGroup';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './style.css';
 import './resources.css';
-
-// defining tags that we can use to filter on the db 
-const tagGroups = [
-  { title: 'Development', tags: ['Programming', 'Game Engines', 'Game Design', 'Tutorials'] },
-  { title: 'Art & assets', tags: ['Art', 'Assets', '2D', '3D'] },
-  { title: 'Audio', tags: ['Audio', 'Sound Design'] },
-];
 
 //shortening website link 
 function getDomain(siteLink) {
@@ -32,6 +27,8 @@ function getPageNumbers(currentPage, totalPages) {
 
 
 function Resources() {
+  const [resourceMenuOpen, setResourceMenuOpen] = useState(false);
+  const { groups: tagGroups, status: tagsStatus, error: tagsError } = useResourceTags();
   // stores db results
   const [resources, setResources] = useState([]);
   // stores user query results
@@ -140,23 +137,60 @@ function Resources() {
 
   return (
     <>
-      {/* navbar (will be switched to its own file once we get around to it :p) */}
-      <div id="navbar">
-        <Link to="/">Home</Link>
-        <Link to="/Blogs">Blogs</Link>
-        <Link to="/Jams">Jams</Link>
-        <Link to="/Jobs">Jobs</Link>
-        <Link to="/Profile">Profile</Link>
-        <Link to="/Resources">Resources</Link>
-        <div className="navbar-search">
+      {/* Main navigation */}
+      <nav id="navbar" aria-label="Main navigation">
+      <Link to="/">Home</Link>
+      <Link to="/blogs">Blogs</Link>
+      <Link to="/jams">Jams</Link>
+      <Link to="/jobs">Jobs</Link>
+      <Link to="/profile">Profile</Link>
+      {/* Dropdown feature for resources navbar */}
+      {/* Dropdown will appear on hover */}
+      <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}
+      onFocus={
+        event => {
+          if (event.target.tagName === 'A')
+            setResourceMenuOpen(true);
+          }
+        }
+      onBlur={
+        event => {
+          if (!event.currentTarget.contains(event.relatedTarget))
+            setResourceMenuOpen(false);
+          }
+        }
+      onKeyDown={
+        event => {
+          if (event.key === 'Escape'){
+              setResourceMenuOpen(false); event.stopPropagation();
+            }
+          }
+        }>
+
+      {/* React elements for the resource tab and its dropdown*/}
+      <div className="navbar-resources-heading">
+        <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>Resources</Link>
+        {/* For mobile users who can't "hover" over the taskbar there is a physical button that can be pressed instead*/}
+        <button type="button" className="navbar-dropdown-toggle" aria-label="Resource navigation" aria-expanded={resourceMenuOpen}
+          aria-controls="navbar-resource-links" onClick={() => setResourceMenuOpen(value => !value)}>▾</button>
+      </div>
+
+      {/* The Dropdown elements */}
+      <div id="navbar-resource-links" className="navbar-dropdown" hidden={!resourceMenuOpen}>
+        <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>All resources</Link>
+        <Link to="/resources/manage" onClick={() => setResourceMenuOpen(false)}>My resources</Link>
+        <Link to="/resources/new" onClick={() => setResourceMenuOpen(false)}>Create a post</Link>
+      </div>
+    </div>
+      <div className="navbar-search">
            <input
                type="search"
                placeholder="Search tools, topics, or skills..."
                value={query}
-               onChange={(event) => setQuery(event.target.value)}
+               onChange={handleQueryChange}
            />
        </div>
-      </div>
+      </nav>
 
       {/*Making the initial resources title card */}
       <main className="resources-container">
@@ -167,6 +201,7 @@ function Resources() {
         </header>
 
         <div className="resources-toolbar">
+          <Link className="resources-button" to="/resources/manage">Create a post</Link>
           {/*button to toggle filters */}
           <button
             type="button"
@@ -201,24 +236,16 @@ function Resources() {
             <h2>Browse by tag</h2>
             <p>Find resources matching any selected tag.</p>
 
-            {/*Makes a space for each tag category and individual tags */}
-            {tagGroups.map((group) => (
-              <details key={group.title} open className="resources-filter-group">
-                <summary>{group.title}</summary>
-                <div className="tag-container">
-                  {group.tags.map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      className="tag resources-filter-tag"
-                      aria-pressed={selectedTags.includes(tag)}
-                      onClick={() => toggleTag(tag)}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </details>
+            <section className="resource-user-made-filter" aria-label="User made resources">
+              <h3>Community resources</h3>
+              <button type="button" className="tag resources-filter-tag"
+                disabled={tagsStatus !== 'ready'} aria-pressed={selectedTags.includes('User Made')}
+                onClick={() => toggleTag('User Made')}>User Made</button>
+            </section>
+            {tagsStatus === 'loading' && <p role="status">Loading tags…</p>}
+            {tagsError && <p role="alert">{tagsError}</p>}
+            {tagGroups.filter(group => group.title !== 'User Made').map(group => (
+              <ResourceTagGroup key={group.title} group={group} selectedTags={selectedTags} onToggle={toggleTag} />
             ))}
             {/* gives user easy way to clear all filters instead of untoggling one by one */}
             <button
@@ -268,13 +295,15 @@ function Resources() {
           {!loading && !error && resources.map((resource) => (
             <article className="profile-section resource-card" key={resource.resourceId}>
               <h2>
-                <a href={resource.siteLink} target="_blank" rel="noopener noreferrer">
+                {resource.siteLink.startsWith('/resources/') ? <Link to={resource.siteLink}>{resource.siteName}</Link> : <a href={resource.siteLink} target="_blank" rel="noopener noreferrer">
                   {resource.siteName}
                   <span className="resources-sr-only"> (opens in a new tab)</span>{' '}
                   <span aria-hidden="true">↗</span>
-                </a>
+                </a>}
               </h2>
-              <span className="resource-domain">{getDomain(resource.siteLink)}</span>
+              <span className="resource-domain" aria-hidden={resource.siteLink.startsWith('/resources/') ? true : undefined}>
+                {resource.siteLink.startsWith('/resources/') ? '\u00a0' : getDomain(resource.siteLink)}
+              </span>
               <p>{resource.overview}</p>
               <div className="tag-container">
                 {resource.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}
