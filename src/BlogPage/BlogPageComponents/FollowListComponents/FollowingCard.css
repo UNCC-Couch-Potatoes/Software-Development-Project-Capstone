@@ -3,22 +3,42 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px;
+    gap: 4px;
     height: 50px;
-    text-overflow: ellipsis;
     background-color: rgb(103, 103, 122);
+
 }
 
-.profilePicture {
-    width: 5vw;
+.followingCard:hover {
+    background-color: rgb(89, 78, 108);
+}
+
+.profileIcon {
+    border: solid;
+    border-width: 2px;
+    border-radius: 100%;
     height: 5vw;
-    max-width: 100%;
-    max-height:max-content;
+    width: 5vw;
+    max-width: 3rem;
+    max-height: 3rem;
 }
 
 .userName {
     font-size: 1.2rem;
     text-overflow: ellipsis;
     overflow: hidden;
-    height: 100%;
+    height: 50%;
     margin:0%;
+}
+
+.newPostCount { 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(227, 51, 51);
+    width: fit-content;
+    height: 80%;
+    padding: 0px 10px;
+    border-radius: 15%;
+    color: white;
 }

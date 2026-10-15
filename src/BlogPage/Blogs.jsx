@@ -22,6 +22,13 @@ function Blogs(){
     //Grab a the length of the posts array, this will be our limit
     //We will "load" in a handful of posts, if the scroll value reaches
     //a certain point we will reload?
+
+    var userFilteredID = null;
+    //function for when a filter occurs 
+    const handleFilter = (userID) => {
+        userFilteredID = userID;
+    }
+
     return(
     <>
     <div id="navbar">
@@ -33,8 +40,8 @@ function Blogs(){
         <Link to="/Resources">Resources</Link>
     </div>
     <div id="blog-page">
-        <FollowingList/>
-        <PostList/>
+        <FollowingList onFilterChosen={handleFilter}/>
+        <PostList userFiltered={userFilteredID}/>
     </div>
     </>
     )};
