@@ -1,14 +1,19 @@
 package com.ctrlf.api.service;
 
+import java.util.List;
 import java.util.Optional;
 import com.ctrlf.api.dto.JobResponse;
 import com.ctrlf.api.repository.JobRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JobService {
     private final JobRepository repository;
     public JobService(JobRepository repository) { this.repository = repository; }
+    public List<JobResponse> findAll() {
+        return repository.findAll(Sort.by("jobId")).stream().map(JobResponse::from).toList();
+    }
     public Optional<JobResponse> findById(Long id) {
         return repository.findById(id).map(JobResponse::from);
     }

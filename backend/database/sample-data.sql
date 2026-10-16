@@ -791,3 +791,15 @@ WHERE NOT EXISTS (SELECT 1 FROM Resources WHERE SiteLink = 'https://gamehistory.
 -- Existing sample account (skipped if already present).
 INSERT IGNORE INTO UserProfile (Username,Email,Password,FirstName,LastName,Skills,Interests,Bio,Joindate) VALUES
     ("timmyturner123","big_t@gmail.com","$2a$10$bn8/itnfgYRazYKLKhrG3u1ZoK69dULL/LGszVH8.lS0BRf7mbvWS", "Timmy","Turner", " ", " ", " ", '2026-01-01');
+
+
+-- Sample job listings for the Jobs page (skipped if already present).
+INSERT INTO Jobs (JobTitle, CompanyName, JobDescription, JobTags, SiteLink)
+SELECT 'Game Developer', 'Example Studios', 'Develop and maintain games using programming and game development tools.', '|Programming|Game Development|', 'https://example.com/jobs/game-developer'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE SiteLink = 'https://example.com/jobs/game-developer');
+INSERT INTO Jobs (JobTitle, CompanyName, JobDescription, JobTags, SiteLink)
+SELECT '3D Artist', 'Pixel Games', 'Create 3D models, environments, and assets for games.', '|Art|3D|', 'https://example.com/jobs/3d-artist'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE SiteLink = 'https://example.com/jobs/3d-artist');
+INSERT INTO Jobs (JobTitle, CompanyName, JobDescription, JobTags, SiteLink)
+SELECT 'Sound Designer', 'Indie Games Co.', 'Create sound effects and audio for video games.', '|Audio|Design|', 'https://example.com/jobs/sound-designer'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE SiteLink = 'https://example.com/jobs/sound-designer');

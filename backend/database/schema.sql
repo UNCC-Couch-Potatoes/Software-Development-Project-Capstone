@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS CommentThread (
 CREATE TABLE IF NOT EXISTS Jobs (
     JobId BIGINT NOT NULL AUTO_INCREMENT,
     JobTitle VARCHAR(50) NOT NULL,
+    CompanyName VARCHAR(50) NOT NULL DEFAULT '',
     JobDescription TEXT NOT NULL,
     -- if you want to add tags to the job posts for filtering
     JobTags VARCHAR(1000) NOT NULL,
