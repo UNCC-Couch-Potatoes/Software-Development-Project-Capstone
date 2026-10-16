@@ -1,0 +1,22 @@
+#posts { 
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: space-around;
+    background-color: rgb(28, 26, 42);
+    width: 100vw;
+    height: 100vh;
+    bottom: 10px;
+    overflow: scroll;
+    scrollbar-color: rgb(89, 78, 108) rgb(48, 44, 55);
+}
+
+#postsTitle { 
+    background-color: rgb(49, 49, 90);
+    color: white;
+    margin: 0px 0px 8px 0px;
+    overflow: hidden;
+    text-overflow:clip;
+    width: 100%;
+}

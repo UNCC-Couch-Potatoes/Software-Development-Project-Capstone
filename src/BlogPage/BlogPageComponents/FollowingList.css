@@ -1,0 +1,20 @@
+#following { 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: rgb(44, 44, 62);
+    width: 20vw;
+    height: 100vh;
+    overflow: scroll;
+    scrollbar-color: rgb(89, 78, 108) rgb(48, 44, 55);
+    scrollbar-width: thin;
+    bottom: 10px;
+}
+
+#followingTitle { 
+    background-color: rgb(103, 103, 122);
+    margin: 0px 0px 8px 0px;
+    overflow: hidden;
+    text-overflow:clip;
+    width: 100%;
+}

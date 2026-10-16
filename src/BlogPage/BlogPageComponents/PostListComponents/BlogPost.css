@@ -1,0 +1,16 @@
+.Post { 
+    display : flex;
+    flex-direction: column;
+    justify-content: left;
+    margin: 20px;
+    padding: 16px;
+    width: 300px;
+    height: fit-content;
+    background-color: azure;
+    border-radius: 5%
+
+}
+
+.BlogParagaph { 
+    text-overflow: clip;
+}

@@ -1,0 +1,7 @@
+#blog-page { 
+    display: flex;
+    justify-content: left;
+    height: 100vh;
+    /*grid-template-columns:*/
+}
+
