@@ -479,67 +479,6 @@ color: white;
   color: #e0e0e8;
 }
 
-/* Jobs filter button + panel */
-.jobs-filter {
-  margin-bottom: 20px;
-}
-
-.jobs-filter-button,
-.jobs-filter-clear {
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid #666677;
-  background: #3c3c4d;
-  color: white;
-  font: inherit;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.jobs-filter-button:hover,
-.jobs-filter-clear:hover {
-  background: #505063;
-}
-
-.jobs-filter-button[aria-expanded="true"] {
-  background: #ddddf0;
-  color: #262630;
-  border-color: #ddddf0;
-}
-
-.jobs-filter-clear {
-  margin-left: 10px;
-  background: transparent;
-}
-
-.jobs-filter-panel {
-  margin-top: 12px;
-  padding: 16px;
-  background: #30303b;
-  border-radius: 10px;
-}
-
-.jobs-filter-tag {
-  border: 1px solid #666677;
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-}
-
-.jobs-filter-tag:hover {
-  background: #505063;
-}
-
-.jobs-filter-tag[aria-pressed="true"] {
-  background: #ddddf0;
-  color: #262630;
-  border-color: #ddddf0;
-}
-
-.job-card .tag-container {
-  margin-top: 12px;
-}
-
 /* =========================
    BLOGS PAGE
    ========================= */

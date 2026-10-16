@@ -10,49 +10,29 @@ import './style.css';
 function Jobs() {
   const [resourceMenuOpen, setResourceMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
-  // Filter panel open/closed and which tags are currently selected
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedTags, setSelectedTags] = useState([]);
 
   const jobs = [
       {
           title: 'Game Developer',
           company: 'Example Studios',
-          description: 'Develop and maintain games using programming and game development tools.',
-          tags: ['Programming', 'Game Development']
+          description: 'Develop and maintain games using programming and game development tools.'
       },
       {
           title: '3D Artist',
           company: 'Pixel Games',
-          description: 'Create 3D models, environments, and assets for games.',
-          tags: ['Art', '3D']
+          description: 'Create 3D models, environments, and assets for games.'
       },
       {
           title: 'Sound Designer',
           company: 'Indie Games Co.',
-          description: 'Create sound effects and audio for video games.',
-          tags: ['Audio', 'Design']
+          description: 'Create sound effects and audio for video games.'
       }
   ];
 
-  // Every unique tag across all jobs, sorted, used to build the filter buttons
-  const allTags = [...new Set(jobs.flatMap((job) => job.tags))].sort();
-
-  // Adds the tag if it isn't selected, removes it if it is
-  const toggleTag = (tag) => {
-      setSelectedTags((current) =>
-          current.includes(tag) ? current.filter((t) => t !== tag) : [...current, tag]
-      );
-  };
-
-  // Goes through jobs list and returns job(s) that match the typed words
-  // AND have at least one of the selected tags (no tags selected = show all)
+  // Goes through jobs list and returns job(s) that have the typed words in them
   const visibleJobs = jobs.filter((job) => {
       const searchable = `${job.title} ${job.company} ${job.description}`.toLowerCase();
-      const matchesQuery = searchable.includes(query.toLowerCase());
-      const matchesTags =
-          selectedTags.length === 0 || job.tags.some((tag) => selectedTags.includes(tag));
-      return matchesQuery && matchesTags;
+      return searchable.includes(query.toLowerCase());
   });
 
   return (
@@ -119,42 +99,6 @@ function Jobs() {
                       art, design, audio, and more.
                   </p>
               </header>
-              {/* Filter button that opens/closes the tag panel */}
-              <div className="jobs-filter">
-                  <button
-                      type="button"
-                      className="jobs-filter-button"
-                      aria-expanded={filterOpen}
-                      aria-controls="jobs-filter-panel"
-                      onClick={() => setFilterOpen((value) => !value)}
-                  >
-                      Filter{selectedTags.length > 0 ? ` (${selectedTags.length})` : ''}
-                  </button>
-                  {selectedTags.length > 0 && (
-                      <button
-                          type="button"
-                          className="jobs-filter-clear"
-                          onClick={() => setSelectedTags([])}
-                      >
-                          Clear filters
-                      </button>
-                  )}
-                  <div id="jobs-filter-panel" className="jobs-filter-panel" hidden={!filterOpen}>
-                      <div className="tag-container">
-                          {allTags.map((tag) => (
-                              <button
-                                  key={tag}
-                                  type="button"
-                                  className="tag jobs-filter-tag"
-                                  aria-pressed={selectedTags.includes(tag)}
-                                  onClick={() => toggleTag(tag)}
-                              >
-                                  {tag}
-                              </button>
-                          ))}
-                      </div>
-                  </div>
-              </div>
               {/* Shows how many jobs are currently being displayed */}
               <section className="jobs-results">
                   <p className="jobs-count">
@@ -167,17 +111,12 @@ function Jobs() {
                           <h2>{job.title}</h2>
                           <h3>{job.company}</h3>
                           <p>{job.description}</p>
-                          <div className="tag-container">
-                              {job.tags.map((tag) => (
-                                  <span className="tag" key={tag}>{tag}</span>
-                              ))}
-                          </div>
                       </article>
                   ))}
                   {visibleJobs.length === 0 && (
                       <div className="job-card">
                           <h2>No jobs found</h2>
-                          <p>Try searching for another position or changing your filters.</p>
+                          <p>Try searching for another position.</p>
                       </div>
                   )}
               </section>
