@@ -153,3 +153,51 @@ npm run test:backend
 - **Login page says it can't connect to the server**: the backend isn't running. Start step 5 first.
 - **`permission denied: ./backend/mvnw`** (macOS/Linux): run `chmod +x backend/mvnw`.
 
+
+## Resource posts
+
+Logged-in users can select **Create a post** on Resources to open `/resources/manage`,
+view their posts, and create a resource at `/resources/new`. Each published post has
+an ID-based URL (`/resources/{id}`) stored in `SiteLink`. Only its creator can edit it.
+The Home sidebar loads the current user's actual resource posts.
+
+`SiteName` stores the title, `Overview` the summary, `Tags` the pipe-delimited tags,
+and `Body` the original Markdown. `OwnerUserId` records the authenticated session user;
+clients cannot choose the owner. Markdown supports headings, subtitles, bold, italic,
+lists, quotes, code and links, with a preview. Raw HTML is rendered as text.
+
+For an existing MySQL database, run `backend/database/resource-posts-migration.sql`
+before starting the API. It adds missing `Body` and `OwnerUserId` columns and is
+safe to rerun. Select the application database first. New databases can use the
+updated `backend/database/schema.sql`. Existing external resources remain available.
+
+Run `npm run build`, `npm run lint`, and `npm run test:backend` to validate changes.
+A deployed frontend must serve `index.html` for resource URLs (SPA fallback).
+
+## Approved resource tags and expanded sample catalog
+
+The filter sidebar and resource editor load `/api/resource-tags` from `ResourceTags`.
+The catalog contains Development (100), Art & assets (100), Audio (71), Algorithms
+(70), Marketing (45), and Misc (25), plus **User Made** in its own top section.
+Each filter group starts with five tags. **Show more** reveals up to ten more at a time.
+
+User posts automatically receive **User Made** on creation and every edit. It cannot
+be removed in the editor. The API canonicalizes approved tag names and rejects
+unknown tags. Tags continue to be stored in the existing pipe-delimited `Tags`
+column. The tag catalog is the authority for selectable names.
+
+For an existing database, apply `backend/database/resource-posts-migration.sql`
+if needed, then `backend/database/resource-tags-migration.sql` before restarting
+the backend. The tag migration creates and seeds `ResourceTags` and adds **User Made**
+to existing owned resources. It does not mark external website resources as user made.
+If an old post used custom tags, remove or replace those tags when editing it.
+
+For a new database, run `backend/database/schema.sql` followed by
+`backend/database/sample-data.sql`. The sample file includes the approved catalog
+and 120 researched resources (20 per group), each tagged only with catalog values.
+It skips resource URLs and the sample account that already exist when rerun.
+`backend/database/resource-tags.sql` can also seed the tag catalog independently.
+
+See `backend/database/resource-catalog.md` for the research date, original source
+links, summaries, and tag assignments. The source list includes official project
+sites, documentation, original author pages, and project repositories.

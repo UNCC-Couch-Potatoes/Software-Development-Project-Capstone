@@ -10,6 +10,7 @@ import Jobs from './Jobs';
 import Profile from './Profile';
 import Resources from './Resources';
 import Register from './Register';
+import { ResourceManager, ResourceEditor, ResourcePage } from './ResourcePosts';
 
 function App() {
   return (
@@ -27,6 +28,10 @@ function App() {
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/resources" element={<Resources />} />
+          <Route path="/resources/manage" element={<ResourceManager />} />
+          <Route path="/resources/new" element={<ResourceEditor />} />
+          <Route path="/resources/:id" element={<ResourcePage />} />
+          <Route path="/resources/:id/edit" element={<ResourceEditor />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,3 +1,11 @@
+CREATE TABLE IF NOT EXISTS ResourceTags (
+    TagName VARCHAR(80) NOT NULL,
+    GroupName VARCHAR(40) NOT NULL,
+    GroupOrder INT NOT NULL,
+    TagOrder INT NOT NULL,
+    PRIMARY KEY (TagName)
+);
+
 -- For the Resources page
 CREATE TABLE IF NOT EXISTS Resources (
     ResourceID BIGINT NOT NULL AUTO_INCREMENT,
@@ -5,6 +13,8 @@ CREATE TABLE IF NOT EXISTS Resources (
     Overview TEXT NOT NULL,
     SiteLink VARCHAR(2048) NOT NULL,
     Tags VARCHAR(1000) NOT NULL DEFAULT '',
+    Body TEXT,
+    OwnerUserId BIGINT NULL,
     PRIMARY KEY (ResourceID)
 );
 
@@ -24,6 +34,17 @@ CREATE TABLE IF NOT EXISTS UserProfile (
     UNIQUE KEY UQ_UserProfile_Username (Username),
     UNIQUE KEY UQ_UserProfile_Email (Email)
 );
+
+CREATE TABLE IF NOT EXISTS ResourceUserLink (
+    LinkId BIGINT NOT NULL AUTO_INCREMENT,
+    UserId BIGINT NOT NULL,
+    ResourceId BIGINT NOT NULL,
+    PRIMARY KEY (LinkId),
+    UNIQUE KEY UQ_ResourceCreator (ResourceId),
+    CONSTRAINT fk_resource_link_user FOREIGN KEY (UserId) REFERENCES UserProfile(UserId),
+    CONSTRAINT fk_resource_link_id FOREIGN KEY (ResourceId) REFERENCES Resources(ResourceID)
+);
+
 
 CREATE TABLE IF NOT EXISTS Followers (
     FollowerLinkId BIGINT NOT NULL AUTO_INCREMENT,

@@ -28,6 +28,25 @@ public class Resource {
     @Column(name = "Tags", nullable = false, length = 1000)
     private String tags;
 
+    @Column(name = "Body", columnDefinition = "TEXT")
+    private String body;
+
+    @Column(name = "OwnerUserId")
+    private Long ownerUserId;
+
+    public String getBody() { return body; }
+    public Long getOwnerUserId() { return ownerUserId; }
+
+    public void publish(Long owner, String title, String overview, String tags, String body) {
+        this.ownerUserId = owner;
+        this.siteName = title;
+        this.overview = overview;
+        this.tags = tags;
+        this.body = body;
+    }
+
+    public void setSiteLink(String link) { this.siteLink = link; }
+
     protected Resource() {
     }
 

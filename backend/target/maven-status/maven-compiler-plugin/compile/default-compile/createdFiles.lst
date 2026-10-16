@@ -11,6 +11,7 @@ com/ctrlf/api/dto/JobResponse.class
 com/ctrlf/api/dto/UpdateProfileRequest.class
 com/ctrlf/api/dto/CommentThreadResponse.class
 com/ctrlf/api/repository/BlogRepository.class
+com/ctrlf/api/entity/ResourceTag.class
 com/ctrlf/api/CtrlFApiApplication.class
 com/ctrlf/api/service/BlogService.class
 com/ctrlf/api/entity/Blog.class
@@ -25,9 +26,14 @@ com/ctrlf/api/repository/FollowerRepository.class
 com/ctrlf/api/dto/DelimitedValues.class
 com/ctrlf/api/service/CommentThreadService.class
 com/ctrlf/api/repository/JamEntrantRepository.class
+com/ctrlf/api/dto/ResourceDetail.class
 com/ctrlf/api/controller/UserProfileController.class
 com/ctrlf/api/entity/Resource.class
+com/ctrlf/api/service/ResourceTagService.class
+com/ctrlf/api/repository/ResourceTagRepository.class
+com/ctrlf/api/controller/ResourceTagController.class
 com/ctrlf/api/controller/CommentThreadController.class
+com/ctrlf/api/dto/ResourcePostRequest.class
 com/ctrlf/api/dto/BlogResponse.class
 com/ctrlf/api/controller/JobApplicationController.class
 com/ctrlf/api/controller/JamController.class
@@ -49,6 +55,7 @@ com/ctrlf/api/service/JobService.class
 com/ctrlf/api/dto/JobApplicationResponse.class
 com/ctrlf/api/controller/BlogController.class
 com/ctrlf/api/dto/ResourceResponse.class
+com/ctrlf/api/service/ResourceTagService$TagGroup.class
 com/ctrlf/api/repository/CommentThreadRepository.class
 com/ctrlf/api/entity/Job.class
 com/ctrlf/api/dto/FollowerResponse.class
