@@ -6,6 +6,7 @@ COPY src src
 RUN mvn package -DskipTests
 
 FROM eclipse-temurin:17-jre
+RUN apt-get update && apt-get install -y --no-install-recommends curl && apt-get clean
 WORKDIR /app
 COPY --from=build /app/target/ctrlf-api-*.jar app.jar
 EXPOSE 8080
