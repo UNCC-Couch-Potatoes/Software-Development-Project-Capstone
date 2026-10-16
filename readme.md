@@ -1,5 +1,50 @@
 # Title: CtrlF
 
+## Run everything with Docker
+
+Install and start Docker Desktop (or Docker Engine with the Compose plugin).
+From the repository root, run:
+
+```bash
+docker compose up --build
+```
+
+Open **http://localhost:3000** and create an account using **Create Account**.
+No local Java, Node.js, MySQL installation, SQL imports, or `.env` file is needed.
+The first build downloads the images and dependencies and can take several minutes.
+
+Compose starts MySQL, creates the tables, imports the sample data and approved tags,
+then starts Spring Boot and the frontend after their dependencies are healthy.
+The browser sends API requests through the frontend server, so session cookies and
+resource subpage URLs work through the same address. Only the frontend port is
+published; this database is separate from any MySQL database installed on your machine.
+
+To run in the background, use `docker compose up --build -d`. To stop:
+
+```bash
+docker compose down
+```
+
+Accounts, resource posts, and edits persist in the `database-data` Docker volume.
+Schema and sample-data initialization runs only when that volume is first created.
+Rebuilding images does not rerun SQL initialization or apply future migrations.
+For later schema changes, apply the project's relevant SQL migration to the container
+database, or reset a disposable development database as described below.
+
+To **delete all Docker database data** and start over with the current sample data:
+
+```bash
+docker compose down --volumes
+docker compose up --build
+```
+
+If port 3000 is busy, set `APP_PORT` (for example, `APP_PORT=3001 docker compose up --build`
+on macOS/Linux, or `$env:APP_PORT=3001` before the command in PowerShell).
+For startup problems, run `docker compose ps` and `docker compose logs database backend frontend`.
+The default database passwords are for local development. Optional `MYSQL_PASSWORD`
+and `MYSQL_ROOT_PASSWORD` environment variables override them when creating a fresh volume.
+
+
 ## Team and Roles
 Dara Alegre - Scrum Master, Developer
 Bryan Sandoval - Product Owner, Developer 
