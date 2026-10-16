@@ -1,5 +1,16 @@
 package com.ctrlf.api.controller;
 
+import com.ctrlf.api.dto.ResourceDetail;
+import com.ctrlf.api.dto.ResourcePostRequest;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 import java.util.List;
 
 import com.ctrlf.api.dto.ResourceResponse;
@@ -22,6 +33,38 @@ public class ResourceController {
 
     public ResourceController(ResourceService resourceService) {
         this.resourceService = resourceService;
+    }
+
+    private Long currentUser(HttpServletRequest request) {
+        var session = request.getSession(false);
+        if (session == null || !(session.getAttribute("userId") instanceof Long userId)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please log in again.");
+        }
+        return userId;
+    }
+
+    @GetMapping("/mine")
+    public java.util.List<ResourceDetail> mine(HttpServletRequest request) {
+        return resourceService.mine(currentUser(request));
+    }
+
+    @GetMapping("/{id}")
+    public ResourceDetail detail(@PathVariable Long id) {
+        return resourceService.detail(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResourceDetail create(@RequestBody ResourcePostRequest body,
+            HttpServletRequest request) {
+        return resourceService.savePost(null, currentUser(request), body);
+    }
+
+    @PutMapping("/{id}")
+    public ResourceDetail update(@PathVariable Long id,
+            @RequestBody ResourcePostRequest body,
+            HttpServletRequest request) {
+        return resourceService.savePost(id, currentUser(request), body);
     }
 
     @GetMapping

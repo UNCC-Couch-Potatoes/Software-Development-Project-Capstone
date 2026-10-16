@@ -33,13 +33,7 @@ const userActivity = [
       { title: 'Junior Level Designer', meta: 'Fern Games · Applied Sep 18' },
     ],
   },
-  {
-    title: 'Posted resources', route: '/resources',
-    items: [
-      { title: 'Godot Dialogue Toolkit', meta: 'Programming · 31 saves' },
-      { title: 'Free Forest Sound Pack', meta: 'Audio · 18 saves' },
-    ],
-  },
+
 ];
 
 const trendingBlogs = [
@@ -144,7 +138,7 @@ function ActivityGroup({ group }) {
       <div className="home-activity-items">
         {group.items.map((item) => (
           <article className="home-activity-item" key={item.title}>
-            <strong>{item.title}</strong>
+            <strong>{item.route ? <Link to={item.route}>{item.title}</Link> : item.title}</strong>
             <span>{item.meta}</span>
           </article>
         ))}
@@ -191,7 +185,18 @@ function DiscoveryRow({ eyebrow, title, route, items, type }) {
 }
 
 function Home() {
+  const [resourceMenuOpen, setResourceMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [postsStatus, setPostsStatus] = useState('Loading resources…');
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/resources/mine', { credentials: 'include', signal: controller.signal })
+      .then(res => { if (!res.ok) throw new Error('Unable to load your resources.'); return res.json(); })
+      .then(data => { setPosts(data); setPostsStatus(data.length ? '' : 'You haven’t posted any resources yet.'); })
+      .catch(e => { if (e.name !== 'AbortError') setPostsStatus(e.message); });
+    return () => controller.abort();
+  }, []);
 
   // Ask the backend who is logged in
   useEffect(() => {
@@ -208,14 +213,51 @@ function Home() {
 
   return (
     <>
-      <div id="navbar">
-        <Link to="/">Home</Link>
-        <Link to="/Blogs">Blogs</Link>
-        <Link to="/Jams">Jams</Link>
-        <Link to="/Jobs">Jobs</Link>
-        <Link to="/Profile">Profile</Link>
-        <Link to="/Resources">Resources</Link>
+      <nav id="navbar" aria-label="Main navigation">
+      <Link to="/">Home</Link>
+      <Link to="/blogs">Blogs</Link>
+      <Link to="/jams">Jams</Link>
+      <Link to="/jobs">Jobs</Link>
+      <Link to="/profile">Profile</Link>
+      {/* Dropdown feature for resources navbar */}
+      {/* Dropdown will appear on hover */}
+      <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}
+      onFocus={
+        event => {
+          if (event.target.tagName === 'A')
+            setResourceMenuOpen(true);
+          }
+        }
+      onBlur={
+        event => {
+          if (!event.currentTarget.contains(event.relatedTarget))
+            setResourceMenuOpen(false);
+          }
+        }
+      onKeyDown={
+        event => {
+          if (event.key === 'Escape'){
+              setResourceMenuOpen(false); event.stopPropagation();
+            }
+          }
+        }>
+
+      {/* React elements for the resource tab and its dropdown*/}
+      <div className="navbar-resources-heading">
+        <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>Resources</Link>
+        {/* For mobile users who can't "hover" over the taskbar there is a physical button that can be pressed instead*/}
+        <button type="button" className="navbar-dropdown-toggle" aria-label="Resource navigation" aria-expanded={resourceMenuOpen}
+          aria-controls="navbar-resource-links" onClick={() => setResourceMenuOpen(value => !value)}>▾</button>
       </div>
+
+      {/* The Dropdown elements */}
+      <div id="navbar-resource-links" className="navbar-dropdown" hidden={!resourceMenuOpen}>
+        <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>All resources</Link>
+        <Link to="/resources/manage" onClick={() => setResourceMenuOpen(false)}>My resources</Link>
+        <Link to="/resources/new" onClick={() => setResourceMenuOpen(false)}>Create a post</Link>
+      </div>
+    </div>
+    </nav>
 
       <div className="home-shell">
         <aside className="home-sidebar" aria-label="Your activity">
@@ -228,6 +270,8 @@ function Home() {
           </div>
           <h2 className="home-sidebar-intro">Your Work</h2>
           {userActivity.map((group) => <ActivityGroup group={group} key={group.title} />)}
+          <ActivityGroup group={{ title: 'Posted resources', route: '/resources/manage', items: posts.map(post => ({ title: post.siteName, route: post.siteLink, meta: post.overview })) }} />
+          {postsStatus && <p role="status">{postsStatus}</p>}
         </aside>
 
         <main className="home-main">

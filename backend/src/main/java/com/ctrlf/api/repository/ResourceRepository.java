@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface ResourceRepository extends
     JpaRepository<Resource, Long>,
     JpaSpecificationExecutor<Resource> {
+    java.util.List<Resource> findByOwnerUserIdOrderByResourceIdDesc(Long ownerUserId);
 }

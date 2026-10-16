@@ -66,4 +66,25 @@ class ResourceControllerTest {
             .andExpect(jsonPath("$.totalPages").value(3))
             .andExpect(jsonPath("$.totalElements").value(41));
     }
+
+    @Test
+    void creationRequiresLogin() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/resources")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .content("{\"title\":\"Title\",\"overview\":\"Overview\",\"body\":\"Body\",\"tags\":[]}"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void personalResourcesRequireLogin() throws Exception {
+        mockMvc.perform(get("/api/resources/mine")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void updateRequiresLogin() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/resources/42")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .content("{\"title\":\"Title\",\"overview\":\"Overview\",\"body\":\"Body\",\"tags\":[]}"))
+            .andExpect(status().isUnauthorized());
+    }
 }
