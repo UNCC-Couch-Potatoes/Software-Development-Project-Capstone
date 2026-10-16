@@ -6,6 +6,10 @@ font-feature-settings: 'liga' 1, 'calt' 1;
 
 
 
+
+
+
+
 body {
 margin: 0;
 padding: 0;
@@ -14,6 +18,10 @@ min-height: 100vh;
 overflow-x: hidden;
 overflow-y: auto;
 }
+
+
+
+
 
 
 
@@ -34,6 +42,10 @@ background-color: #3c3c4d;
 
 
 
+
+
+
+
 /* Navbar links */
 #navbar a {
 float: left;
@@ -47,11 +59,19 @@ text-decoration: none;
 
 
 
+
+
+
+
 .navbar-search {
 /* Makes sure search bar stays top right */
 margin-left: auto;
 width: 300px;
 }
+
+
+
+
 
 
 
@@ -68,13 +88,17 @@ font: inherit;
 }
 
 
+
+
 .navbar-search input::placeholder {
-  color: #bcbcca;
+ color: #bcbcca;
 }
 
+
 /* =========================
-   RESOURCES PAGE
-   ========================= */
+  RESOURCES PAGE
+  ========================= */
+
 
 /* Page content */
 .resource_content {
@@ -85,8 +109,16 @@ height: 100vh;
 
 
 
+
+
+
+
 /* Use fractions instead of percentages to handle the gap properly */
 grid-template-columns: 1fr 5fr;
+
+
+
+
 
 
 
@@ -97,8 +129,16 @@ grid-template-rows: 100%;
 
 
 
+
+
+
+
 text-align: left;
 }
+
+
+
+
 
 
 
@@ -112,11 +152,19 @@ color: #ffffff;
 
 
 
+
+
+
+
 .actual_content {
 height: 100%;
 overflow-y: auto;
 background-color: #373742;
 }
+
+
+
+
 
 
 
@@ -134,6 +182,10 @@ display: block;
 
 
 
+
+
+
+
 .search_bar {
 margin: none;
 line-height: none;
@@ -144,15 +196,22 @@ background-color: #4b4b57;
 
 
 
+
+
+
+
 .tags {
 display: grid;
 grid-template-columns: 1fr 1fr;
 }
 
 
+
+
 /* =========================
-   PROFILE PAGE
-   ========================= */
+  PROFILE PAGE
+  ========================= */
+
 
 .profile-container {
 width: 90%;
@@ -162,6 +221,10 @@ padding: 20px;
 box-sizing: border-box;
 color: white;
 }
+
+
+
+
 
 
 
@@ -177,11 +240,19 @@ margin-bottom: 25px;
 
 
 
+
+
+
+
 .profile-image-container {
 display: flex;
 justify-content: center;
 margin-bottom: 20px;
 }
+
+
+
+
 
 
 
@@ -196,9 +267,17 @@ border-radius: 50%;
 
 
 
+
+
+
+
 .profile-picture {
 object-fit: cover;
 }
+
+
+
+
 
 
 
@@ -210,6 +289,10 @@ justify-content: center;
 background-color: #555566;
 color: white;
 }
+
+
+
+
 
 
 
@@ -229,6 +312,10 @@ margin-top: 10px;
 
 
 
+
+
+
+
 .edit-profile-button:hover,
 .save-button:hover,
 .add-item button:hover {
@@ -238,9 +325,17 @@ opacity: 0.8;
 
 
 
+
+
+
+
 .profile-information {
 margin-top: 20px;
 }
+
+
+
+
 
 
 
@@ -255,9 +350,17 @@ border-radius: 10px;
 
 
 
+
+
+
+
 .profile-section h2 {
 margin-top: 0;
 }
+
+
+
+
 
 
 
@@ -269,11 +372,19 @@ line-height: 1.6;
 
 
 
+
+
+
+
 .tag-container {
 display: flex;
 flex-wrap: wrap;
 gap: 10px;
 }
+
+
+
+
 
 
 
@@ -291,6 +402,10 @@ color: white;
 
 
 
+
+
+
+
 .tag button {
 border: none;
 background: transparent;
@@ -298,6 +413,10 @@ color: white;
 cursor: pointer;
 font-size: 16px;
 }
+
+
+
+
 
 
 
@@ -313,11 +432,19 @@ background-color: #262630;
 
 
 
+
+
+
+
 .edit-profile {
 background-color: #30303b;
 padding: 25px;
 border-radius: 12px;
 }
+
+
+
+
 
 
 
@@ -329,9 +456,17 @@ margin-top: 0;
 
 
 
+
+
+
+
 .form-section {
 margin-bottom: 25px;
 }
+
+
+
+
 
 
 
@@ -341,6 +476,10 @@ display: block;
 font-weight: bold;
 margin-bottom: 8px;
 }
+
+
+
+
 
 
 
@@ -359,9 +498,17 @@ color: white;
 
 
 
+
+
+
+
 .form-section textarea {
 resize: vertical;
 }
+
+
+
+
 
 
 
@@ -375,9 +522,17 @@ margin-top: 10px;
 
 
 
+
+
+
+
 .add-item input {
 flex: 1;
 }
+
+
+
+
 
 
 
@@ -391,6 +546,10 @@ margin-top: 30px;
 
 
 
+
+
+
+
 .cancel-button {
 background-color: #555;
 color: white;
@@ -399,10 +558,18 @@ color: white;
 
 
 
+
+
+
+
 .save-button {
 background-color: #3c3c4d;
 color: white;
 }
+
+
+
+
 
 
 
@@ -416,154 +583,273 @@ color: white;
 
 
 
+
+
+
+
 /* =========================
- JOBS PAGE
- ========================= */
+JOBS PAGE
+========================= */
+
+
+
+
 
 
 
 
 .jobs-container {
-  width: 90%;
-  max-width: 1100px;
-  margin: 30px auto;
-  color: white;
+ width: 90%;
+ max-width: 1100px;
+ margin: 30px auto;
+ color: white;
 }
 
+
 /* =========================
-   JOBS PAGE
-   ========================= */
+  JOBS PAGE
+  ========================= */
+
 
 .jobs-header {
-  margin-bottom: 30px;
+ margin-bottom: 30px;
 }
+
 
 .jobs-header h1 {
-  margin-top: 0;
+ margin-top: 0;
 }
+
 
 .jobs-header p {
-  color: #d0d0db;
-  line-height: 1.6;
+ color: #d0d0db;
+ line-height: 1.6;
 }
+
 
 .jobs-results {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+ display: flex;
+ flex-direction: column;
+ gap: 20px;
 }
+
 
 .jobs-count {
-  color: #d0d0db;
-  font-size: 14px;
-  margin: 0;
+ color: #d0d0db;
+ font-size: 14px;
+ margin: 0;
 }
+
 
 .job-card {
-  background: #30303b;
-  border-radius: 10px;
-  padding: 20px;
-  color: white;
+ background: #30303b;
+ border-radius: 10px;
+ padding: 20px;
+ color: white;
 }
+
 
 .job-card h2 {
-  margin-top: 0;
-  color: white;
+ margin-top: 0;
+ color: white;
 }
+
 
 .job-card h3 {
-  color: #d0d0db;
+ color: #d0d0db;
 }
+
 
 .job-card p {
-  color: #e0e0e8;
+ color: #e0e0e8;
 }
+
+
+.jobs-toolbar {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+}
+
+
+.filter-button,
+.filter-clear {
+ padding: 8px 16px;
+ border: 1px solid #666677;
+ border-radius: 6px;
+ background: #3c3c4d;
+ color: white;
+ font: inherit;
+ cursor: pointer;
+}
+
+
+.filter-clear {
+ background: transparent;
+ color: #d0d0db;
+}
+
+
+.filter-button:hover,
+.filter-clear:hover {
+ background: #505063;
+}
+
+
+.filter-button:focus-visible,
+.filter-clear:focus-visible,
+.filter-chip:focus-visible {
+ outline: 2px solid #c5c5ff;
+ outline-offset: 2px;
+}
+
+
+.filter-panel {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 10px;
+ padding: 15px;
+ background: #30303b;
+ border-radius: 10px;
+}
+
+
+/* Needed because display:flex overrides the hidden attribute */
+.filter-panel[hidden] {
+ display: none;
+}
+
+
+.filter-chip {
+ padding: 6px 14px;
+ border: 1px solid #666677;
+ border-radius: 20px;
+ background: #262630;
+ color: white;
+ font: inherit;
+ cursor: pointer;
+}
+
+
+.filter-chip.active {
+ background: #5a5a8a;
+ border-color: #c5c5ff;
+}
+
 
 /* =========================
-   BLOGS PAGE
-   ========================= */
+  BLOGS PAGE
+  ========================= */
+
 
 .blogs-container {
-  width: 90%;
-  max-width: 1100px;
-  margin: 30px auto;
-  color: white;
+ width: 90%;
+ max-width: 1100px;
+ margin: 30px auto;
+ color: white;
 }
+
 
 .blogs-header {
-  margin-bottom: 30px;
+ margin-bottom: 30px;
 }
+
 
 .blogs-header h1 {
-  margin-top: 0;
+ margin-top: 0;
 }
+
 
 .blogs-header p {
-  color: #d0d0db;
-  line-height: 1.6;
+ color: #d0d0db;
+ line-height: 1.6;
 }
+
 
 .blogs-results {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+ display: flex;
+ flex-direction: column;
+ gap: 20px;
 }
+
 
 .blogs-count {
-  color: #d0d0db;
-  font-size: 14px;
-  margin: 0;
+ color: #d0d0db;
+ font-size: 14px;
+ margin: 0;
 }
+
 
 .blog-card {
-  background: #30303b;
-  border-radius: 10px;
-  padding: 20px;
-  color: white;
+ background: #30303b;
+ border-radius: 10px;
+ padding: 20px;
+ color: white;
 }
+
 
 .blog-card h2 {
-  margin-top: 0;
-  color: white;
+ margin-top: 0;
+ color: white;
 }
+
 
 .blog-card h3 {
-  color: #d0d0db;
+ color: #d0d0db;
 }
 
+
 .blog-card p {
-  color: #e0e0e8;
+ color: #e0e0e8;
 }
+
+
 
 
 /* Profile works on smaller screens */
 @media (max-width: 600px) {
 .profile-container {
-  width: 95%;
-  padding: 10px;
+ width: 95%;
+ padding: 10px;
 }
+
+
+
+
 
 
 
 
 .profile-header {
-  padding: 20px;
+ padding: 20px;
 }
+
+
+
+
 
 
 
 
 .add-item {
-  flex-direction: column;
+ flex-direction: column;
 }
+
+
+
+
 
 
 
 
 .profile-buttons {
-  flex-direction: column;
+ flex-direction: column;
 }
 }
+
+
+
+
 
 
 
@@ -573,6 +859,10 @@ color: white;
 margin-left: auto;
 width: 300px;
 }
+
+
+
+
 
 
 
@@ -591,6 +881,10 @@ font: inherit;
 
 
 
+
+
+
+
 .navbar-search input::placeholder {
 color: #bcbcca;
 }
@@ -598,24 +892,24 @@ color: #bcbcca;
 .navbar-resources { position: relative; }
 .navbar-resources-heading { display: flex; align-items: center; }
 .navbar-dropdown-toggle {
-  padding: 10px 8px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: white;
-  font: inherit;
-  cursor: pointer;
+ padding: 10px 8px;
+ border: 0;
+ border-radius: 4px;
+ background: transparent;
+ color: white;
+ font: inherit;
+ cursor: pointer;
 }
 .navbar-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  min-width: 180px;
-  padding: 6px;
-  border: 1px solid #666677;
-  border-radius: 8px;
-  background: #30303b;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+ position: absolute;
+ top: 100%;
+ right: 0;
+ min-width: 180px;
+ padding: 6px;
+ border: 1px solid #666677;
+ border-radius: 8px;
+ background: #30303b;
+ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 #navbar .navbar-dropdown a { float: none; text-align: left; border-radius: 4px; }
 #navbar a:hover, .navbar-dropdown-toggle:hover { background: #505063; }
