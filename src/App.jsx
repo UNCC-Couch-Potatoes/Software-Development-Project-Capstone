@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import ProtectedRoute from './ProtectedRoute';
 import Login from './Login';
 import Home from './Home';
-import Blogs from './Blogpage/Blogs';
+import Blogs from './BlogPage/Blogs';
 import Jams from './Jams';
 import Jobs from './Jobs';
 import Profile from './Profile';
