@@ -1,0 +1,3 @@
+package com.ctrlf.api.dto;
+
+public record LoginRequest(String usernameOrEmail, String password) {}
