@@ -791,3 +791,41 @@ WHERE NOT EXISTS (SELECT 1 FROM Resources WHERE SiteLink = 'https://gamehistory.
 -- Existing sample account (skipped if already present).
 INSERT IGNORE INTO UserProfile (Username,Email,Password,FirstName,LastName,Skills,Interests,Bio,Joindate) VALUES
     ("timmyturner123","big_t@gmail.com","$2a$10$bn8/itnfgYRazYKLKhrG3u1ZoK69dULL/LGszVH8.lS0BRf7mbvWS", "Timmy","Turner", " ", " ", " ", '2026-01-01');
+
+-- Sample job listings (append to the end of sample-data.sql).
+
+INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)
+SELECT 'Game Developer', 'Example Studios: Develop and maintain games using programming and game development tools. Experience with Unity preferred.', '|Programming|Full-time|Remote|Unity|', 'https://example.com/jobs/game-developer'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE JobTitle = 'Game Developer' AND SiteLink = 'https://example.com/jobs/game-developer');
+
+INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)
+SELECT '3D Artist', 'Pixel Games: Create 3D models, environments, and assets for games using Blender.', '|Art|3D|Full-time|On-site|Blender|', 'https://example.com/jobs/3d-artist'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE JobTitle = '3D Artist' AND SiteLink = 'https://example.com/jobs/3d-artist');
+
+INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)
+SELECT 'Sound Designer', 'Indie Games Co.: Create sound effects and audio for video games.', '|Audio|Contract|Remote|', 'https://example.com/jobs/sound-designer'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE JobTitle = 'Sound Designer' AND SiteLink = 'https://example.com/jobs/sound-designer');
+
+INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)
+SELECT 'Gameplay Engineer', 'Nova Interactive: Build gameplay systems and tools in Unreal Engine with a small team.', '|Programming|Full-time|Remote|Unreal|', 'https://example.com/jobs/gameplay-engineer'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE JobTitle = 'Gameplay Engineer' AND SiteLink = 'https://example.com/jobs/gameplay-engineer');
+
+INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)
+SELECT 'Narrative Writer', 'Storyforge: Write dialogue, quests, and story content for an RPG.', '|Writing|Part-time|Remote|', 'https://example.com/jobs/narrative-writer'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE JobTitle = 'Narrative Writer' AND SiteLink = 'https://example.com/jobs/narrative-writer');
+
+INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)
+SELECT 'QA Tester Intern', 'Bright Byte Studios: Test builds, report bugs, and help the team ship a mobile game on iOS and Android.', '|QA|Internship|On-site|Mobile|', 'https://example.com/jobs/qa-tester-intern'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE JobTitle = 'QA Tester Intern' AND SiteLink = 'https://example.com/jobs/qa-tester-intern');
+
+INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)
+SELECT 'Level Designer', 'Lantern Labs: Design and prototype levels in Godot for a 2D platformer.', '|Design|Contract|Remote|Godot|', 'https://example.com/jobs/level-designer'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE JobTitle = 'Level Designer' AND SiteLink = 'https://example.com/jobs/level-designer');
+
+INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)
+SELECT 'Community Manager', 'Ember Publishing: Run social media and community events for our indie publishing label.', '|Marketing|Full-time|Remote|', 'https://example.com/jobs/community-manager'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE JobTitle = 'Community Manager' AND SiteLink = 'https://example.com/jobs/community-manager');
+
+INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)
+SELECT 'VR Animator', 'Orbit Reality: Animate characters and create 3D assets for virtual reality experiences.', '|Art|Animation|Contract|On-site|VR/AR|', 'https://example.com/jobs/vr-animator'
+WHERE NOT EXISTS (SELECT 1 FROM Jobs WHERE JobTitle = 'VR Animator' AND SiteLink = 'https://example.com/jobs/vr-animator');
