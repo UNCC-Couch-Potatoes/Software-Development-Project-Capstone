@@ -58,6 +58,112 @@ const hasKeyword = (text, keyword) => {
 };
 
 
+// Turns a job from the API into the shape the page uses
+const toJob = (job) => ({
+   id: job.jobId,
+   title: job.jobTitle,
+   description: job.jobDescription,
+   link: job.siteLink,
+   tags: job.jobTags,
+   type: job.jobTags.find((t) => JOB_TYPES.includes(t)) || '',
+   location: job.jobTags.find((t) => JOB_LOCATIONS.includes(t)) || ''
+});
+
+
+// Blank form used when posting a new job
+const EMPTY_FORM = { title: '', type: '', location: '', description: '', link: '', extraTags: '' };
+
+
+// Fills the form from an existing job; anything that isn't the type or location stays in "other tags"
+const jobToForm = (job) => ({
+   title: job.title,
+   type: job.type,
+   location: job.location,
+   description: job.description,
+   link: job.link,
+   extraTags: job.tags.filter((t) => t !== job.type && t !== job.location).join(', ')
+});
+
+
+// Turns the form back into the body the API expects (type and location are saved as tags)
+const formToBody = (form) => ({
+   jobTitle: form.title.trim(),
+   jobDescription: form.description.trim(),
+   siteLink: form.link.trim(),
+   jobTags: [form.type, form.location, ...form.extraTags.split(',')]
+       .map((tag) => tag.trim())
+       .filter(Boolean)
+});
+
+
+// Friendly messages for the errors the API can send back
+const errorMessage = (status) => {
+   if (status === 401) return 'Please log in again.';
+   if (status === 400) return 'Please check the fields. The title can be up to 50 characters and the link must start with http:// or https://.';
+   if (status === 404) return 'This job no longer exists. Refresh the page.';
+   if (status === 409) return 'This job has applications, so it cannot be deleted.';
+   return 'Unable to complete the request.';
+};
+
+
+// Form used for both posting a new job and editing an existing one
+function JobForm({ heading, initial, submitLabel, saving, error, onSave, onCancel }) {
+ const [form, setForm] = useState(initial);
+ const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }));
+
+ return (
+     <form
+         className="job-card job-form"
+         onSubmit={(event) => {
+             event.preventDefault();
+             onSave(form);
+         }}
+     >
+         <h2>{heading}</h2>
+         <label>
+             Title
+             <input type="text" value={form.title} onChange={update('title')} maxLength={50} required />
+         </label>
+         <div className="job-form-row">
+             <label>
+                 Job type
+                 <select value={form.type} onChange={update('type')}>
+                     <option value="">Not specified</option>
+                     {JOB_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+                 </select>
+             </label>
+             <label>
+                 Location
+                 <select value={form.location} onChange={update('location')}>
+                     <option value="">Not specified</option>
+                     {JOB_LOCATIONS.map((place) => <option key={place} value={place}>{place}</option>)}
+                 </select>
+             </label>
+         </div>
+         <label>
+             Description
+             <textarea value={form.description} onChange={update('description')} rows={5} required />
+         </label>
+         <label>
+             Link to listing (optional)
+             <input type="url" value={form.link} onChange={update('link')} pattern="https?://\S+" placeholder="https://example.com/jobs/..." maxLength={2048} />
+         </label>
+         <label>
+             Other tags (optional, separated by commas)
+             <input type="text" value={form.extraTags} onChange={update('extraTags')} placeholder="Programming, Unity" />
+         </label>
+         {error && <p className="job-form-error" role="alert">{error}</p>}
+         <div className="job-actions">
+             <button type="submit" className="filter-button" disabled={saving}>
+                 {saving ? 'Saving...' : submitLabel}
+             </button>
+             <button type="button" className="filter-clear" onClick={onCancel} disabled={saving}>Cancel</button>
+         </div>
+     </form>
+ );
+}
+
+
 function Jobs() {
  const [resourceMenuOpen, setResourceMenuOpen] = useState(false);
  const [query, setQuery] = useState('');
@@ -70,6 +176,13 @@ function Jobs() {
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState('');
 
+ // editingId is null (no form open), 'new' (posting a job), or the id of the job being edited
+ const [editingId, setEditingId] = useState(null);
+ const [saving, setSaving] = useState(false);
+ const [formError, setFormError] = useState('');
+ const [deletingId, setDeletingId] = useState(null);
+ const [actionError, setActionError] = useState('');
+
 
  useEffect(() => {
      let cancelled = false;
@@ -80,15 +193,7 @@ function Jobs() {
          })
          .then((data) => {
              if (cancelled) return;
-             setJobs(data.map((job) => ({
-                 id: job.jobId,
-                 title: job.jobTitle,
-                 description: job.jobDescription,
-                 link: job.siteLink,
-                 tags: job.jobTags,
-                 type: job.jobTags.find((t) => JOB_TYPES.includes(t)) || '',
-                 location: job.jobTags.find((t) => JOB_LOCATIONS.includes(t)) || ''
-             })));
+             setJobs(data.map(toJob));
          })
          .catch(() => {
              if (!cancelled) setError('Could not load jobs. Please try again later.');
@@ -98,6 +203,58 @@ function Jobs() {
          });
      return () => { cancelled = true; };
  }, []);
+
+
+ const openForm = (id) => {
+     setFormError('');
+     setActionError('');
+     setEditingId(id);
+ };
+
+
+ // Creates a job (POST) or updates one (PUT), then updates the list on the page
+ const saveJob = async (form) => {
+     const isNew = editingId === 'new';
+     setSaving(true);
+     setFormError('');
+     try {
+         const res = await fetch(isNew ? '/api/jobs' : `/api/jobs/${editingId}`, {
+             method: isNew ? 'POST' : 'PUT',
+             credentials: 'include',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify(formToBody(form))
+         });
+         if (!res.ok) throw new Error(errorMessage(res.status));
+         const saved = toJob(await res.json());
+         setJobs((current) => isNew
+             ? [saved, ...current]
+             : current.map((job) => (job.id === saved.id ? saved : job)));
+         setEditingId(null);
+     } catch (err) {
+         setFormError(err.message === 'Failed to fetch' ? errorMessage() : err.message);
+     } finally {
+         setSaving(false);
+     }
+ };
+
+
+ // Asks first, then deletes the job (DELETE) and removes its card
+ const deleteJob = async (job) => {
+     if (!window.confirm(`Delete "${job.title}"? This cannot be undone.`)) return;
+     setDeletingId(job.id);
+     setActionError('');
+     try {
+         const res = await fetch(`/api/jobs/${job.id}`, { method: 'DELETE', credentials: 'include' });
+         // 404 means it was already deleted, so just remove it from the page
+         if (!res.ok && res.status !== 404) throw new Error(errorMessage(res.status));
+         setJobs((current) => current.filter((item) => item.id !== job.id));
+         if (editingId === job.id) setEditingId(null);
+     } catch (err) {
+         setActionError(err.message === 'Failed to fetch' ? errorMessage() : err.message);
+     } finally {
+         setDeletingId(null);
+     }
+ };
 
 
  // Adds or removes a filter from the selected list
@@ -207,6 +364,14 @@ function Jobs() {
                      >
                          Filter{selectedFilters.length > 0 && ` (${selectedFilters.length})`}
                      </button>
+                     <button
+                         type="button"
+                         className="filter-button post-job-button"
+                         onClick={() => openForm('new')}
+                         disabled={editingId === 'new'}
+                     >
+                         Post a job
+                     </button>
                      {selectedFilters.length > 0 && (
                          <button
                              type="button"
@@ -242,6 +407,21 @@ function Jobs() {
                  </div>
 
 
+                 {/* Form for posting a new job */}
+                 {editingId === 'new' && (
+                     <JobForm
+                         heading="Post a job"
+                         initial={EMPTY_FORM}
+                         submitLabel="Post job"
+                         saving={saving}
+                         error={formError}
+                         onSave={saveJob}
+                         onCancel={() => setEditingId(null)}
+                     />
+                 )}
+                 {actionError && <p className="job-form-error" role="alert">{actionError}</p>}
+
+
                  {/* Shows how many jobs are currently being displayed */}
                  {!loading && !error && (
                      <p className="jobs-count">
@@ -258,14 +438,40 @@ function Jobs() {
                  )}
                  {/* Creates cards for each job listing */}
                  {visibleJobs.map((job) => (
-                     <article className="job-card" key={job.id}>
-                         <h2>{job.title}</h2>
-                         <h3>{[job.type, job.location].filter(Boolean).join(' · ')}</h3>
-                         <p>{job.description}</p>
-                         {job.link && (
-                             <a href={job.link} target="_blank" rel="noopener noreferrer">View listing</a>
-                         )}
-                     </article>
+                     editingId === job.id ? (
+                         <JobForm
+                             key={job.id}
+                             heading="Edit job"
+                             initial={jobToForm(job)}
+                             submitLabel="Save changes"
+                             saving={saving}
+                             error={formError}
+                             onSave={saveJob}
+                             onCancel={() => setEditingId(null)}
+                         />
+                     ) : (
+                         <article className="job-card" key={job.id}>
+                             <h2>{job.title}</h2>
+                             <h3>{[job.type, job.location].filter(Boolean).join(' · ')}</h3>
+                             <p>{job.description}</p>
+                             {job.link && (
+                                 <a href={job.link} target="_blank" rel="noopener noreferrer">View listing</a>
+                             )}
+                             <div className="job-actions">
+                                 <button type="button" className="filter-button" onClick={() => openForm(job.id)}>
+                                     Edit
+                                 </button>
+                                 <button
+                                     type="button"
+                                     className="filter-button job-delete-button"
+                                     onClick={() => deleteJob(job)}
+                                     disabled={deletingId === job.id}
+                                 >
+                                     {deletingId === job.id ? 'Deleting...' : 'Delete'}
+                                 </button>
+                             </div>
+                         </article>
+                     )
                  ))}
                  {!loading && !error && visibleJobs.length === 0 && (
                      <div className="job-card">

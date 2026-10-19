@@ -29,6 +29,17 @@ public class Job {
 
     protected Job() {}
 
+    public Job(String jobTitle, String jobDescription, String jobTags, String siteLink) {
+        update(jobTitle, jobDescription, jobTags, siteLink);
+    }
+
+    public void update(String jobTitle, String jobDescription, String jobTags, String siteLink) {
+        this.jobTitle = jobTitle;
+        this.jobDescription = jobDescription;
+        this.jobTags = jobTags;
+        this.siteLink = siteLink;
+    }
+
     public Long getJobId() { return jobId; }
     public String getJobTitle() { return jobTitle; }
     public String getJobDescription() { return jobDescription; }
