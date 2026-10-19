@@ -64,6 +64,7 @@ const toJob = (job) => ({
    title: job.jobTitle,
    description: job.jobDescription,
    link: job.siteLink,
+   ownerUserId: job.ownerUserId,
    tags: job.jobTags,
    type: job.jobTags.find((t) => JOB_TYPES.includes(t)) || '',
    location: job.jobTags.find((t) => JOB_LOCATIONS.includes(t)) || ''
@@ -100,6 +101,7 @@ const formToBody = (form) => ({
 const errorMessage = (status) => {
    if (status === 401) return 'Please log in again.';
    if (status === 400) return 'Please check the fields. The title can be up to 50 characters and the link must start with http:// or https://.';
+   if (status === 403) return 'Only the person who posted this job can change it.';
    if (status === 404) return 'This job no longer exists. Refresh the page.';
    if (status === 409) return 'This job has applications, so it cannot be deleted.';
    return 'Unable to complete the request.';
@@ -183,6 +185,9 @@ function Jobs() {
  const [deletingId, setDeletingId] = useState(null);
  const [actionError, setActionError] = useState('');
 
+ // Current user, so Edit and Delete only show on jobs they posted
+ const [userId, setUserId] = useState(null);
+
 
  useEffect(() => {
      let cancelled = false;
@@ -255,6 +260,16 @@ function Jobs() {
          setDeletingId(null);
      }
  };
+
+
+ useEffect(() => {
+     let cancelled = false;
+     fetch('/api/auth/me', { credentials: 'include' })
+         .then((res) => (res.ok ? res.json() : null))
+         .then((user) => { if (!cancelled && user) setUserId(user.userId); })
+         .catch(() => {});
+     return () => { cancelled = true; };
+ }, []);
 
 
  // Adds or removes a filter from the selected list
@@ -457,19 +472,21 @@ function Jobs() {
                              {job.link && (
                                  <a href={job.link} target="_blank" rel="noopener noreferrer">View listing</a>
                              )}
-                             <div className="job-actions">
-                                 <button type="button" className="filter-button" onClick={() => openForm(job.id)}>
-                                     Edit
-                                 </button>
-                                 <button
-                                     type="button"
-                                     className="filter-button job-delete-button"
-                                     onClick={() => deleteJob(job)}
-                                     disabled={deletingId === job.id}
-                                 >
-                                     {deletingId === job.id ? 'Deleting...' : 'Delete'}
-                                 </button>
-                             </div>
+                             {userId !== null && job.ownerUserId === userId && (
+                                 <div className="job-actions">
+                                     <button type="button" className="filter-button" onClick={() => openForm(job.id)}>
+                                         Edit
+                                     </button>
+                                     <button
+                                         type="button"
+                                         className="filter-button job-delete-button"
+                                         onClick={() => deleteJob(job)}
+                                         disabled={deletingId === job.id}
+                                     >
+                                         {deletingId === job.id ? 'Deleting...' : 'Delete'}
+                                     </button>
+                                 </div>
+                             )}
                          </article>
                      )
                  ))}

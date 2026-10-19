@@ -27,9 +27,13 @@ public class Job {
     @Column(name = "SiteLink", nullable = false, length = 2048)
     private String siteLink;
 
+    @Column(name = "OwnerUserId")
+    private Long ownerUserId;
+
     protected Job() {}
 
-    public Job(String jobTitle, String jobDescription, String jobTags, String siteLink) {
+    public Job(Long ownerUserId, String jobTitle, String jobDescription, String jobTags, String siteLink) {
+        this.ownerUserId = ownerUserId;
         update(jobTitle, jobDescription, jobTags, siteLink);
     }
 
@@ -45,4 +49,5 @@ public class Job {
     public String getJobDescription() { return jobDescription; }
     public String getJobTags() { return jobTags; }
     public String getSiteLink() { return siteLink; }
+    public Long getOwnerUserId() { return ownerUserId; }
 }

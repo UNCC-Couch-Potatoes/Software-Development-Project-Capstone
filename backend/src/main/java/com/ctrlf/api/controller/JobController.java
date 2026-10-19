@@ -24,12 +24,13 @@ public class JobController {
     private final JobService service;
     public JobController(JobService service) { this.service = service; }
 
-    // Same session check the resources API uses: you must be logged in to change jobs
-    private void requireLogin(HttpServletRequest request) {
+    // Same session check the resources API uses: you must be logged in, and you can only change your own jobs
+    private Long currentUser(HttpServletRequest request) {
         var session = request.getSession(false);
-        if (session == null || !(session.getAttribute("userId") instanceof Long)) {
+        if (session == null || !(session.getAttribute("userId") instanceof Long userId)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please log in again.");
         }
+        return userId;
     }
 
     @GetMapping
@@ -42,21 +43,18 @@ public class JobController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public JobResponse create(@RequestBody JobRequest body, HttpServletRequest request) {
-        requireLogin(request);
-        return service.create(body);
+        return service.create(currentUser(request), body);
     }
 
     @PutMapping("/{id}")
     public JobResponse update(@PathVariable Long id, @RequestBody JobRequest body,
             HttpServletRequest request) {
-        requireLogin(request);
-        return service.update(id, body);
+        return service.update(id, currentUser(request), body);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id, HttpServletRequest request) {
-        requireLogin(request);
-        service.delete(id);
+        service.delete(id, currentUser(request));
     }
 }

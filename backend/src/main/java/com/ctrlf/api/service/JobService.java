@@ -25,32 +25,39 @@ public class JobService {
     }
 
     @Transactional
-    public JobResponse create(JobRequest req) {
-        Job job = new Job("", "", "", "");
+    public JobResponse create(Long userId, JobRequest req) {
+        Job job = new Job(userId, "", "", "", "");
         apply(job, req);
         return JobResponse.from(repository.save(job));
     }
 
     @Transactional
-    public JobResponse update(Long id, JobRequest req) {
-        Job job = repository.findById(id).orElseThrow(() ->
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found."));
+    public JobResponse update(Long id, Long userId, JobRequest req) {
+        Job job = findOwned(id, userId);
         apply(job, req);
         return JobResponse.from(repository.save(job));
     }
 
     @Transactional
-    public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found.");
-        }
+    public void delete(Long id, Long userId) {
+        Job job = findOwned(id, userId);
         try {
-            repository.deleteById(id);
+            repository.delete(job);
             repository.flush();
         } catch (DataIntegrityViolationException e) {
             // JobApplication rows point at this job, so the database won't let it go
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This job has applications and cannot be deleted.");
         }
+    }
+
+    // Finds the job and makes sure the logged-in user is the one who posted it
+    private Job findOwned(Long id, Long userId) {
+        Job job = repository.findById(id).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found."));
+        if (!userId.equals(job.getOwnerUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the person who posted this job can change it.");
+        }
+        return job;
     }
 
     // Validates the request against the Jobs table limits, then copies it onto the entity

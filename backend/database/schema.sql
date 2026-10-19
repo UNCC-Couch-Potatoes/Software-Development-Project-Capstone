@@ -99,6 +99,8 @@ CREATE TABLE IF NOT EXISTS Jobs (
     JobTags VARCHAR(1000) NOT NULL,
     -- if you want to implement extrenal job postings
     SiteLink VARCHAR(2048) NOT NULL,
+    -- the user who posted the job; NULL for jobs that were not posted through the site
+    OwnerUserId BIGINT NULL,
     PRIMARY KEY (JobId)
 );
 
