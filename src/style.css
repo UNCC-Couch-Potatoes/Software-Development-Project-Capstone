@@ -915,3 +915,84 @@ color: #bcbcca;
 #navbar a:hover, .navbar-dropdown-toggle:hover { background: #505063; }
 #navbar :is(a, button):focus-visible { outline: 2px solid #c5c5ff; outline-offset: -2px; }
 #navbar .navbar-search { max-width: 100%; }
+
+/* =========================
+  JOBS PAGE: post / edit / delete
+  ========================= */
+
+
+.job-actions {
+ display: flex;
+ gap: 10px;
+ margin-top: 16px;
+}
+
+
+.job-form {
+ display: flex;
+ flex-direction: column;
+ gap: 14px;
+}
+
+
+.job-form label {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ color: #d0d0db;
+ font-size: 14px;
+}
+
+
+.job-form input,
+.job-form select,
+.job-form textarea {
+ padding: 8px 10px;
+ border: 1px solid #666677;
+ border-radius: 6px;
+ background: #3c3c4d;
+ color: white;
+ font: inherit;
+}
+
+
+.job-form textarea {
+ resize: vertical;
+}
+
+
+.job-form-row {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 14px;
+}
+
+
+.job-form .job-actions {
+ margin-top: 0;
+}
+
+
+.job-form-error {
+ margin: 0;
+ color: #ff9a9a;
+}
+
+
+.filter-button:disabled,
+.filter-clear:disabled {
+ opacity: 0.6;
+ cursor: not-allowed;
+}
+
+
+.job-delete-button:hover:not(:disabled) {
+ background: #7a3333;
+}
+
+
+@media (max-width: 600px) {
+ .job-form-row {
+   grid-template-columns: 1fr;
+ }
+}
