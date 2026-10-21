@@ -126,8 +126,15 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Too many skills or interests. Remove a few and try again.");
         }
 
+        String picture = req.profilePicture();
+        if (picture != null && (picture.length() > 2_800_000
+                || !picture.matches("^data:image/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/]+={0,2}$"))) {
+            return ResponseEntity.badRequest().body("Choose an image smaller than 2 MB.");
+        }
+
         UserProfile user = found.get();
         user.updateProfile(firstName, lastName, bio, skills, interests);
+        user.setProfilePicture(picture);
         UserProfile saved = repo.save(user);
         return ResponseEntity.ok(UserProfileResponse.from(saved));
     }

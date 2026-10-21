@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS UserProfile (
     Interests VARCHAR(1000) NOT NULL,
     Bio VARCHAR(1000) NOT NULL,
     JoinDate DATE NOT NULL,
+    ProfilePicture MEDIUMTEXT NULL,
     PRIMARY KEY (UserId),
     UNIQUE KEY UQ_UserProfile_Username (Username),
     UNIQUE KEY UQ_UserProfile_Email (Email)

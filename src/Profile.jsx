@@ -18,31 +18,6 @@ const defaultPosts = [
   }
 ];
 
-// The picture is stored in this browser, separately for each user
-function pictureKey(userId) {
-  return `profilePicture:${userId}`;
-}
-
-function loadPicture(userId) {
-  try {
-    return localStorage.getItem(pictureKey(userId));
-  } catch {
-    return null;
-  }
-}
-
-function savePicture(userId, picture) {
-  try {
-    if (picture) {
-      localStorage.setItem(pictureKey(userId), picture);
-    } else {
-      localStorage.removeItem(pictureKey(userId));
-    }
-  } catch {
-    // Storage full or blocked; the picture just won't be remembered
-  }
-}
-
 // "2026-10-05" -> "October 2026"
 function formatJoinDate(joinDate) {
   if (!joinDate) return '';
@@ -102,7 +77,7 @@ function Profile() {
 
         const data = await response.json();
         setProfile(data);
-        setProfilePicture(loadPicture(data.userId));
+        setProfilePicture(data.profilePicture || null);
       } catch {
         setLoadError('Unable to connect to the server. Please try again.');
       }
@@ -130,7 +105,7 @@ function Profile() {
 
   function cancelEditing() {
     fillFormFrom(profile);
-    setProfilePicture(loadPicture(profile.userId));
+    setProfilePicture(profile.profilePicture || null);
     setSaveError('');
     setIsEditing(false);
   }
@@ -174,11 +149,12 @@ function Profile() {
         lastName,
         bio,
         skills,
-        interests
+        interests,
+        profilePicture
       });
 
       if (saved) {
-        savePicture(saved.userId, profilePicture);
+        setProfilePicture(saved.profilePicture || null);
         setIsEditing(false);
         setSaveSuccess('Profile saved.');
       }
@@ -211,11 +187,11 @@ function Profile() {
         lastName: profile.lastName,
         bio: '',
         skills: [],
-        interests: []
+        interests: [],
+        profilePicture: null
       });
 
       if (saved) {
-        savePicture(saved.userId, null);
         setProfilePicture(null);
         setSaveSuccess('Profile cleared.');
       }

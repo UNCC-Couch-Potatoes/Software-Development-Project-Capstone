@@ -41,6 +41,9 @@ public class UserProfile {
     @Column(name = "Bio", nullable = false, length = 1000)
     private String bio;
 
+    @Column(name = "ProfilePicture", columnDefinition = "MEDIUMTEXT")
+    private String profilePicture;
+
     @Column(name = "JoinDate", nullable = false)
     private LocalDate joinDate;
 
@@ -66,6 +69,9 @@ public class UserProfile {
         this.skills = skills;
         this.interests = interests;
     }
+
+    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
+    public String getProfilePicture() { return profilePicture; }
 
     public Long getUserId() { return userId; }
     public String getUsername() { return username; }

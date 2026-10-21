@@ -128,18 +128,8 @@ be removed in the editor. The API canonicalizes approved tag names and rejects
 unknown tags. Tags continue to be stored in the existing pipe-delimited `Tags`
 column. The tag catalog is the authority for selectable names.
 
-For an existing database, apply `backend/database/resource-posts-migration.sql`
-if needed, then `backend/database/resource-tags-migration.sql` before restarting
-the backend. The tag migration creates and seeds `ResourceTags` and adds **User Made**
-to existing owned resources. It does not mark external website resources as user made.
-If an old post used custom tags, remove or replace those tags when editing it.
-
 For a new database, run `backend/database/schema.sql` followed by
 `backend/database/sample-data.sql`. The sample file includes the approved catalog
 and 120 researched resources (20 per group), each tagged only with catalog values.
 It skips resource URLs and the sample account that already exist when rerun.
 `backend/database/resource-tags.sql` can also seed the tag catalog independently.
-
-See `backend/database/resource-catalog.md` for the research date, original source
-links, summaries, and tag assignments. The source list includes official project
-sites, documentation, original author pages, and project repositories.
