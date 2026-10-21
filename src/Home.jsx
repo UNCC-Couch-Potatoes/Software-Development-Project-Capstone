@@ -262,7 +262,9 @@ function Home() {
       <div className="home-shell">
         <aside className="home-sidebar" aria-label="Your activity">
           <div className="home-user-summary">
-            <div className="home-avatar" aria-hidden="true">{initials}</div>
+            <div className="home-avatar" aria-hidden="true">
+              {user?.profilePicture ? <img src={user.profilePicture} alt="" /> : initials}
+            </div>
             <div>
               <p>Welcome back</p>
               <h2>{fullName || 'Loading...'}</h2>

@@ -29,6 +29,13 @@
   font-weight: 800;
 }
 
+.home-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
 .home-user-summary p,
 .home-user-summary h2 {
   margin: 0;
