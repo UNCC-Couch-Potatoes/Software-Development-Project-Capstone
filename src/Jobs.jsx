@@ -58,6 +58,16 @@ const hasKeyword = (text, keyword) => {
 };
 
 
+// Shortens the listing link to just the site name, e.g. "example.com"
+function getDomain(siteLink) {
+ try {
+   return new URL(siteLink).hostname.replace(/^www\./, '');
+ } catch {
+   return siteLink;
+ }
+}
+
+
 // Turns a job from the API into the shape the page uses
 const toJob = (job) => ({
    id: job.jobId,
@@ -466,12 +476,18 @@ function Jobs() {
                          />
                      ) : (
                          <article className="job-card" key={job.id}>
-                             <h2>{job.title}</h2>
+                             <h2>
+                                 {job.link ? (
+                                     <a href={job.link} target="_blank" rel="noopener noreferrer">
+                                         {job.title}
+                                         <span className="jobs-sr-only"> (opens in a new tab)</span>{' '}
+                                         <span aria-hidden="true">↗</span>
+                                     </a>
+                                 ) : job.title}
+                             </h2>
+                             {job.link && <span className="job-domain">{getDomain(job.link)}</span>}
                              <h3>{[job.type, job.location].filter(Boolean).join(' · ')}</h3>
                              <p>{job.description}</p>
-                             {job.link && (
-                                 <a href={job.link} target="_blank" rel="noopener noreferrer">View listing</a>
-                             )}
                              {userId !== null && job.ownerUserId === userId && (
                                  <div className="job-actions">
                                      <button type="button" className="filter-button" onClick={() => openForm(job.id)}>

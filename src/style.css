@@ -651,6 +651,8 @@ JOBS PAGE
 
 .job-card h2 {
  margin-top: 0;
+ margin-bottom: 6px;
+ font-size: 22px;
  color: white;
 }
 
@@ -662,6 +664,52 @@ JOBS PAGE
 
 .job-card p {
  color: #e0e0e8;
+}
+
+
+/* Job title link: matches the resource card link style */
+.job-card h2 a {
+ color: white;
+ text-decoration: none;
+}
+
+
+.job-card h2 a:hover {
+ text-decoration: underline;
+}
+
+
+.job-card h2 a > span[aria-hidden] {
+ color: #bcbcca;
+ font-size: 18px;
+}
+
+
+.job-domain {
+ display: block;
+ color: #bcbcca;
+ font-size: 14px;
+ overflow-wrap: anywhere;
+}
+
+
+.job-card a:focus-visible {
+ outline: 2px solid #c5c5ff;
+ outline-offset: 4px;
+}
+
+
+/* Screen-reader-only text (same as resources.css, which Jobs doesn't import) */
+.jobs-sr-only {
+ position: absolute;
+ width: 1px;
+ height: 1px;
+ padding: 0;
+ margin: -1px;
+ overflow: hidden;
+ clip-path: inset(50%);
+ white-space: nowrap;
+ border: 0;
 }
 
 
