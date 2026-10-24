@@ -50,6 +50,9 @@ const FILTER_GROUPS = [
 const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Internship'];
 const JOB_LOCATIONS = ['Remote', 'On-site'];
 
+// How many jobs show on each page
+const PAGE_SIZE = 20;
+
 
 // Whole-word match so "art" doesn't match "start" or "party"
 const hasKeyword = (text, keyword) => {
@@ -65,6 +68,18 @@ function getDomain(siteLink) {
  } catch {
    return siteLink;
  }
+}
+
+
+// Logic for displaying page numbers (max 5 at a time)
+function getPageNumbers(currentPage, totalPages) {
+   const firstPage = Math.max(0, Math.min(currentPage - 2, totalPages - 5));
+   const lastPage = Math.min(totalPages, firstPage + 5);
+
+   return Array.from(
+       { length: Math.max(0, lastPage - firstPage) },
+       (_, index) => firstPage + index
+   );
 }
 
 
@@ -182,6 +197,9 @@ function Jobs() {
  const [filterOpen, setFilterOpen] = useState(false);
  const [selectedFilters, setSelectedFilters] = useState([]);
 
+ // Current page (starts at 0)
+ const [page, setPage] = useState(0);
+
 
  // Jobs come from the database through the API
  const [jobs, setJobs] = useState([]);
@@ -282,6 +300,12 @@ function Jobs() {
  }, []);
 
 
+ // Go back to the first page whenever the search or filters change
+ useEffect(() => {
+     setPage(0);
+ }, [query, selectedFilters]);
+
+
  // Adds or removes a filter from the selected list
  const toggleFilter = (label) => {
      setSelectedFilters((current) =>
@@ -311,8 +335,21 @@ function Jobs() {
  });
 
 
+ // Only the jobs for the current page get shown
+ const totalPages = Math.ceil(visibleJobs.length / PAGE_SIZE);
+ // Clamp so deleting the last job on the last page doesn't leave you on an empty page
+ const currentPage = Math.min(page, Math.max(0, totalPages - 1));
+ const pagedJobs = visibleJobs.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+ const pageNumbers = getPageNumbers(currentPage, totalPages);
+
+ const goToPage = (nextPage) => {
+     setPage(nextPage);
+     window.scrollTo({ top: 0, behavior: 'smooth' });
+ };
+
+
  return (
-     <>
+          <>
          {/* Navbar */}
          <nav id="navbar" aria-label="Main navigation">
      <Link to="/">Home</Link>
@@ -461,8 +498,8 @@ function Jobs() {
                          <p>{error}</p>
                      </div>
                  )}
-                 {/* Creates cards for each job listing */}
-                 {visibleJobs.map((job) => (
+                 {/* Creates cards for each job listing on the current page */}
+                 {pagedJobs.map((job) => (
                      editingId === job.id ? (
                          <JobForm
                              key={job.id}
@@ -511,6 +548,41 @@ function Jobs() {
                          <h2>No jobs found</h2>
                          <p>Try searching for another position or clearing your filters.</p>
                      </div>
+                 )}
+
+                 {/* Page controls, only shown when there is more than one page */}
+                 {!loading && !error && totalPages > 1 && (
+                     <nav className="jobs-pagination" aria-label="Job pages">
+                         <button
+                             type="button"
+                             className="filter-button"
+                             disabled={currentPage === 0}
+                             onClick={() => goToPage(currentPage - 1)}
+                         >
+                             Previous
+                         </button>
+
+                         {pageNumbers.map((pageNumber) => (
+                             <button
+                                 type="button"
+                                 className="filter-button jobs-page-button"
+                                 aria-current={pageNumber === currentPage ? 'page' : undefined}
+                                 key={pageNumber}
+                                 onClick={() => goToPage(pageNumber)}
+                             >
+                                 {pageNumber + 1}
+                             </button>
+                         ))}
+
+                         <button
+                             type="button"
+                             className="filter-button"
+                             disabled={currentPage >= totalPages - 1}
+                             onClick={() => goToPage(currentPage + 1)}
+                         >
+                             Next
+                         </button>
+                     </nav>
                  )}
              </section>
          </main>
