@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './style.css';
 import './login.css';
 import { Link, useNavigate } from 'react-router-dom';
+import PasswordInput from './PasswordInput';
 
 function Register() {
   const [form, setForm] = useState({
@@ -139,7 +140,7 @@ function Register() {
 
           <div className="login-field">
             <label htmlFor="password">Password</label>
-            <input
+            <PasswordInput
               id="password"
               name="password"
               type="password"
@@ -153,7 +154,7 @@ function Register() {
 
           <div className="login-field">
             <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
+            <PasswordInput
               id="confirmPassword"
               name="confirmPassword"
               type="password"

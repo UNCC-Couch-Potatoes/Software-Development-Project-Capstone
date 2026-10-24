@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './style.css';
 import './login.css';
 import { Link, useNavigate } from 'react-router-dom';
+import PasswordInput from './PasswordInput';
 
 function Login() {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -62,16 +63,15 @@ function Login() {
 
           <div className="login-field">
             <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              autoComplete="current-password"
-              required
-            />
-          </div>
+            <PasswordInput
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            required
+          />
+        </div>
 
           {error && <p className="login-error">{error}</p>}
 
