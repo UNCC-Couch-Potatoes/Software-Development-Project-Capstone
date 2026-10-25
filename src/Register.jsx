@@ -3,6 +3,8 @@ import './style.css';
 import './login.css';
 import { Link, useNavigate } from 'react-router-dom';
 import PasswordInput from './PasswordInput';
+import PasswordChecklist from './PasswordChecklist';
+import { passwordProblem } from './passwordRules';
 
 function Register() {
   const [form, setForm] = useState({
@@ -28,8 +30,9 @@ function Register() {
     setError('');
 
     // Same rules the backend enforces, checked here so users get instant feedback
-    if (form.password.length < 8 || form.password.length > 72) {
-      setError('Password must be 8 to 72 characters.');
+    const problem = passwordProblem(form.password, form.username);
+    if (problem) {
+      setError(problem);
       return;
     }
     if (form.password !== form.confirmPassword) {
@@ -143,13 +146,13 @@ function Register() {
             <PasswordInput
               id="password"
               name="password"
-              type="password"
               value={form.password}
               onChange={updateField}
-              placeholder="At least 8 characters"
+              placeholder="Create a strong password"
               autoComplete="new-password"
               required
             />
+            <PasswordChecklist password={form.password} />
           </div>
 
           <div className="login-field">
@@ -157,13 +160,15 @@ function Register() {
             <PasswordInput
               id="confirmPassword"
               name="confirmPassword"
-              type="password"
               value={form.confirmPassword}
               onChange={updateField}
               placeholder="Re-enter your password"
               autoComplete="new-password"
               required
             />
+            {form.confirmPassword && form.confirmPassword !== form.password && (
+              <span className="password-hint">Passwords don't match yet.</span>
+            )}
           </div>
 
           {error && <p className="login-error">{error}</p>}
