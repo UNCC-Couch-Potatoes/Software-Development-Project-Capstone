@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ctrlf.api.dto.DelimitedValues;
 import com.ctrlf.api.dto.UpdateProfileRequest;
 import org.springframework.web.bind.annotation.PutMapping;
+import com.ctrlf.api.security.PasswordPolicy;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -49,8 +50,9 @@ public class AuthController {
                 || email.length() > 100) {
             return ResponseEntity.badRequest().body("One of the fields is too long.");
         }
-        if (req.password().length() < 8 || req.password().length() > 72) {
-            return ResponseEntity.badRequest().body("Password must be 8 to 72 characters.");
+        String passwordProblem = PasswordPolicy.problem(req.password(), username);
+        if (passwordProblem != null) {
+        return ResponseEntity.badRequest().body(passwordProblem);
         }
         if (repo.existsByUsernameIgnoreCase(username)) {
             return ResponseEntity.status(409).body("That username is already taken.");
