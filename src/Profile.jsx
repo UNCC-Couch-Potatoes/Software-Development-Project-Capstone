@@ -3,6 +3,7 @@ import './style.css';
 import './resources.css';
 import './profile.css';
 import { Link, useNavigate } from 'react-router-dom';
+import useResourceTags from './useResourceTags';
 
 // Example posts until the blog feature is connected to the backend
 const defaultPosts = [
@@ -51,6 +52,7 @@ function Profile() {
   const [interests, setInterests] = useState([]);
   const [newSkill, setNewSkill] = useState('');
   const [newInterest, setNewInterest] = useState('');
+  const [tagError, setTagError] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
 
   // Save feedback
@@ -59,6 +61,19 @@ function Profile() {
   const [saveSuccess, setSaveSuccess] = useState('');
 
   const [posts] = useState(defaultPosts);
+
+  // Official tags from the database (same list the Resources page uses).
+  // "User Made" is only for resource posts, so it's left out here.
+  const { groups: tagGroups, status: tagsStatus } = useResourceTags();
+  const profileTags = tagGroups
+    .filter((group) => group.title !== 'User Made')
+    .flatMap((group) => group.tags);
+
+  // Turns "unity" into "Unity", or returns undefined if it isn't an official tag
+  function findTag(value) {
+    const wanted = value.trim().toLowerCase();
+    return profileTags.find((tag) => tag.toLowerCase() === wanted);
+  }
 
   // Load the logged-in user's profile from the backend
   useEffect(() => {
@@ -94,6 +109,7 @@ function Profile() {
     setInterests([...(source.interests || [])]);
     setNewSkill('');
     setNewInterest('');
+    setTagError('');
   }
 
   function startEditing() {
@@ -242,9 +258,16 @@ function Profile() {
   }
 
   function addSkill() {
-    const skill = newSkill.trim();
+    if (newSkill.trim() === '') return;
 
-    if (skill !== '' && !skills.includes(skill)) {
+    const skill = findTag(newSkill);
+    if (!skill) {
+      setTagError(`"${newSkill.trim()}" isn't one of the site's tags. Pick one from the suggestions.`);
+      return;
+    }
+
+    setTagError('');
+    if (!skills.includes(skill)) {
       setSkills((currentSkills) => [...currentSkills, skill]);
     }
     setNewSkill('');
@@ -257,9 +280,16 @@ function Profile() {
   }
 
   function addInterest() {
-    const interest = newInterest.trim();
+    if (newInterest.trim() === '') return;
 
-    if (interest !== '' && !interests.includes(interest)) {
+  const interest = findTag(newInterest);
+    if (!interest) {
+      setTagError(`"${newInterest.trim()}" isn't one of the site's tags. Pick one from the suggestions.`);
+      return;
+  }
+
+    setTagError('');
+    if (!interests.includes(interest)) {
       setInterests((currentInterests) => [...currentInterests, interest]);
     }
     setNewInterest('');
@@ -494,7 +524,8 @@ function Profile() {
                 <input
                   id="newSkill"
                   type="text"
-                  placeholder="Add a skill"
+                  list="profile-tag-options"
+                  placeholder="Start typing, e.g. Unity"
                   value={newSkill}
                   onChange={(event) => setNewSkill(event.target.value)}
                   onKeyDown={onEnter(addSkill)}
@@ -532,6 +563,7 @@ function Profile() {
                 <input
                   id="newInterest"
                   type="text"
+                  list="profile-tag-options"
                   placeholder="Add an interest"
                   value={newInterest}
                   onChange={(event) => setNewInterest(event.target.value)}
@@ -546,6 +578,22 @@ function Profile() {
                 </button>
               </div>
             </div>
+
+            {/* Suggestions for both boxes above */}
+            <datalist id="profile-tag-options">
+              {profileTags.map((tag) => (
+                <option key={tag} value={tag} />
+              ))}
+            </datalist>
+
+            {tagsStatus === 'error' && (
+              <p className="profile-message profile-message-error">
+                Couldn't load the tag list. Refresh the page and try again.
+              </p>
+            )}
+            {tagError && (
+              <p className="profile-message profile-message-error">{tagError}</p>
+            )}
 
             {saveError && (
               <p className="profile-message profile-message-error">{saveError}</p>
