@@ -217,6 +217,7 @@
 .resource-manager-actions { margin-bottom: 28px; }
 .resource-manager-card-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
@@ -234,3 +235,14 @@
 .resource-tags-more { margin-top: 14px; padding: 8px 12px; font-size: 13px; }
 .resource-mandatory-tag { border: 1px solid #aaa2e8; }
 .resource-editor select { min-width: 0; }
+
+.resource-owner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+}
+.resource-delete-control { max-width: 100%; }
+.resource-delete-control p { color: #ffb4b4; margin: 8px 0 0; }
+.resources-button-danger { background: #8f2838; border-color: #e78693; }
+.resources-button-danger:hover:not(:disabled) { background: #ad3448; }

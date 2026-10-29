@@ -142,4 +142,38 @@ class ResourceServiceTest {
             .hasMessageContaining("400");
         org.mockito.Mockito.verify(resourceRepository, org.mockito.Mockito.never()).save(any(Resource.class));
     }
+
+    @Test
+    void ownerCanDeleteResourceAndItsLinks() {
+        Resource r = new Resource(42L, "Title", "Overview", "/resources/42", "");
+        r.publish(7L, "Title", "Overview", "", "Body");
+        when(resourceRepository.findById(42L)).thenReturn(java.util.Optional.of(r));
+        resourceService.deletePost(42L, 7L);
+        var order = org.mockito.Mockito.inOrder(resourceRepository);
+        order.verify(resourceRepository).deleteUserLinks(42L);
+        order.verify(resourceRepository).delete(r);
+    }
+
+    @Test
+    void rejectsDeletingAnotherUsersOrUnownedResource() {
+        Resource r = new Resource(42L, "Title", "Overview", "/resources/42", "");
+        when(resourceRepository.findById(42L)).thenReturn(java.util.Optional.of(r));
+        for (Long owner : new Long[] { null, 7L }) {
+            r.publish(owner, "Title", "Overview", "", "Body");
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> resourceService.deletePost(42L, 8L))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .hasMessageContaining("403");
+        }
+        org.mockito.Mockito.verify(resourceRepository, org.mockito.Mockito.never()).deleteUserLinks(any());
+        org.mockito.Mockito.verify(resourceRepository, org.mockito.Mockito.never()).delete(any(Resource.class));
+    }
+
+    @Test
+    void missingResourceReturnsNotFoundWithoutDeleting() {
+        when(resourceRepository.findById(42L)).thenReturn(java.util.Optional.empty());
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> resourceService.deletePost(42L, 7L))
+            .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+            .hasMessageContaining("404");
+        org.mockito.Mockito.verify(resourceRepository, org.mockito.Mockito.never()).deleteUserLinks(any());
+    }
 }

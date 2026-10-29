@@ -97,6 +97,19 @@ public class ResourceService {
         return ResourceDetail.from(resourceRepository.save(resource));
     }
 
+    @Transactional
+    public void deletePost(Long id, Long userId) {
+        Resource resource = find(id);
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please log in again.");
+        }
+        if (!userId.equals(resource.getOwnerUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the creator can delete this resource.");
+        }
+        resourceRepository.deleteUserLinks(id);
+        resourceRepository.delete(resource);
+    }
+
     private Specification<Resource> buildSpecification(String query, List<String> tags) {
         return (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
