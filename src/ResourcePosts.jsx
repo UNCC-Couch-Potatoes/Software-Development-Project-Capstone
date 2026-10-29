@@ -20,7 +20,31 @@ async function resourceRequest(url, options = {}) {
     const error = await response.json().catch(() => null);
     throw new Error(error?.detail || error?.message || (response.status === 401 ? 'Please log in again.' : 'Unable to complete the request.'));
   }
-  return response.json();
+  return response.status === 204 ? null : response.json();
+}
+
+function DeleteResourceButton({ post, onDeleted }) {
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState('');
+
+  async function deleteResource() {
+    if (deleting || !window.confirm(`Delete "${post.siteName}"? This permanently deletes the resource and cannot be undone.`)) return;
+    setDeleting(true);
+    setError('');
+    try {
+      await resourceRequest(`/api/resources/${post.resourceId}`, { method: 'DELETE' });
+      onDeleted(post.resourceId);
+    } catch (e) {
+      setError(e.message);
+      setDeleting(false);
+    }
+  }
+
+  return <div className="resource-delete-control">
+    <button className="resources-button resources-button-danger" type="button" disabled={deleting}
+      onClick={deleteResource}>{deleting ? 'Deleting…' : 'Delete resource'}</button>
+    {error && <p role="alert">{error}</p>}
+  </div>;
 }
 
 // for quickly setting up the base structure of the page
@@ -101,7 +125,10 @@ export function ResourceManager() {
       <article className="profile-section resource-card resource-manager-card" key={post.resourceId}>
         <div className="resource-manager-card-heading">
           <h2><Link to={post.siteLink}>{post.siteName}</Link></h2>
+          <div className="resource-owner-actions">
           <Link className="resources-button resources-button-secondary" to={`${post.siteLink}/edit`} state={{ returnTo: "/resources/manage" }}>Edit resource</Link>
+            <DeleteResourceButton post={post} onDeleted={id => setPosts(current => current.filter(item => item.resourceId !== id))} />
+          </div>
         </div>
         <p>{post.overview}</p>
         <div className="tag-container">
@@ -143,7 +170,10 @@ export function ResourcePage() {
       <button className="resources-button resources-button-secondary" type="button" onClick={goBack}>← Back</button>
       {/* logic for displaying button that allows for resource editing if the user if the creator*/}
       {post && String(post.resourceId) === id && user && post.ownerUserId === user.userId && (
+        <div className="resource-owner-actions">
         <Link className="resources-button" to={`/resources/${id}/edit`} state={{ returnTo: `/resources/${id}` }}>Edit resource</Link>
+          <DeleteResourceButton key={id} post={post} onDeleted={() => navigate('/resources/manage', { replace: true })} />
+        </div>
       )}
     </div>
     {/* if there is an error its displayed, if there is no error and we haven't heard back from the request we display a loading sequence, else display the resource */}

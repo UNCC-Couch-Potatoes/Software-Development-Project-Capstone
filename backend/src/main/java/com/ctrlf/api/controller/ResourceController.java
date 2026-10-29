@@ -6,6 +6,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -65,6 +66,12 @@ public class ResourceController {
             @RequestBody ResourcePostRequest body,
             HttpServletRequest request) {
         return resourceService.savePost(id, currentUser(request), body);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id, HttpServletRequest request) {
+        resourceService.deletePost(id, currentUser(request));
     }
 
     @GetMapping

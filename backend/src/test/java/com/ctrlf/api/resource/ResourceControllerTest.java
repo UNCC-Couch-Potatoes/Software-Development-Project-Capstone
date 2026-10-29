@@ -87,4 +87,33 @@ class ResourceControllerTest {
             .content("{\"title\":\"Title\",\"overview\":\"Overview\",\"body\":\"Body\",\"tags\":[]}"))
             .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void deleteRequiresLogin() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/resources/42"))
+            .andExpect(status().isUnauthorized());
+        org.mockito.Mockito.verifyNoInteractions(resourceService);
+    }
+
+    @Test
+    void deleteUsesSessionUserAndReturnsNoContent() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/resources/42")
+                .sessionAttr("userId", 7L))
+            .andExpect(status().isNoContent());
+        org.mockito.Mockito.verify(resourceService).deletePost(42L, 7L);
+    }
+
+    @Test
+    void deleteReportsForbiddenAndMissingResource() throws Exception {
+        org.mockito.Mockito.doThrow(new org.springframework.web.server.ResponseStatusException(
+            org.springframework.http.HttpStatus.FORBIDDEN, "Only the creator can delete this resource."))
+            .when(resourceService).deletePost(42L, 8L);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/resources/42")
+                .sessionAttr("userId", 8L)).andExpect(status().isForbidden());
+        org.mockito.Mockito.doThrow(new org.springframework.web.server.ResponseStatusException(
+            org.springframework.http.HttpStatus.NOT_FOUND, "Resource not found."))
+            .when(resourceService).deletePost(99L, 7L);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/resources/99")
+                .sessionAttr("userId", 7L)).andExpect(status().isNotFound());
+    }
 }
