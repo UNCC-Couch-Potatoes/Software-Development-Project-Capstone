@@ -414,7 +414,6 @@ body {
   color: #e0e0e8;
 }
 
-/* Job title link: matches the resource card link style */
 .job-card h2 a {
   color: white;
   text-decoration: none;
@@ -441,7 +440,6 @@ body {
   outline-offset: 4px;
 }
 
-/* Screen-reader-only text (same as resources.css, which Jobs doesn't import) */
 .jobs-sr-only {
   position: absolute;
   width: 1px;
@@ -454,7 +452,6 @@ body {
   border: 0;
 }
 
-/* Toolbar and filters */
 .jobs-toolbar {
   display: flex;
   align-items: center;
@@ -498,7 +495,6 @@ body {
   border-radius: 10px;
 }
 
-/* Needed because display:flex overrides the hidden attribute */
 .filter-panel[hidden] {
   display: none;
 }
@@ -518,7 +514,6 @@ body {
   border-color: #c5c5ff;
 }
 
-/* Pagination */
 .jobs-pagination {
   display: flex;
   flex-wrap: wrap;
@@ -533,7 +528,6 @@ body {
   border-color: #c5c5ff;
 }
 
-/* Post / edit / delete */
 .job-actions {
   display: flex;
   gap: 10px;
@@ -594,11 +588,52 @@ body {
   background: #7a3333;
 }
 
-/* Jobs on smaller screens */
 @media (max-width: 600px) {
   .job-form-row {
     grid-template-columns: 1fr;
   }
+}
+
+.jam-cover {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.jam-status {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 12px;
+  border: 1px solid #666677;
+  border-radius: 20px;
+  background: #3c3c4d;
+  color: white;
+  font-size: 14px;
+}
+
+.jam-status.live {
+  background: #5a5a8a;
+  border-color: #c5c5ff;
+}
+
+.jam-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 20px;
+  margin: 12px 0 0;
+}
+
+.jam-meta dt {
+  color: #bcbcca;
+  font-size: 13px;
+}
+
+.jam-meta dd {
+  margin: 2px 0 0;
+  color: #e0e0e8;
 }
 
 

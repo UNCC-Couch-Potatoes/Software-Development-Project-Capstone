@@ -122,6 +122,10 @@ CREATE TABLE IF NOT EXISTS Jams (
     JamTitle VARCHAR(50) NOT NULL,
     JamDescription TEXT NOT NULL,
     JamTags VARCHAR(1000) NOT NULL,
+    OwnerUserId BIGINT NULL,
+    CoverImageUrl VARCHAR(2048) NULL,
+    StartTime DATETIME NULL,
+    EndTime DATETIME NULL,
     PRIMARY KEY (JamId)
 );
 
@@ -130,6 +134,7 @@ CREATE TABLE IF NOT EXISTS JamEntrants (
     UserId BIGINT NOT NULL,
     JamId BIGINT NOT NULL,
     PRIMARY KEY (EntryId),
+    UNIQUE KEY UQ_JamEntrant (UserId, JamId),
     CONSTRAINT fk_JamsUser FOREIGN KEY (UserId) REFERENCES UserProfile(UserId),
     CONSTRAINT fk_Jams FOREIGN KEY (JamId) REFERENCES Jams(JamId)
 );

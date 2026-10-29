@@ -792,6 +792,15 @@ WHERE NOT EXISTS (SELECT 1 FROM Resources WHERE SiteLink = 'https://gamehistory.
 INSERT IGNORE INTO UserProfile (Username,Email,Password,FirstName,LastName,Skills,Interests,Bio,Joindate) VALUES
     ("timmyturner123","big_t@gmail.com","$2a$10$bn8/itnfgYRazYKLKhrG3u1ZoK69dULL/LGszVH8.lS0BRf7mbvWS", "Timmy","Turner", " ", " ", " ", '2026-01-01');
 
+
+INSERT INTO Jams (JamTitle, JamDescription, JamTags, StartTime, EndTime)
+SELECT 'Autumn Pixel Jam', 'A 72-hour jam focused on pixel art games. Teams of up to 4. Any engine welcome.', '|Pixel Art|72 Hours|Teams|', UTC_TIMESTAMP() - INTERVAL 1 DAY, UTC_TIMESTAMP() + INTERVAL 2 DAY
+WHERE NOT EXISTS (SELECT 1 FROM Jams WHERE JamTitle = 'Autumn Pixel Jam');
+
+INSERT INTO Jams (JamTitle, JamDescription, JamTags, StartTime, EndTime)
+SELECT 'Solo Godot Weekend', 'Make a small game solo in one weekend using Godot. Theme revealed at the start.', '|Godot|Solo|Weekend|', UTC_TIMESTAMP() + INTERVAL 5 DAY, UTC_TIMESTAMP() + INTERVAL 7 DAY
+WHERE NOT EXISTS (SELECT 1 FROM Jams WHERE JamTitle = 'Solo Godot Weekend');
+
 -- Sample job listings (append to the end of sample-data.sql).
 
 INSERT INTO Jobs (JobTitle, JobDescription, JobTags, SiteLink)

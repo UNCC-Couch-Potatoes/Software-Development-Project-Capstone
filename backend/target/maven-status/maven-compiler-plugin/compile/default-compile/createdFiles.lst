@@ -54,6 +54,7 @@ com/ctrlf/api/service/JamEntrantService.class
 com/ctrlf/api/entity/CommentThread.class
 com/ctrlf/api/repository/JamRepository.class
 com/ctrlf/api/entity/Follower.class
+com/ctrlf/api/security/PasswordPolicy.class
 com/ctrlf/api/service/JobService.class
 com/ctrlf/api/dto/JobApplicationResponse.class
 com/ctrlf/api/controller/BlogController.class
