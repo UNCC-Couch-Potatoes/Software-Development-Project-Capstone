@@ -16,6 +16,10 @@
     background-color: rgb(49, 49, 90);
     color: white;
     margin: 0px 0px 8px 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content:space-between;
+    padding: 20px;
     overflow: hidden;
     text-overflow:clip;
     width: 100%;
