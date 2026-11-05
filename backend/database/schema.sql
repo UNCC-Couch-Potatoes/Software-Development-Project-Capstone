@@ -121,6 +121,7 @@ CREATE TABLE IF NOT EXISTS Jams (
     JamId BIGINT NOT NULL AUTO_INCREMENT,
     JamTitle VARCHAR(50) NOT NULL,
     JamDescription TEXT NOT NULL,
+    JamDetailedDescription TEXT NULL,
     JamTags VARCHAR(1000) NOT NULL,
     OwnerUserId BIGINT NULL,
     CoverImageUrl VARCHAR(2048) NULL,

@@ -17,7 +17,7 @@ function getPageNumbers(currentPage, totalPages) {
 }
 
 
-function formatSpan(ms) {
+export function formatSpan(ms) {
    const totalMinutes = Math.max(0, Math.floor(ms / 60000));
    const days = Math.floor(totalMinutes / 1440);
    const hours = Math.floor((totalMinutes % 1440) / 60);
@@ -48,11 +48,11 @@ function formatCountdown(ms) {
 
 
 // Shows date in viewer's time zone
-const formatDate = (date) => date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+export const formatDate = (date) => date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
 
 
 // Jam is upcoming, running, or over
-function getStatus(jam, now) {
+export function getStatus(jam, now) {
    if (!jam.start || !jam.end) return null;
    if (now < jam.start.getTime()) {
        return { label: `Starts in ${formatCountdown(jam.start.getTime() - now)}`, live: false, ended: false };
@@ -73,10 +73,11 @@ function toLocalInput(date) {
 
 
 // Turns a jam from the API into the shape the page uses
-const toJam = (jam) => ({
+export const toJam = (jam) => ({
    id: jam.jamId,
    title: jam.jamTitle,
    description: jam.jamDescription,
+   detailedDescription: jam.jamDetailedDescription || '',
    ownerUserId: jam.ownerUserId,
    tags: jam.jamTags || [],
    coverImageUrl: jam.coverImageUrl || '',
@@ -86,12 +87,13 @@ const toJam = (jam) => ({
 });
 
 
-const EMPTY_FORM = { title: '', description: '', tags: '', coverImageUrl: '', start: '', end: '' };
+const EMPTY_FORM = { title: '', description: '', detailedDescription: '', tags: '', coverImageUrl: '', start: '', end: '' };
 
 
 const jamToForm = (jam) => ({
    title: jam.title,
    description: jam.description,
+   detailedDescription: jam.detailedDescription,
    tags: jam.tags.join(', '),
    coverImageUrl: jam.coverImageUrl,
    start: toLocalInput(jam.start),
@@ -103,6 +105,7 @@ const jamToForm = (jam) => ({
 const formToBody = (form) => ({
    jamTitle: form.title.trim(),
    jamDescription: form.description.trim(),
+   jamDetailedDescription: form.detailedDescription.trim() || null,
    jamTags: form.tags
        .split(',')
        .map((tag) => tag.trim())
@@ -156,8 +159,12 @@ function JamForm({ heading, initial, submitLabel, saving, error, onSave, onCance
              <input type="text" value={form.title} onChange={update('title')} maxLength={50} required />
          </label>
          <label>
-             Description
-             <textarea value={form.description} onChange={update('description')} rows={5} required />
+             Short description (shown on the jam card)
+             <textarea value={form.description} onChange={update('description')} rows={3} required />
+         </label>
+         <label>
+             Detailed description (optional, shown on the jam's own page, Markdown supported)
+             <textarea value={form.detailedDescription} onChange={update('detailedDescription')} rows={10} maxLength={20000} placeholder={'## Rules\n- Teams of up to 4\n\n## Prizes\n...'} />
          </label>
          <label>
              Cover image link (optional)
@@ -557,7 +564,7 @@ function Jams() {
                                      onError={(event) => { event.currentTarget.style.display = 'none'; }}
                                  />
                              )}
-                             <h2>{jam.title}</h2>
+                             <h2><Link to={`/jams/${jam.id}`}>{jam.title}</Link></h2>
                              {status && (
                                  <span className={`jam-status ${status.live ? 'live' : ''}`}>{status.label}</span>
                              )}

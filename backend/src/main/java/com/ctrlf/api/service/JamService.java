@@ -43,16 +43,16 @@ public class JamService {
 
     public JamResponse create(Long userId, JamRequest body) {
         checkDates(body);
-        Jam jam = new Jam(userId, cleanTitle(body), cleanDescription(body), tagsToString(body),
-                cleanCoverImage(body), toUtc(body.startTime()), toUtc(body.endTime()));
+        Jam jam = new Jam(userId, cleanTitle(body), cleanDescription(body), cleanDetailedDescription(body),
+                tagsToString(body), cleanCoverImage(body), toUtc(body.startTime()), toUtc(body.endTime()));
         return toResponse(repository.save(jam), 0L);
     }
 
     public JamResponse update(Long id, Long userId, JamRequest body) {
         Jam jam = findOwned(id, userId);
         checkDates(body);
-        jam.update(cleanTitle(body), cleanDescription(body), tagsToString(body),
-                cleanCoverImage(body), toUtc(body.startTime()), toUtc(body.endTime()));
+        jam.update(cleanTitle(body), cleanDescription(body), cleanDetailedDescription(body),
+                tagsToString(body), cleanCoverImage(body), toUtc(body.startTime()), toUtc(body.endTime()));
         Jam saved = repository.save(jam);
         return toResponse(saved, repository.countEntrants(saved.getJamId()));
     }
@@ -92,6 +92,16 @@ public class JamService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description is required.");
         }
         return description;
+    }
+
+    // Optional longer description for the jam's own page; blank is stored as null
+    private String cleanDetailedDescription(JamRequest body) {
+        String detailed = body.jamDetailedDescription() == null ? "" : body.jamDetailedDescription().trim();
+        if (detailed.isEmpty()) return null;
+        if (detailed.length() > 20000) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Detailed description must be 20,000 characters or fewer.");
+        }
+        return detailed;
     }
 
     // Optional; when present it must be an http(s) link
@@ -149,7 +159,7 @@ public class JamService {
 
     private JamResponse toResponse(Jam jam, long entrantCount) {
         return new JamResponse(jam.getJamId(), jam.getJamTitle(), jam.getJamDescription(),
-                tagsToList(jam.getJamTags()), jam.getOwnerUserId(), jam.getCoverImageUrl(),
+                jam.getJamDetailedDescription(), tagsToList(jam.getJamTags()), jam.getOwnerUserId(), jam.getCoverImageUrl(),
                 fromUtc(jam.getStartTime()), fromUtc(jam.getEndTime()), entrantCount);
     }
 }

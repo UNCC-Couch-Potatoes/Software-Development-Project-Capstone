@@ -6,6 +6,7 @@ import Login from './Login';
 import Home from './Home';
 import Blogs from './BlogPage/Blogs';
 import Jams from './Jams';
+import JamPage from './JamPage';
 import Jobs from './Jobs';
 import Profile from './Profile';
 import Resources from './Resources';
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/jams" element={<Jams />} />
+          <Route path="/jams/:id" element={<JamPage />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/resources" element={<Resources />} />
