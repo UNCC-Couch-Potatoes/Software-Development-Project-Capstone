@@ -48,7 +48,7 @@ function DeleteResourceButton({ post, onDeleted }) {
 }
 
 // for quickly setting up the base structure of the page
-function Shell({ children }) {
+export function Shell({ children }) {
   const [resourceMenuOpen, setResourceMenuOpen] = useState(false);
   return <><nav id="navbar" aria-label="Main navigation">
       <Link to="/">Home</Link>

@@ -121,6 +121,7 @@ CREATE TABLE IF NOT EXISTS Jams (
     JamId BIGINT NOT NULL AUTO_INCREMENT,
     JamTitle VARCHAR(50) NOT NULL,
     JamDescription TEXT NOT NULL,
+    JamDetailedDescription TEXT NULL,
     JamTags VARCHAR(1000) NOT NULL,
     OwnerUserId BIGINT NULL,
     CoverImageUrl VARCHAR(2048) NULL,
@@ -137,4 +138,16 @@ CREATE TABLE IF NOT EXISTS JamEntrants (
     UNIQUE KEY UQ_JamEntrant (UserId, JamId),
     CONSTRAINT fk_JamsUser FOREIGN KEY (UserId) REFERENCES UserProfile(UserId),
     CONSTRAINT fk_Jams FOREIGN KEY (JamId) REFERENCES Jams(JamId)
+);
+
+CREATE TABLE IF NOT EXISTS Collabs (
+    CollabId BIGINT NOT NULL AUTO_INCREMENT,
+    CollabType VARCHAR(10) NOT NULL,
+    CollabTitle VARCHAR(50) NOT NULL,
+    CollabDescription TEXT NOT NULL,
+    CollabDetailedDescription TEXT NULL,
+    CollabLocation VARCHAR(100) NOT NULL,
+    OwnerUserId BIGINT NULL,
+    PRIMARY KEY (CollabId),
+    INDEX IX_CollabType (CollabType)
 );
