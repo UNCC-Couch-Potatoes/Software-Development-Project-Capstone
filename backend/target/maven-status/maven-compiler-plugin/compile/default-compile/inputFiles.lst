@@ -1,6 +1,7 @@
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/CtrlFApiApplication.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/AuthController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/BlogController.java
+/home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/CollabController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/CommentController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/CommentThreadController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/FollowerController.java
@@ -13,6 +14,8 @@
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/StatusController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/UserProfileController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/BlogResponse.java
+/home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/CollabRequest.java
+/home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/CollabResponse.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/CommentResponse.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/CommentThreadResponse.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/DelimitedValues.java
@@ -31,6 +34,7 @@
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/UpdateProfileRequest.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/UserProfileResponse.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/entity/Blog.java
+/home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/entity/Collab.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/entity/Comment.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/entity/CommentThread.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/entity/Follower.java
@@ -42,6 +46,7 @@
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/entity/ResourceTag.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/entity/UserProfile.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/repository/BlogRepository.java
+/home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/repository/CollabRepository.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/repository/CommentRepository.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/repository/CommentThreadRepository.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/repository/FollowerRepository.java
@@ -54,6 +59,7 @@
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/repository/UserProfileRepository.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/security/PasswordPolicy.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/service/BlogService.java
+/home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/service/CollabService.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/service/CommentService.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/service/CommentThreadService.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/service/FollowerService.java

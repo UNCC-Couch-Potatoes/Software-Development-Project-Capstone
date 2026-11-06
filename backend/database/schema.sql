@@ -139,3 +139,15 @@ CREATE TABLE IF NOT EXISTS JamEntrants (
     CONSTRAINT fk_JamsUser FOREIGN KEY (UserId) REFERENCES UserProfile(UserId),
     CONSTRAINT fk_Jams FOREIGN KEY (JamId) REFERENCES Jams(JamId)
 );
+
+CREATE TABLE IF NOT EXISTS Collabs (
+    CollabId BIGINT NOT NULL AUTO_INCREMENT,
+    CollabType VARCHAR(10) NOT NULL,
+    CollabTitle VARCHAR(50) NOT NULL,
+    CollabDescription TEXT NOT NULL,
+    CollabDetailedDescription TEXT NULL,
+    CollabLocation VARCHAR(100) NOT NULL,
+    OwnerUserId BIGINT NULL,
+    PRIMARY KEY (CollabId),
+    INDEX IX_CollabType (CollabType)
+);

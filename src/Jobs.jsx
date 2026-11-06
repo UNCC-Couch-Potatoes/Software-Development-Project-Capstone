@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 // useState imported so the words being searched gets updated
 // useEffect imported so jobs are loaded from the API when the page opens
 import React, { useEffect, useState } from 'react';
+import { useCollabs, CollabPostForm, CollabList } from './Collabs';
 import './style.css';
 // Link imported so website isn't reloaded between pages
 
@@ -215,6 +216,8 @@ function Jobs() {
 
  // Current user, so Edit and Delete only show on jobs they posted
  const [userId, setUserId] = useState(null);
+
+ const collab = useCollabs('JOB', userId);
 
 
  useEffect(() => {
@@ -434,6 +437,14 @@ function Jobs() {
                      >
                          Post a job
                      </button>
+                     <button
+                         type="button"
+                         className="filter-button post-job-button"
+                         onClick={() => collab.openForm('new')}
+                         disabled={collab.editingId === 'new'}
+                     >
+                         Post a collab
+                     </button>
                      {selectedFilters.length > 0 && (
                          <button
                              type="button"
@@ -481,6 +492,7 @@ function Jobs() {
                          onCancel={() => setEditingId(null)}
                      />
                  )}
+                 <CollabPostForm collab={collab} />
                  {actionError && <p className="job-form-error" role="alert">{actionError}</p>}
 
 
@@ -585,6 +597,8 @@ function Jobs() {
                      </nav>
                  )}
              </section>
+
+             <CollabList collab={collab} />
          </main>
      </>
  );

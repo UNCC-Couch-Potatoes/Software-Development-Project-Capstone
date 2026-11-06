@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
+import { useCollabs, CollabPostForm, CollabList } from './Collabs';
 import './style.css';
 
 
@@ -217,6 +218,8 @@ function Jams() {
 
  // Current user, so Edit and Delete only show on jams they posted
  const [userId, setUserId] = useState(null);
+
+ const collab = useCollabs('JAM', userId);
 
  // Ids of the jams the current user has joined, and which jam is mid join/leave request
  const [joinedIds, setJoinedIds] = useState([]);
@@ -480,6 +483,14 @@ function Jams() {
                      >
                          Post a jam
                      </button>
+                     <button
+                         type="button"
+                         className="filter-button post-job-button"
+                         onClick={() => collab.openForm('new')}
+                         disabled={collab.editingId === 'new'}
+                     >
+                         Post a collab
+                     </button>
                      {selectedTags.length > 0 && (
                          <button
                              type="button"
@@ -517,6 +528,7 @@ function Jams() {
                          onCancel={() => setEditingId(null)}
                      />
                  )}
+                 <CollabPostForm collab={collab} />
                  {actionError && <p className="job-form-error" role="alert">{actionError}</p>}
 
                  {/* Shows how many jams are currently being displayed */}
@@ -657,6 +669,8 @@ function Jams() {
                      </nav>
                  )}
              </section>
+
+             <CollabList collab={collab} />
          </main>
      </>
  );
