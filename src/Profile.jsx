@@ -712,7 +712,7 @@ function Profile() {
               </section>
 
             </div>
-                          {/* Resources this user created */}
+              {/* Resources this user created */}
               <section className="profile-card profile-span-2">
                 <span className="profile-kicker">Contributions</span>
                 <h2>My Resources</h2>
@@ -728,14 +728,24 @@ function Profile() {
                 {myResources?.length === 0 && (
                   <p className="profile-empty">
                     You haven't created any resources yet.{' '}
-                    <Link to="/resources/new">Create one</Link>
+                    <Link
+                      to="/resources/new"
+                      style={{ color: '#a99cf5', textDecoration: 'underline' }}
+                    >
+                      Create one
+                    </Link>
                   </p>
                 )}
 
                 {myResources?.map((resource) => (
                   <article className="profile-post" key={resource.resourceId}>
                     <h3>
-                      <Link to={resource.siteLink}>{resource.siteName}</Link>
+                      <Link
+                        to={resource.siteLink}
+                        style={{ color: '#a99cf5', textDecoration: 'underline' }}
+                      >
+                        {resource.siteName}
+                      </Link>
                     </h3>
                     <p>{resource.overview}</p>
                     <div className="profile-tags">
@@ -747,7 +757,12 @@ function Profile() {
                 ))}
 
                 {myResources?.length > 0 && (
-                  <Link to="/resources/manage">Manage my resources →</Link>
+                  <Link
+                    to="/resources/manage"
+                    style={{ color: '#a99cf5', textDecoration: 'underline' }}
+                  >
+                    Manage my resources →
+                  </Link>
                 )}
               </section>
 
