@@ -3,8 +3,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
@@ -13,14 +13,59 @@
 
 #blog-creation {
     position:absolute;
+    border-radius: 10px;
 
-    margin: auto;
+    margin: 60px auto auto auto;
+    padding: 20px;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    width: 600px;
+    width: 900px;
     height: fit-content;
 
     background-color: rgb(77, 77, 118);
+}
+
+.HeaderBar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#blog-submit {
+    height: fit-content;
+    font-size:large;
+}
+
+#blog-submit:hover {
+    background-color: rgb(77, 77, 118);
+    color: white;
+}
+
+.blog-form {
+    display: flex;
+    flex-direction:column;
+    align-items: left;
+}
+
+.blog-form label {
+    margin: 10px;
+}
+
+.blog-form label * {
+    font-size: 60px;
+}
+
+.blog-form label textarea {
+    field-sizing:content;
+    width: 100%;
+    font-size: 30px;
+    min-height: 200px;
+    height:fit-content;
+    max-height: 60vh;
+    overflow-y:scroll;
+    resize:none;
 }
