@@ -284,6 +284,17 @@
   line-height: 1.35;
 }
 
+.home-card-content h3 a {
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+}
+
+.home-card-content h3 a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .home-card-content > p {
   display: -webkit-box;
   min-height: 3.9em;
