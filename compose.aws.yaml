@@ -1,0 +1,66 @@
+# Standalone deployment: do not merge with compose.yaml.
+name: ctrlf-aws
+services:
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://${RDS_HOST:?Set RDS_HOST}:${RDS_PORT:-3306}/${RDS_DATABASE:-ctrlf}?sslMode=VERIFY_IDENTITY&serverTimezone=UTC
+      DB_USERNAME: ${DB_USERNAME:?Set DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+      PORT: "8080"
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/run/rds/application-aws.properties
+      RDS_TRUSTSTORE_PASSWORD: ${RDS_TRUSTSTORE_PASSWORD:?Set RDS_TRUSTSTORE_PASSWORD}
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+      SERVER_SERVLET_SESSION_COOKIE_SECURE: "true"
+      SERVER_SERVLET_SESSION_COOKIE_HTTP_ONLY: "true"
+      SERVER_SERVLET_SESSION_COOKIE_SAME_SITE: lax
+    volumes:
+      - ./docker/application-aws.properties:/run/rds/application-aws.properties:ro
+      - type: bind
+        source: ${RDS_TRUSTSTORE_PATH:?Set RDS_TRUSTSTORE_PATH}
+        target: /run/rds/truststore.p12
+        read_only: true
+        bind:
+          create_host_path: false
+    # No host port: only frontend can reach the backend through this network.
+    networks: [app]
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/api/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${AWS_BIND_ADDRESS:-127.0.0.1}:${AWS_HTTP_PORT:-3000}:80"
+    volumes:
+      - ./docker/nginx.aws.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [app]
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  app:
