@@ -11,28 +11,6 @@ const userActivity = [
       { title: 'What I learned from my first game jam', meta: 'Published · 248 views' },
     ],
   },
-  {
-    title: 'Hosted jams', route: '/jams',
-    items: [{ title: 'One Button Weekend', meta: 'Starts October 4 · 38 joined' }],
-  },
-  {
-    title: 'Jam entries', route: '/jams',
-    items: [
-      { title: 'Signal Lost', meta: 'Cozy Fall Jam · Submitted' },
-      { title: 'Tiny Terraformer', meta: 'Eco Game Jam · 12th place' },
-    ],
-  },
-  {
-    title: 'Posted jobs', route: '/jobs',
-    items: [{ title: '2D Pixel Artist', meta: 'Contract · 7 applicants' }],
-  },
-  {
-    title: 'Job applications', route: '/jobs',
-    items: [
-      { title: 'Gameplay Programmer', meta: 'Moonwake Studio · In review' },
-      { title: 'Junior Level Designer', meta: 'Fern Games · Applied Sep 18' },
-    ],
-  },
 
 ];
 
@@ -82,63 +60,68 @@ const newBlogs = [
   },
 ];
 
-const trendingJams = [
-  {
-    title: 'Midnight Transmission', creator: 'Hosted by Lantern Collective',
-    description: 'Make a game about a message that was never meant to be received.',
-    tags: ['10 days', 'Any engine'], stat: '842 joined', date: 'Sep 27–Oct 7', accent: 'blue',
-  },
-  {
-    title: 'Tiny Worlds Jam', creator: 'Hosted by Mossy Rock',
-    description: 'Build an entire world inside the smallest space you can imagine.',
-    tags: ['7 days', 'Beginner friendly'], stat: '591 joined', date: 'Oct 2–9', accent: 'green',
-  },
-  {
-    title: 'Boss Rush 2026', creator: 'Hosted by Action Guild',
-    description: 'Skip the filler and create your most memorable boss encounter.',
-    tags: ['2 weeks', 'Teams allowed'], stat: '419 joined', date: 'Oct 10–24', accent: 'coral',
-  },
-  {
-    title: 'No Dialogue Jam', creator: 'Hosted by Quiet Games',
-    description: 'Tell a complete story without using written or spoken dialogue.',
-    tags: ['72 hours', 'Narrative'], stat: '306 joined', date: 'Oct 16–19', accent: 'violet',
-  },
-];
+// Each feed loads independently so a failed request does not hide the other feed.
+function useListings(path, label) {
+  const [items, setItems] = useState([]);
+  const [status, setStatus] = useState(`Loading ${label}…`);
 
-const newJams = [
-  {
-    title: 'One Button Weekend', creator: 'Hosted by You',
-    description: 'Design a complete game around a single input and a surprising outcome.',
-    tags: ['48 hours', 'All skill levels'], stat: '38 joined', date: 'Oct 4–6', accent: 'violet',
-  },
-  {
-    title: 'Autumn Cozy Jam', creator: 'Hosted by Warm Mug Studio',
-    description: 'Create something small, comforting, and full of autumn atmosphere.',
-    tags: ['9 days', 'Cozy'], stat: '24 joined', date: 'Oct 8–17', accent: 'coral',
-  },
-  {
-    title: 'Low Poly Legends', creator: 'Hosted by Vertex Club',
-    description: 'Celebrate bold silhouettes and expressive worlds with limited geometry.',
-    tags: ['1 week', '3D'], stat: '19 joined', date: 'Oct 12–19', accent: 'green',
-  },
-  {
-    title: 'Friendly Rivalry Jam', creator: 'Hosted by Couch Co-op',
-    description: 'Build a local multiplayer game where competition creates good stories.',
-    tags: ['5 days', 'Multiplayer'], stat: '11 joined', date: 'Oct 20–25', accent: 'blue',
-  },
-];
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(path, { credentials: 'include', signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Unable to load ${label}.`);
+        return res.json();
+      })
+      .then((data) => { setItems(data); setStatus(''); })
+      .catch((error) => {
+        if (error.name !== 'AbortError') setStatus(`Unable to load ${label}.`);
+      });
+    return () => controller.abort();
+  }, [path, label]);
 
-function ActivityGroup({ group }) {
+  return { items, status };
+}
+
+const jamCard = (jam) => ({
+  id: jam.jamId,
+  title: jam.jamTitle,
+  route: `/jams/${jam.jamId}`,
+  description: jam.jamDescription,
+  tags: jam.jamTags || [],
+  stat: `${jam.entrantCount ?? 0} joined`,
+  date: jam.startTime && jam.endTime
+    ? `${new Date(jam.startTime).toLocaleDateString()}–${new Date(jam.endTime).toLocaleDateString()}`
+    : 'Dates not set',
+});
+
+const jobCard = (job) => ({
+  id: job.jobId,
+  title: job.jobTitle,
+  route: '/jobs',
+  externalUrl: job.siteLink,
+  description: job.jobDescription,
+  tags: job.jobTags || [],
+});
+
+function ItemTitle({ item }) {
+  if (item.externalUrl && /^https?:\/\//i.test(item.externalUrl)) {
+    return <a href={item.externalUrl} target="_blank" rel="noopener noreferrer">{item.title}</a>;
+  }
+  return item.route ? <Link to={item.route}>{item.title}</Link> : item.title;
+}
+
+function ActivityGroup({ group, status }) {
   return (
     <section className="home-activity-group">
       <div className="home-activity-heading">
         <h3>{group.title}</h3>
         <Link to={group.route}>View all</Link>
       </div>
+      {status && <p role="status">{status}</p>}
       <div className="home-activity-items">
         {group.items.map((item) => (
-          <article className="home-activity-item" key={item.title}>
-            <strong>{item.route ? <Link to={item.route}>{item.title}</Link> : item.title}</strong>
+          <article className="home-activity-item" key={item.id ?? item.title}>
+            <strong><ItemTitle item={item} /></strong>
             <span>{item.meta}</span>
           </article>
         ))}
@@ -156,7 +139,7 @@ function DiscoveryCard({ item}) {
           <span>{item.creator}</span>
           <span>{item.stat}</span>
         </div>
-        <h3>{item.title}</h3>
+        <h3><ItemTitle item={item} /></h3>
         {item.date && <p className="home-card-date">{item.date}</p>}
         <p>{item.description}</p>
         <div className="home-card-tags">
@@ -167,7 +150,7 @@ function DiscoveryCard({ item}) {
   );
 }
 
-function DiscoveryRow({ eyebrow, title, route, items, type }) {
+function DiscoveryRow({ eyebrow, title, route, items, type, status }) {
   return (
     <section className="home-feed-section">
       <div className="home-section-heading">
@@ -177,14 +160,17 @@ function DiscoveryRow({ eyebrow, title, route, items, type }) {
         </div>
         <Link to={route}>Explore all <span aria-hidden="true">→</span></Link>
       </div>
+      {status && <p role="status">{status}</p>}
       <div className="home-card-row">
-        {items.map((item) => <DiscoveryCard item={item} type={type} key={item.title} />)}
+        {items.map((item) => <DiscoveryCard item={item} type={type} key={item.id ?? item.title} />)}
       </div>
     </section>
   );
 }
 
 function Home() {
+  const { items: jobs, status: jobsStatus } = useListings('/api/jobs', 'jobs');
+  const { items: jams, status: jamsStatus } = useListings('/api/jams', 'jams');
   const [resourceMenuOpen, setResourceMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -205,6 +191,13 @@ function Home() {
       .then((data) => setUser(data))
       .catch(() => setUser(null));
   }, []);
+
+  // IDs reflect posting order; neither API exposes a creation timestamp.
+  const newestJobs = [...jobs].sort((a, b) => b.jobId - a.jobId);
+  const newestJams = [...jams].sort((a, b) => b.jamId - a.jamId);
+  const popularJams = [...newestJams].sort((a, b) => (b.entrantCount ?? 0) - (a.entrantCount ?? 0));
+  const hostedJams = user ? newestJams.filter((jam) => jam.ownerUserId === user.userId) : [];
+  const postedJobs = user ? newestJobs.filter((job) => job.ownerUserId === user.userId) : [];
 
   const fullName = user ? `${user.firstName} ${user.lastName}`.trim() : '';
   const initials = user
@@ -272,6 +265,14 @@ function Home() {
           </div>
           <h2 className="home-sidebar-intro">Your Work</h2>
           {userActivity.map((group) => <ActivityGroup group={group} key={group.title} />)}
+          <ActivityGroup status={jamsStatus || (!user ? 'Loading your activity…' : hostedJams.length ? '' : 'You haven’t hosted any jams yet.')}
+            group={{ title: 'Hosted jams', route: '/jams', items: hostedJams.map((jam) => ({
+              id: jam.jamId, title: jam.jamTitle, route: `/jams/${jam.jamId}`, meta: `${jam.entrantCount ?? 0} joined`,
+            })) }} />
+          <ActivityGroup status={jobsStatus || (!user ? 'Loading your activity…' : postedJobs.length ? '' : 'You haven’t posted any jobs yet.')}
+            group={{ title: 'Posted jobs', route: '/jobs', items: postedJobs.map((job) => ({
+              id: job.jobId, title: job.jobTitle, route: '/jobs', externalUrl: job.siteLink, meta: (job.jobTags || []).join(' · '),
+            })) }} />
           <ActivityGroup group={{ title: 'Posted resources', route: '/resources/manage', items: posts.map(post => ({ title: post.siteName, route: post.siteLink, meta: post.overview })) }} />
           {postsStatus && <p role="status">{postsStatus}</p>}
         </aside>
@@ -283,10 +284,12 @@ function Home() {
             items={trendingBlogs} type="blog" />
           <DiscoveryRow eyebrow="New community posts" title="New blogs" route="/blogs"
             items={newBlogs} type="blog" />
-          <DiscoveryRow eyebrow="Top Jams" title="Trending jams" route="/jams"
-            items={trendingJams} type="jam" />
-          <DiscoveryRow eyebrow="Open for entries" title="New jams" route="/jams"
-            items={newJams} type="jam" />
+          <DiscoveryRow eyebrow="Most participants" title="Popular jams" route="/jams"
+            items={popularJams.slice(0, 4).map(jamCard)} type="jam" status={jamsStatus || (!jams.length ? 'No jams posted yet.' : '')} />
+          <DiscoveryRow eyebrow="Recently posted" title="New jams" route="/jams"
+            items={newestJams.slice(0, 4).map(jamCard)} type="jam" status={jamsStatus || (!jams.length ? 'No jams posted yet.' : '')} />
+          <DiscoveryRow eyebrow="Recently posted" title="New jobs" route="/jobs"
+            items={newestJobs.slice(0, 4).map(jobCard)} type="job" status={jobsStatus || (!jobs.length ? 'No jobs posted yet.' : '')} />
         </main>
       </div>
     </>
