@@ -6,16 +6,8 @@ import './BlogPost.css';
 import blogsData from './blogs.json';
 
 
-function BlogPost({id}) {
-  //Go into the JS and pull out the info with the correct ID.
-  console.log(blogsData.posts);
-  
-  const foundPost = blogsData.posts.find(
-      post => post.userID === id
-  );
-  
+function BlogPost({post}) {  
   //Objects
-  var post = null;
   var author = null;
 
   //Top
@@ -27,8 +19,7 @@ function BlogPost({id}) {
   var header = "";
   var content = "";
 
-  if (foundPost) {
-    post = blogsData.posts[id];
+  if (post != null){
     author = blogsData.users[parseInt(post.userID)];
     name = author.name;
     date = post.datePosted;
@@ -39,11 +30,11 @@ function BlogPost({id}) {
 
   return (
     <div className='Post'>
-        {foundPost ? (
+        {post != null ? (
           <>
             <Top
               className="Top"
-              id = {id}
+              id = {post.blogId}
               author = {name}
               date = {date}
               pfpSource = {pfpSource}

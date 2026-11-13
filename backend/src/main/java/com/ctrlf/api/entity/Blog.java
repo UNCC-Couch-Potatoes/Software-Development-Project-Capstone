@@ -35,6 +35,15 @@ public class Blog {
 
     protected Blog() {}
 
+    public Blog(String blogTitle, String blogContent, String tags, int views, int likes, Long userId) {
+        this.blogTitle = blogTitle;
+        this.blogContent = blogContent;
+        this.tags = tags;
+        this.views = views;
+        this.likes = likes;
+        this.userId = userId;
+    }
+
     public Long getBlogId() { return blogId; }
     public String getBlogTitle() { return blogTitle; }
     public String getBlogContent() { return blogContent; }

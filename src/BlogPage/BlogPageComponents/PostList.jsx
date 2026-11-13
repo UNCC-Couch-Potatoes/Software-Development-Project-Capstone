@@ -30,7 +30,7 @@ function PostList({
       {postsData.map((post, index) => (
           <div className='postListing' key={index}>
             <BlogPost 
-              id = {post.postID}
+              post = {post}
             />
           </div>
         ))}
