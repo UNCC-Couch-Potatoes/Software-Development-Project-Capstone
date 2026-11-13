@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Deployment credentials and generated database truststores
+.env
+.env.*
+!.env.aws.example
+*.p12
+*.jks
