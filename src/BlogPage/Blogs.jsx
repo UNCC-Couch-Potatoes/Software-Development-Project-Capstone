@@ -1,4 +1,5 @@
 import React from 'react';
+import NotificationBell from '../NotificationBell';
 import { Link } from 'react-router-dom';
 import PostList from './BlogPageComponents/PostList.jsx';
 import FollowingList from './BlogPageComponents/FollowingList.jsx';
@@ -37,6 +38,7 @@ function Blogs(){
         <Link to="/Jams">Jams</Link>
         <Link to="/Jobs">Jobs</Link>
         <Link to="/Profile">Profile</Link>
+        <NotificationBell />
         <Link to="/Resources">Resources</Link>
     </div>
     <div id="blog-page">

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import NotificationBell from './NotificationBell';
 import './style.css';
 import './resources.css';
 import './profile.css';
@@ -342,6 +343,7 @@ function Profile() {
       <Link to="/jams">Jams</Link>
       <Link to="/jobs">Jobs</Link>
       <Link to="/profile">Profile</Link>
+      <NotificationBell />
       {/* Dropdown feature for resources navbar */}
       {/* Dropdown will appear on hover */}
       <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}

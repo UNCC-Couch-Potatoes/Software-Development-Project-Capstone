@@ -16,7 +16,11 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class JobService {
     private final JobRepository repository;
-    public JobService(JobRepository repository) { this.repository = repository; }
+    private final NotificationService notifications;
+    public JobService(JobRepository repository, NotificationService notifications) {
+        this.repository = repository;
+        this.notifications = notifications;
+    }
     public Optional<JobResponse> findById(Long id) {
         return repository.findById(id).map(JobResponse::from);
     }
@@ -28,14 +32,18 @@ public class JobService {
     public JobResponse create(Long userId, JobRequest req) {
         Job job = new Job(userId, "", "", "", "");
         apply(job, req);
-        return JobResponse.from(repository.save(job));
+        Job saved = repository.save(job);
+        notifications.jobPosted(saved);
+        return JobResponse.from(saved);
     }
 
     @Transactional
     public JobResponse update(Long id, Long userId, JobRequest req) {
         Job job = findOwned(id, userId);
         apply(job, req);
-        return JobResponse.from(repository.save(job));
+        Job saved = repository.save(job);
+        notifications.jobUpdated(saved);
+        return JobResponse.from(saved);
     }
 
     @Transactional
@@ -45,12 +53,10 @@ public class JobService {
             repository.delete(job);
             repository.flush();
         } catch (DataIntegrityViolationException e) {
-            // JobApplication rows point at this job, so the database won't let it go
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This job has applications and cannot be deleted.");
         }
     }
 
-    // Finds the job and makes sure the logged-in user is the one who posted it
     private Job findOwned(Long id, Long userId) {
         Job job = repository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found."));
@@ -60,7 +66,6 @@ public class JobService {
         return job;
     }
 
-    // Validates the request against the Jobs table limits, then copies it onto the entity
     private void apply(Job job, JobRequest req) {
         if (req == null || req.jobTitle() == null || req.jobTitle().isBlank()
                 || req.jobDescription() == null || req.jobDescription().isBlank()) {
@@ -75,7 +80,6 @@ public class JobService {
                 || description.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 65535) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title or content exceeds the database limit.");
         }
-        // The link is rendered as an href, so only allow web links (blocks javascript: URLs)
         if (!link.isEmpty() && !link.matches("(?i)^https?://\\S+$")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The link must start with http:// or https://.");
         }
