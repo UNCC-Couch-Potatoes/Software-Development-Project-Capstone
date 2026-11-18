@@ -23,9 +23,10 @@
     left: 0;
     width: 900px;
     height: fit-content;
-
-    background-color: rgb(77, 77, 118);
+    background-color:  #262630;
+    border: 2px solid #9999b0;
 }
+
 
 .HeaderBar {
     display: flex;
@@ -33,11 +34,13 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    color:#c9c5ff;
 }
 
 #blog-submit {
     height: fit-content;
     font-size:large;
+    padding: 20px 30px;
 }
 
 #blog-submit:hover {
@@ -49,7 +52,7 @@
     display: flex;
     flex-direction:column;
     align-items: left;
-}
+}   
 
 .blog-form label {
     margin: 10px;
@@ -57,9 +60,13 @@
 
 .blog-form label * {
     font-size: 60px;
+    background-color:  #2b2b35;
+    color: #ffffff;
+    border: 2px solid #9999b0;
 }
 
 .blog-form label textarea {
+    scrollbar-color: #594e6c #37374200;
     field-sizing:content;
     width: 100%;
     font-size: 30px;
@@ -68,4 +75,5 @@
     max-height: 60vh;
     overflow-y:scroll;
     resize:none;
+    font-family:  Inter, sans-serif;
 }

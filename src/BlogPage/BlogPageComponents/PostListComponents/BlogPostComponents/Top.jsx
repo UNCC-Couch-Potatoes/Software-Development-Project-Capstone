@@ -9,12 +9,13 @@ export default function Top({id, author, date, pfpSource}) {
         alt = "Profile Picture"
       /> 
       <div className="postInfo">
-        <p>{author}</p>
-        <p>{date}</p>
+        <p className='authorName'>{author}</p>
+        <p className='datePosted'>{date}</p>
       </div>
       <input 
         type="button" 
-        className="followButton" 
+        className='button'
+        id="followButton" 
         value="Follow"
       />
     </div>

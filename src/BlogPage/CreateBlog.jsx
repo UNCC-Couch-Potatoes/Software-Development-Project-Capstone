@@ -58,15 +58,27 @@ function CreateBlog({closeCreateBlog}) {
                         <input 
                             type="submit" 
                             value="Submit" 
+                            className='button'
                             id="blog-submit"
                             onClick={(e) => handleSubmit(e)}
                         />
                     </div>
                     <label>
-                        <input type="text" name="title" placeholder="Title" />
+                        <input 
+                            type="text" 
+                            name="title" 
+                            placeholder="Title" 
+                            minLength={1}
+                            maxLength={50}
+                        />
                     </label>
                     <label>
-                        <textarea name="content" placeholder="Content"></textarea>
+                        <textarea
+                            name="content" 
+                            placeholder="Content"
+                            minLength={1}
+                            maxLength={2000}
+                        />
                     </label>
                 </form>
             </div>

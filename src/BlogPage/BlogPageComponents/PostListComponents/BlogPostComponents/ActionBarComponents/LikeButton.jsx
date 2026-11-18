@@ -10,7 +10,8 @@ function LikeButton({postData}) {
         <input 
             type="button"
             value="Like"
-            className="LikeButton"
+            className='button'
+            id="LikeButton"
         />
         <p className='Likes'>{likeCount}</p>
     </div>

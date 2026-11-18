@@ -37,7 +37,7 @@ public class BlogService {
     private String cleanTitle(String title) {
        String newTitle = title == null || title == null ? "" : title.trim();
         if (newTitle.isEmpty() || newTitle.length() > 50) {
-            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be 1 to 50 characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be 1 to 50 characters.");
         }
 
         return newTitle;
@@ -46,7 +46,7 @@ public class BlogService {
     private String cleanContent(String content) {
         String newContent = content == null ? "" : content.trim();
         if (newContent.isEmpty()) {
-            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Content is required.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Content is required.");
         }
 
         return newContent;

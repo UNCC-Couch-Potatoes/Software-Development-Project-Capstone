@@ -22,6 +22,7 @@ function PostList({
         <input 
           type="button"
           value="Create Post"
+          className='button'
           id ="CreatePostButton"
           onClick={() => {showCreatePost()}}
         />
