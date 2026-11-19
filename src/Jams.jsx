@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
+import useFollowing from './useFollowing';
 import React, { useEffect, useState } from 'react';
 import { useCollabs, CollabPostForm, CollabList } from './Collabs';
 import './style.css';
@@ -212,6 +213,7 @@ function Jams() {
 
  const collab = useCollabs('JAM', userId);
 
+ const { followingIds, busyId: followBusyId, followError, toggleFollow } = useFollowing(userId);
  const [joinedIds, setJoinedIds] = useState([]);
  const [joiningId, setJoiningId] = useState(null);
 
@@ -501,7 +503,7 @@ function Jams() {
                      />
                  )}
                  <CollabPostForm collab={collab} />
-                 {actionError && <p className="job-form-error" role="alert">{actionError}</p>}
+                 {(actionError || followError) && <p className="job-form-error" role="alert">{actionError || followError}</p>}
 
                  {/* Shows how many jams are currently being displayed */}
                  {!loading && !error && (
@@ -523,6 +525,7 @@ function Jams() {
                      const isOwner = userId !== null && jam.ownerUserId === userId;
                      const hasJoined = joinedIds.includes(jam.id);
                      const canJoin = !(status && status.ended);
+                     const canFollow = userId !== null && jam.ownerUserId != null && !isOwner;
 
                      return editingId === jam.id ? (
                          <JamForm
@@ -563,7 +566,7 @@ function Jams() {
                                  )}
                                  <div><dt>Participants</dt><dd>{jam.entrants}</dd></div>
                              </dl>
-                             {(canJoin || isOwner) && (
+                             {(canJoin || isOwner || canFollow) && (
                                  <div className="job-actions">
                                      {canJoin && (
                                          <button
@@ -573,6 +576,16 @@ function Jams() {
                                              disabled={joiningId === jam.id}
                                          >
                                              {joiningId === jam.id ? 'Saving...' : hasJoined ? 'Leave jam' : 'Join jam'}
+                                         </button>
+                                     )}
+                                     {canFollow && (
+                                         <button
+                                             type="button"
+                                             className="filter-button"
+                                             onClick={() => toggleFollow(jam.ownerUserId)}
+                                             disabled={followBusyId === jam.ownerUserId}
+                                         >
+                                             {followingIds.includes(jam.ownerUserId) ? 'Unfollow host' : 'Follow host'}
                                          </button>
                                      )}
                                      {isOwner && (

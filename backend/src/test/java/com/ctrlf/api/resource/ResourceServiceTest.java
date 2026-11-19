@@ -31,6 +31,9 @@ class ResourceServiceTest {
     @Mock
     private com.ctrlf.api.repository.ResourceTagRepository resourceTagRepository;
 
+    @Mock
+    private com.ctrlf.api.service.NotificationService notifications;
+
     private ResourceService resourceService;
 
     @org.junit.jupiter.api.BeforeEach
@@ -41,7 +44,7 @@ class ResourceServiceTest {
                 new com.ctrlf.api.entity.ResourceTag("Art", "Art & assets", 2, 0),
                 new com.ctrlf.api.entity.ResourceTag("Audio", "Audio", 3, 0)));
         resourceService = new ResourceService(resourceRepository,
-            new com.ctrlf.api.service.ResourceTagService(resourceTagRepository));
+            new com.ctrlf.api.service.ResourceTagService(resourceTagRepository), notifications);
     }
 
     @Test
@@ -99,6 +102,7 @@ class ResourceServiceTest {
         assertThat(post.body()).isEqualTo("## Heading\n**Bold**");
         assertThat(post.ownerUserId()).isEqualTo(7L);
         assertThat(post.tags()).containsExactly("User Made", "Art");
+        verify(notifications).postPublished(7L, "My guide", "/resources/42");
     }
 
     @Test
@@ -124,6 +128,7 @@ class ResourceServiceTest {
         assertThat(post.siteLink()).isEqualTo("/resources/42");
         assertThat(post.body()).isEqualTo("New body");
         assertThat(post.siteName()).isEqualTo("Changed");
+        org.mockito.Mockito.verifyNoInteractions(notifications);
     }
 
     @Test

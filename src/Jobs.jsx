@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
+import useFollowing from './useFollowing';
 // useState imported so the words being searched gets updated
 // useEffect imported so jobs are loaded from the API when the page opens
 import React, { useEffect, useState } from 'react';
@@ -8,7 +9,6 @@ import './style.css';
 // Link imported so website isn't reloaded between pages
 
 
-// Each filter chip has a label and the keywords that make a job match it
 const FILTER_GROUPS = [
    {
        name: 'Role',
@@ -204,6 +204,34 @@ function Jobs() {
  const [userId, setUserId] = useState(null);
 
  const collab = useCollabs('JOB', userId);
+ const { followingIds, busyId: followBusyId, followError, toggleFollow } = useFollowing(userId);
+
+ const [appliedIds, setAppliedIds] = useState([]);
+ const [applyingId, setApplyingId] = useState(null);
+
+ useEffect(() => {
+     if (userId === null) { setAppliedIds([]); return undefined; }
+     let cancelled = false;
+     fetch('/api/job-applications/mine', { credentials: 'include' })
+         .then((res) => (res.ok ? res.json() : []))
+         .then((ids) => { if (!cancelled) setAppliedIds(ids); })
+         .catch(() => {});
+     return () => { cancelled = true; };
+ }, [userId]);
+
+ const applyToJob = async (job) => {
+     setApplyingId(job.id);
+     setActionError('');
+     try {
+         const res = await fetch(`/api/job-applications/job/${job.id}`, { method: 'POST', credentials: 'include' });
+         if (!res.ok) throw new Error(res.status === 401 ? 'Please log in to apply.' : 'Could not submit your application. Please try again.');
+         setAppliedIds((current) => [...new Set([...current, job.id])]);
+     } catch (err) {
+         setActionError(err.message === 'Failed to fetch' ? 'Could not reach the server.' : err.message);
+     } finally {
+         setApplyingId(null);
+     }
+ };
 
 
  useEffect(() => {
@@ -465,7 +493,7 @@ function Jobs() {
                      />
                  )}
                  <CollabPostForm collab={collab} />
-                 {actionError && <p className="job-form-error" role="alert">{actionError}</p>}
+                 {(actionError || followError) && <p className="job-form-error" role="alert">{actionError || followError}</p>}
 
 
                  {!loading && !error && (
@@ -507,6 +535,26 @@ function Jobs() {
                              {job.link && <span className="job-domain">{getDomain(job.link)}</span>}
                              <h3>{[job.type, job.location].filter(Boolean).join(' · ')}</h3>
                              <p>{job.description}</p>
+                             {userId !== null && job.ownerUserId !== null && job.ownerUserId !== undefined && job.ownerUserId !== userId && (
+                                 <div className="job-actions">
+                                     <button
+                                         type="button"
+                                         className="filter-button"
+                                         onClick={() => applyToJob(job)}
+                                         disabled={applyingId === job.id || appliedIds.includes(job.id)}
+                                     >
+                                         {applyingId === job.id ? 'Applying...' : appliedIds.includes(job.id) ? 'Applied' : 'Apply'}
+                                     </button>
+                                     <button
+                                         type="button"
+                                         className="filter-button"
+                                         onClick={() => toggleFollow(job.ownerUserId)}
+                                         disabled={followBusyId === job.ownerUserId}
+                                     >
+                                         {followingIds.includes(job.ownerUserId) ? 'Unfollow poster' : 'Follow poster'}
+                                     </button>
+                                 </div>
+                             )}
                              {userId !== null && job.ownerUserId === userId && (
                                  <div className="job-actions">
                                      <button type="button" className="filter-button" onClick={() => openForm(job.id)}>

@@ -85,6 +85,12 @@ public class NotificationService {
                 "A job you applied to was updated: " + job.getJobTitle(), "/jobs"));
     }
 
+    public void jobApplied(Job job, Long applicantId) {
+        if (job.getOwnerUserId() == null) return;
+        deliver(() -> notifyUsers(List.of(job.getOwnerUserId()), applicantId, JOB,
+                nameOf(applicantId) + " applied to your job: " + job.getJobTitle(), "/jobs"));
+    }
+
     public void postPublished(Long authorId, String title, String linkPath) {
         deliver(() -> notifyUsers(repository.findFollowerIds(authorId), authorId, POST,
                 nameOf(authorId) + " published a new post: " + title, linkPath));

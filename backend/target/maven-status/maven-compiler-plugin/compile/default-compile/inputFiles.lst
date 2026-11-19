@@ -9,6 +9,7 @@
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/JamEntrantController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/JobApplicationController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/JobController.java
+/home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/NotificationController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/ResourceController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/ResourceTagController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/StatusController.java
