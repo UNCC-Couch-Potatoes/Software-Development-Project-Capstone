@@ -5,6 +5,7 @@ import com.ctrlf.api.service.BlogService;
 import com.ctrlf.api.dto.BlogRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,11 +54,11 @@ public class BlogController {
     //     return service.update(id, currentUser(request), body);
     // }
 
-    // @DeleteMapping("/{id}")
-    // @ResponseStatus(HttpStatus.NO_CONTENT)
-    // public void delete(@PathVariable Long id, HttpServletRequest request) {
-    //     service.delete(id, currentUser(request));
-    // }
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id, HttpServletRequest request) {
+        service.delete(id, currentUser(request));
+    }
 
 
 }

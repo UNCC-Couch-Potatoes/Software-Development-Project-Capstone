@@ -12,6 +12,7 @@
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/ResourceTagController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/StatusController.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/controller/UserProfileController.java
+/home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/BlogRequest.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/BlogResponse.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/CommentResponse.java
 /home/anthonyc/Downloads/Capstone/Software-Development-Project-Capstone/backend/src/main/java/com/ctrlf/api/dto/CommentThreadResponse.java
