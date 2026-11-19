@@ -1,4 +1,5 @@
 import useResourceTags from './useResourceTags';
+import NotificationBell from './NotificationBell';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -56,6 +57,7 @@ export function Shell({ children }) {
       <Link to="/jams">Jams</Link>
       <Link to="/jobs">Jobs</Link>
       <Link to="/profile">Profile</Link>
+      <NotificationBell />
       {/* Dropdown feature for resources navbar */}
       {/* Dropdown will appear on hover */}
       <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}

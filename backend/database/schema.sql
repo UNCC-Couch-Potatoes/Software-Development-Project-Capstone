@@ -151,3 +151,29 @@ CREATE TABLE IF NOT EXISTS Collabs (
     PRIMARY KEY (CollabId),
     INDEX IX_CollabType (CollabType)
 );
+
+CREATE TABLE IF NOT EXISTS Notifications (
+    NotificationId BIGINT NOT NULL AUTO_INCREMENT,
+    UserId BIGINT NOT NULL,
+    NotificationType VARCHAR(10) NOT NULL,
+    Message VARCHAR(500) NOT NULL,
+    LinkPath VARCHAR(255) NOT NULL,
+    CreatedAt DATETIME NOT NULL,
+    ReadAt DATETIME NULL,
+    PRIMARY KEY (NotificationId),
+    INDEX IX_Notifications_User (UserId, CreatedAt),
+    CONSTRAINT fk_NotificationsUser FOREIGN KEY (UserId) REFERENCES UserProfile(UserId)
+);
+
+CREATE TABLE IF NOT EXISTS Notifications (
+    NotificationId BIGINT NOT NULL AUTO_INCREMENT,
+    UserId BIGINT NOT NULL,
+    NotificationType VARCHAR(10) NOT NULL,
+    Message VARCHAR(500) NOT NULL,
+    LinkPath VARCHAR(255) NOT NULL,
+    CreatedAt DATETIME NOT NULL,
+    ReadAt DATETIME NULL,
+    PRIMARY KEY (NotificationId),
+    INDEX IX_Notifications_User (UserId, CreatedAt),
+    CONSTRAINT fk_NotificationsUser FOREIGN KEY (UserId) REFERENCES UserProfile(UserId)
+);

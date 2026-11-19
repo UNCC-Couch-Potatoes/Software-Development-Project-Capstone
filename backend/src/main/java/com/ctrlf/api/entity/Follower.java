@@ -23,6 +23,11 @@ public class Follower {
 
     protected Follower() {}
 
+    public Follower(Long followerUser, Long followingUser) {
+        this.followerUser = followerUser;
+        this.followingUser = followingUser;
+    }
+
     public Long getFollowerLinkId() { return followerLinkId; }
     public Long getFollowerUser() { return followerUser; }
     public Long getFollowingUser() { return followingUser; }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import NotificationBell from './NotificationBell';
 import { Link } from 'react-router-dom';
 import './style.css';
 import './home.css';
@@ -60,7 +61,6 @@ const newBlogs = [
   },
 ];
 
-// Each feed loads independently so a failed request does not hide the other feed.
 function useListings(path, label) {
   const [items, setItems] = useState([]);
   const [status, setStatus] = useState(`Loading ${label}…`);
@@ -184,7 +184,6 @@ function Home() {
     return () => controller.abort();
   }, []);
 
-  // Ask the backend who is logged in
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
       .then((res) => (res.ok ? res.json() : null))
@@ -192,7 +191,6 @@ function Home() {
       .catch(() => setUser(null));
   }, []);
 
-  // IDs reflect posting order; neither API exposes a creation timestamp.
   const newestJobs = [...jobs].sort((a, b) => b.jobId - a.jobId);
   const newestJams = [...jams].sort((a, b) => b.jamId - a.jamId);
   const popularJams = [...newestJams].sort((a, b) => (b.entrantCount ?? 0) - (a.entrantCount ?? 0));
@@ -212,8 +210,7 @@ function Home() {
       <Link to="/jams">Jams</Link>
       <Link to="/jobs">Jobs</Link>
       <Link to="/profile">Profile</Link>
-      {/* Dropdown feature for resources navbar */}
-      {/* Dropdown will appear on hover */}
+      <NotificationBell />
       <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}
       onFocus={
         event => {
@@ -235,15 +232,12 @@ function Home() {
           }
         }>
 
-      {/* React elements for the resource tab and its dropdown*/}
       <div className="navbar-resources-heading">
         <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>Resources</Link>
-        {/* For mobile users who can't "hover" over the taskbar there is a physical button that can be pressed instead*/}
         <button type="button" className="navbar-dropdown-toggle" aria-label="Resource navigation" aria-expanded={resourceMenuOpen}
           aria-controls="navbar-resource-links" onClick={() => setResourceMenuOpen(value => !value)}>▾</button>
       </div>
 
-      {/* The Dropdown elements */}
       <div id="navbar-resource-links" className="navbar-dropdown" hidden={!resourceMenuOpen}>
         <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>All resources</Link>
         <Link to="/resources/manage" onClick={() => setResourceMenuOpen(false)}>My resources</Link>

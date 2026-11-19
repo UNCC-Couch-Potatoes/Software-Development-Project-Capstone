@@ -21,8 +21,12 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class JamService {
     private final JamRepository repository;
+    private final NotificationService notifications;
 
-    public JamService(JamRepository repository) { this.repository = repository; }
+    public JamService(JamRepository repository, NotificationService notifications) {
+        this.repository = repository;
+        this.notifications = notifications;
+    }
 
     public List<JamResponse> findAll() {
         Map<Long, Long> counts = new HashMap<>();
@@ -45,7 +49,9 @@ public class JamService {
         checkDates(body);
         Jam jam = new Jam(userId, cleanTitle(body), cleanDescription(body), cleanDetailedDescription(body),
                 tagsToString(body), cleanCoverImage(body), toUtc(body.startTime()), toUtc(body.endTime()));
-        return toResponse(repository.save(jam), 0L);
+        Jam saved = repository.save(jam);
+        notifications.jamPosted(saved);
+        return toResponse(saved, 0L);
     }
 
     public JamResponse update(Long id, Long userId, JamRequest body) {
@@ -54,11 +60,10 @@ public class JamService {
         jam.update(cleanTitle(body), cleanDescription(body), cleanDetailedDescription(body),
                 tagsToString(body), cleanCoverImage(body), toUtc(body.startTime()), toUtc(body.endTime()));
         Jam saved = repository.save(jam);
+        notifications.jamUpdated(saved);
         return toResponse(saved, repository.countEntrants(saved.getJamId()));
     }
 
-    // Not @Transactional on purpose: the delete commits inside repository.delete,
-    // so a foreign key failure (JamEntrants) surfaces here and can become a 409
     public void delete(Long id, Long userId) {
         Jam jam = findOwned(id, userId);
         try {
@@ -68,7 +73,6 @@ public class JamService {
         }
     }
 
-    // 404 if it doesn't exist, 403 if it belongs to someone else (or to nobody, like seeded jams)
     private Jam findOwned(Long id, Long userId) {
         Jam jam = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Jam not found."));
@@ -94,7 +98,6 @@ public class JamService {
         return description;
     }
 
-    // Optional longer description for the jam's own page; blank is stored as null
     private String cleanDetailedDescription(JamRequest body) {
         String detailed = body.jamDetailedDescription() == null ? "" : body.jamDetailedDescription().trim();
         if (detailed.isEmpty()) return null;
@@ -104,7 +107,6 @@ public class JamService {
         return detailed;
     }
 
-    // Optional; when present it must be an http(s) link
     private String cleanCoverImage(JamRequest body) {
         String url = body.coverImageUrl() == null ? "" : body.coverImageUrl().trim();
         if (url.isEmpty()) return null;
@@ -114,7 +116,6 @@ public class JamService {
         return url;
     }
 
-    // Start and end go together, and the end must come after the start
     private void checkDates(JamRequest body) {
         Instant start = body.startTime();
         Instant end = body.endTime();
@@ -126,7 +127,6 @@ public class JamService {
         }
     }
 
-    // Times are stored in the database as UTC
     private LocalDateTime toUtc(Instant instant) {
         return instant == null ? null : LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
@@ -135,7 +135,6 @@ public class JamService {
         return time == null ? null : time.toInstant(ZoneOffset.UTC);
     }
 
-    // ["Pixel Art", "Solo"] -> "|Pixel Art|Solo|", "" when there are no tags
     private String tagsToString(JamRequest body) {
         List<String> tags = body.jamTags() == null ? List.of() : body.jamTags().stream()
                 .filter(Objects::nonNull)
@@ -151,7 +150,6 @@ public class JamService {
         return stored;
     }
 
-    // "|Pixel Art|Solo|" -> ["Pixel Art", "Solo"]
     private List<String> tagsToList(String stored) {
         if (stored == null) return List.of();
         return Arrays.stream(stored.split("\\|")).map(String::trim).filter(tag -> !tag.isEmpty()).toList();
