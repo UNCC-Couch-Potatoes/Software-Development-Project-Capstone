@@ -5,6 +5,10 @@
     gap: 8px;
 }
 
-.LikeButton { 
+#LikeButton { 
     height: fit-content;
+}
+
+.likes {
+    color:rgb(218, 112, 208)
 }

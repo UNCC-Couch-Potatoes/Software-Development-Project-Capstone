@@ -3,6 +3,7 @@
     margin: 4px;
     align-items: center;
     gap: 10px;
+    color: #c9c5ff;
 }
 
 .postInfo {
@@ -15,14 +16,21 @@
     margin: 0px;
 }
 
-.followButton { 
+#followButton { 
     height: fit-content;
+    background: #41414e;
+    color: white;
 }
 
 .profilePicture { 
     border: solid;
-    border-width: 2px;
+    border-width: 1px;
     border-radius: 100%;
     width: 3rem;
     height: 3rem;
+}
+
+.authorName{
+    font-size: large;
+    font-weight: bold;
 }

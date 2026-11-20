@@ -5,3 +5,15 @@
     /*grid-template-columns:*/
 }
 
+input.button {
+    background: #41414e;
+    height: fit-content;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+#blog-page input.button:hover {
+    background: #555b66;
+}

@@ -1,4 +1,5 @@
 import React from 'react'
+import './Content.css';
 
 export default function Content({id, header, content}) {
   // const charLimit = 100;

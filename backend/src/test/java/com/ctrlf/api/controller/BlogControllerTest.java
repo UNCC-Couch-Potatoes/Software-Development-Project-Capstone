@@ -1,6 +1,11 @@
 package com.ctrlf.api.controller;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -23,6 +28,22 @@ class BlogControllerTest {
 
     @MockitoBean
     private BlogService blogService;
+
+    @Test
+    void createsBlogWithOnlyTitleAndContent() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("userId", 2L);
+        when(blogService.create(eq(2L), any())).thenReturn(new BlogResponse(
+            7L, "Devlog", "Week one", List.of(), 0, 0, 2L
+        ));
+
+        mockMvc.perform(post("/api/blogs")
+                .session(session)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"blogTitle\":\"Devlog\",\"blogContent\":\"Week one\"}"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.blogTitle").value("Devlog"));
+    }
 
     @Test
     void returnsOneBlogById() throws Exception {
