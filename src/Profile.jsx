@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import NotificationBell from './NotificationBell';
 import './style.css';
 import './resources.css';
 import './profile.css';
@@ -62,6 +63,10 @@ function Profile() {
 
   const [posts] = useState(defaultPosts);
 
+    // Resources this user created on the Resources page
+  const [myResources, setMyResources] = useState(null);
+  const [resourcesError, setResourcesError] = useState('');
+
   // Official tags from the database (same list the Resources page uses).
   // "User Made" is only for resource posts, so it's left out here.
   const { groups: tagGroups, status: tagsStatus } = useResourceTags();
@@ -100,6 +105,26 @@ function Profile() {
 
     loadProfile();
   }, [navigate]);
+
+    // Load the resources this user has created
+  useEffect(() => {
+    async function loadMyResources() {
+      try {
+        const response = await fetch('/api/resources/mine', { credentials: 'include' });
+
+        if (!response.ok) {
+          setResourcesError('Could not load your resources.');
+          return;
+        }
+
+        setMyResources(await response.json());
+      } catch {
+        setResourcesError('Unable to connect to the server.');
+      }
+    }
+
+    loadMyResources();
+  }, []);
 
   function fillFormFrom(source) {
     setFirstName(source.firstName || '');
@@ -318,6 +343,7 @@ function Profile() {
       <Link to="/jams">Jams</Link>
       <Link to="/jobs">Jobs</Link>
       <Link to="/profile">Profile</Link>
+      <NotificationBell />
       {/* Dropdown feature for resources navbar */}
       {/* Dropdown will appear on hover */}
       <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}
@@ -688,6 +714,59 @@ function Profile() {
               </section>
 
             </div>
+              {/* Resources this user created */}
+              <section className="profile-card profile-span-2">
+                <span className="profile-kicker">Contributions</span>
+                <h2>My Resources</h2>
+
+                {resourcesError && (
+                  <p className="profile-message profile-message-error">{resourcesError}</p>
+                )}
+
+                {!myResources && !resourcesError && (
+                  <p className="profile-empty">Loading your resources...</p>
+                )}
+
+                {myResources?.length === 0 && (
+                  <p className="profile-empty">
+                    You haven't created any resources yet.{' '}
+                    <Link
+                      to="/resources/new"
+                      style={{ color: '#a99cf5', textDecoration: 'underline' }}
+                    >
+                      Create one
+                    </Link>
+                  </p>
+                )}
+
+                {myResources?.map((resource) => (
+                  <article className="profile-post" key={resource.resourceId}>
+                    <h3>
+                      <Link
+                        to={resource.siteLink}
+                        style={{ color: '#a99cf5', textDecoration: 'underline' }}
+                      >
+                        {resource.siteName}
+                      </Link>
+                    </h3>
+                    <p>{resource.overview}</p>
+                    <div className="profile-tags">
+                      {resource.tags.map((tag) => (
+                        <span className="profile-tag" key={tag}>{tag}</span>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+
+                {myResources?.length > 0 && (
+                  <Link
+                    to="/resources/manage"
+                    style={{ color: '#a99cf5', textDecoration: 'underline' }}
+                  >
+                    Manage my resources →
+                  </Link>
+                )}
+              </section>
 
             {/* Clear Profile */}
             <div className="profile-footer">

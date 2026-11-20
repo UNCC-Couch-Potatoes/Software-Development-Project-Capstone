@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
+import useFollowing from './useFollowing';
 // useState imported so the words being searched gets updated
 // useEffect imported so jobs are loaded from the API when the page opens
 import React, { useEffect, useState } from 'react';
+import { useCollabs, CollabPostForm, CollabList } from './Collabs';
 import './style.css';
 // Link imported so website isn't reloaded between pages
 
 
-// Each filter chip has a label and the keywords that make a job match it
 const FILTER_GROUPS = [
    {
        name: 'Role',
@@ -46,22 +48,18 @@ const FILTER_GROUPS = [
 ];
 
 
-// Type and location are stored in the job's tags, so pull them back out for the card
 const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Internship'];
 const JOB_LOCATIONS = ['Remote', 'On-site'];
 
-// How many jobs show on each page
 const PAGE_SIZE = 20;
 
 
-// Whole-word match so "art" doesn't match "start" or "party"
 const hasKeyword = (text, keyword) => {
    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
    return new RegExp(`\\b${escaped}\\b`, 'i').test(text);
 };
 
 
-// Shortens the listing link to just the site name, e.g. "example.com"
 function getDomain(siteLink) {
  try {
    return new URL(siteLink).hostname.replace(/^www\./, '');
@@ -71,7 +69,6 @@ function getDomain(siteLink) {
 }
 
 
-// Logic for displaying page numbers (max 5 at a time)
 function getPageNumbers(currentPage, totalPages) {
    const firstPage = Math.max(0, Math.min(currentPage - 2, totalPages - 5));
    const lastPage = Math.min(totalPages, firstPage + 5);
@@ -83,7 +80,6 @@ function getPageNumbers(currentPage, totalPages) {
 }
 
 
-// Turns a job from the API into the shape the page uses
 const toJob = (job) => ({
    id: job.jobId,
    title: job.jobTitle,
@@ -96,11 +92,9 @@ const toJob = (job) => ({
 });
 
 
-// Blank form used when posting a new job
 const EMPTY_FORM = { title: '', type: '', location: '', description: '', link: '', extraTags: '' };
 
 
-// Fills the form from an existing job; anything that isn't the type or location stays in "other tags"
 const jobToForm = (job) => ({
    title: job.title,
    type: job.type,
@@ -111,7 +105,6 @@ const jobToForm = (job) => ({
 });
 
 
-// Turns the form back into the body the API expects (type and location are saved as tags)
 const formToBody = (form) => ({
    jobTitle: form.title.trim(),
    jobDescription: form.description.trim(),
@@ -122,7 +115,6 @@ const formToBody = (form) => ({
 });
 
 
-// Friendly messages for the errors the API can send back
 const errorMessage = (status) => {
    if (status === 401) return 'Please log in again.';
    if (status === 400) return 'Please check the fields. The title can be up to 50 characters and the link must start with http:// or https://.';
@@ -133,7 +125,6 @@ const errorMessage = (status) => {
 };
 
 
-// Form used for both posting a new job and editing an existing one
 function JobForm({ heading, initial, submitLabel, saving, error, onSave, onCancel }) {
  const [form, setForm] = useState(initial);
  const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }));
@@ -197,24 +188,50 @@ function Jobs() {
  const [filterOpen, setFilterOpen] = useState(false);
  const [selectedFilters, setSelectedFilters] = useState([]);
 
- // Current page (starts at 0)
  const [page, setPage] = useState(0);
 
 
- // Jobs come from the database through the API
  const [jobs, setJobs] = useState([]);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState('');
 
- // editingId is null (no form open), 'new' (posting a job), or the id of the job being edited
  const [editingId, setEditingId] = useState(null);
  const [saving, setSaving] = useState(false);
  const [formError, setFormError] = useState('');
  const [deletingId, setDeletingId] = useState(null);
  const [actionError, setActionError] = useState('');
 
- // Current user, so Edit and Delete only show on jobs they posted
  const [userId, setUserId] = useState(null);
+
+ const collab = useCollabs('JOB', userId);
+ const { followingIds, busyId: followBusyId, followError, toggleFollow } = useFollowing(userId);
+
+ const [appliedIds, setAppliedIds] = useState([]);
+ const [applyingId, setApplyingId] = useState(null);
+
+ useEffect(() => {
+     if (userId === null) { setAppliedIds([]); return undefined; }
+     let cancelled = false;
+     fetch('/api/job-applications/mine', { credentials: 'include' })
+         .then((res) => (res.ok ? res.json() : []))
+         .then((ids) => { if (!cancelled) setAppliedIds(ids); })
+         .catch(() => {});
+     return () => { cancelled = true; };
+ }, [userId]);
+
+ const applyToJob = async (job) => {
+     setApplyingId(job.id);
+     setActionError('');
+     try {
+         const res = await fetch(`/api/job-applications/job/${job.id}`, { method: 'POST', credentials: 'include' });
+         if (!res.ok) throw new Error(res.status === 401 ? 'Please log in to apply.' : 'Could not submit your application. Please try again.');
+         setAppliedIds((current) => [...new Set([...current, job.id])]);
+     } catch (err) {
+         setActionError(err.message === 'Failed to fetch' ? 'Could not reach the server.' : err.message);
+     } finally {
+         setApplyingId(null);
+     }
+ };
 
 
  useEffect(() => {
@@ -245,7 +262,6 @@ function Jobs() {
  };
 
 
- // Creates a job (POST) or updates one (PUT), then updates the list on the page
  const saveJob = async (form) => {
      const isNew = editingId === 'new';
      setSaving(true);
@@ -271,7 +287,6 @@ function Jobs() {
  };
 
 
- // Asks first, then deletes the job (DELETE) and removes its card
  const deleteJob = async (job) => {
      if (!window.confirm(`Delete "${job.title}"? This cannot be undone.`)) return;
      setDeletingId(job.id);
@@ -300,13 +315,11 @@ function Jobs() {
  }, []);
 
 
- // Go back to the first page whenever the search or filters change
  useEffect(() => {
      setPage(0);
  }, [query, selectedFilters]);
 
 
- // Adds or removes a filter from the selected list
  const toggleFilter = (label) => {
      setSelectedFilters((current) =>
          current.includes(label)
@@ -316,7 +329,6 @@ function Jobs() {
  };
 
 
- // Job must match the typed words AND every filter group that has something selected
  const visibleJobs = jobs.filter((job) => {
      const searchable = `${job.title} ${job.tags.join(' ')} ${job.description}`;
      const matchesQuery = searchable.toLowerCase().includes(query.toLowerCase());
@@ -335,9 +347,7 @@ function Jobs() {
  });
 
 
- // Only the jobs for the current page get shown
  const totalPages = Math.ceil(visibleJobs.length / PAGE_SIZE);
- // Clamp so deleting the last job on the last page doesn't leave you on an empty page
  const currentPage = Math.min(page, Math.max(0, totalPages - 1));
  const pagedJobs = visibleJobs.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
  const pageNumbers = getPageNumbers(currentPage, totalPages);
@@ -357,8 +367,7 @@ function Jobs() {
      <Link to="/jams">Jams</Link>
      <Link to="/jobs">Jobs</Link>
      <Link to="/profile">Profile</Link>
-     {/* Dropdown feature for resources navbar */}
-     {/* Dropdown will appear on hover */}
+     <NotificationBell />
      <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}
      onFocus={
        event => {
@@ -381,16 +390,13 @@ function Jobs() {
        }>
 
 
-     {/* React elements for the resource tab and its dropdown*/}
      <div className="navbar-resources-heading">
        <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>Resources</Link>
-       {/* For mobile users who can't "hover" over the taskbar there is a physical button that can be pressed instead*/}
        <button type="button" className="navbar-dropdown-toggle" aria-label="Resource navigation" aria-expanded={resourceMenuOpen}
          aria-controls="navbar-resource-links" onClick={() => setResourceMenuOpen(value => !value)}>▾</button>
      </div>
 
 
-     {/* The Dropdown elements */}
      <div id="navbar-resource-links" className="navbar-dropdown" hidden={!resourceMenuOpen}>
        <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>All resources</Link>
        <Link to="/resources/manage" onClick={() => setResourceMenuOpen(false)}>My resources</Link>
@@ -415,7 +421,6 @@ function Jobs() {
                  </p>
              </header>
              <section className="jobs-results">
-                 {/* Filter button and clear button */}
                  <div className="jobs-toolbar">
                      <button
                          type="button"
@@ -434,6 +439,14 @@ function Jobs() {
                      >
                          Post a job
                      </button>
+                     <button
+                         type="button"
+                         className="filter-button post-job-button"
+                         onClick={() => collab.openForm('new')}
+                         disabled={collab.editingId === 'new'}
+                     >
+                         Post a collab
+                     </button>
                      {selectedFilters.length > 0 && (
                          <button
                              type="button"
@@ -446,7 +459,6 @@ function Jobs() {
                  </div>
 
 
-                 {/* Filter panel, opened by the filter button */}
                  <div id="jobs-filter-panel" className="filter-panel" hidden={!filterOpen}>
                      {FILTER_GROUPS.map((group) => (
                          <div className="filter-group" key={group.name}>
@@ -469,7 +481,6 @@ function Jobs() {
                  </div>
 
 
-                 {/* Form for posting a new job */}
                  {editingId === 'new' && (
                      <JobForm
                          heading="Post a job"
@@ -481,10 +492,10 @@ function Jobs() {
                          onCancel={() => setEditingId(null)}
                      />
                  )}
-                 {actionError && <p className="job-form-error" role="alert">{actionError}</p>}
+                 <CollabPostForm collab={collab} />
+                 {(actionError || followError) && <p className="job-form-error" role="alert">{actionError || followError}</p>}
 
 
-                 {/* Shows how many jobs are currently being displayed */}
                  {!loading && !error && (
                      <p className="jobs-count">
                          {visibleJobs.length}{' '}
@@ -498,7 +509,6 @@ function Jobs() {
                          <p>{error}</p>
                      </div>
                  )}
-                 {/* Creates cards for each job listing on the current page */}
                  {pagedJobs.map((job) => (
                      editingId === job.id ? (
                          <JobForm
@@ -525,6 +535,26 @@ function Jobs() {
                              {job.link && <span className="job-domain">{getDomain(job.link)}</span>}
                              <h3>{[job.type, job.location].filter(Boolean).join(' · ')}</h3>
                              <p>{job.description}</p>
+                             {userId !== null && job.ownerUserId !== null && job.ownerUserId !== undefined && job.ownerUserId !== userId && (
+                                 <div className="job-actions">
+                                     <button
+                                         type="button"
+                                         className="filter-button"
+                                         onClick={() => applyToJob(job)}
+                                         disabled={applyingId === job.id || appliedIds.includes(job.id)}
+                                     >
+                                         {applyingId === job.id ? 'Applying...' : appliedIds.includes(job.id) ? 'Applied' : 'Apply'}
+                                     </button>
+                                     <button
+                                         type="button"
+                                         className="filter-button"
+                                         onClick={() => toggleFollow(job.ownerUserId)}
+                                         disabled={followBusyId === job.ownerUserId}
+                                     >
+                                         {followingIds.includes(job.ownerUserId) ? 'Unfollow poster' : 'Follow poster'}
+                                     </button>
+                                 </div>
+                             )}
                              {userId !== null && job.ownerUserId === userId && (
                                  <div className="job-actions">
                                      <button type="button" className="filter-button" onClick={() => openForm(job.id)}>
@@ -550,7 +580,6 @@ function Jobs() {
                      </div>
                  )}
 
-                 {/* Page controls, only shown when there is more than one page */}
                  {!loading && !error && totalPages > 1 && (
                      <nav className="jobs-pagination" aria-label="Job pages">
                          <button
@@ -585,6 +614,8 @@ function Jobs() {
                      </nav>
                  )}
              </section>
+
+             <CollabList collab={collab} />
          </main>
      </>
  );

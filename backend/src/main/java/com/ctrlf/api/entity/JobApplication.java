@@ -28,6 +28,12 @@ public class JobApplication {
 
     protected JobApplication() {}
 
+    public JobApplication(Long userId, Long jobId, byte[] applicantResume) {
+        this.userId = userId;
+        this.jobId = jobId;
+        this.applicantResume = applicantResume;
+    }
+
     public Long getApplicationId() { return applicationId; }
     public byte[] getApplicantResume() { return applicantResume; }
     public Long getUserId() { return userId; }

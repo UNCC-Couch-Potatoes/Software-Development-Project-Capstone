@@ -14,23 +14,25 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class JamEntrantService {
     private final JamRepository repository;
+    private final NotificationService notifications;
 
-    public JamEntrantService(JamRepository repository) { this.repository = repository; }
+    public JamEntrantService(JamRepository repository, NotificationService notifications) {
+        this.repository = repository;
+        this.notifications = notifications;
+    }
 
-    // Ids of every jam this user has joined (the page uses this to label the buttons)
     public List<Long> enteredJamIds(Long userId) {
         return repository.findJamIdsEnteredBy(userId);
     }
 
-    // Joining twice is harmless: the second request just reports that you're in
     public JamEntrantResponse join(Long jamId, Long userId) {
         Jam jam = findJam(jamId);
         checkNotEnded(jam);
         if (repository.countEntry(userId, jamId) == 0) {
             try {
                 repository.addEntrant(userId, jamId);
+                notifications.jamJoined(jam, userId);
             } catch (DataIntegrityViolationException ex) {
-                // Two requests at once can collide on the unique key; only that case is fine
                 if (repository.countEntry(userId, jamId) == 0) throw ex;
             }
         }
@@ -49,7 +51,6 @@ public class JamEntrantService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Jam not found."));
     }
 
-    // The entrant list of a finished jam stays as a record, so no joining or leaving after the end
     private void checkNotEnded(Jam jam) {
         LocalDateTime end = jam.getEndTime();
         if (end != null && !LocalDateTime.now(ZoneOffset.UTC).isBefore(end)) {

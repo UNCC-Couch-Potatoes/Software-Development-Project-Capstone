@@ -22,6 +22,10 @@ public class Jam {
     @Column(name = "JamDescription", nullable = false, columnDefinition = "TEXT")
     private String jamDescription;
 
+    // Optional longer write-up shown on the jam's own page (Markdown)
+    @Column(name = "JamDetailedDescription", columnDefinition = "TEXT")
+    private String jamDetailedDescription;
+
     @Column(name = "JamTags", nullable = false, length = 1000)
     private String jamTags;
 
@@ -40,16 +44,17 @@ public class Jam {
 
     protected Jam() {}
 
-    public Jam(Long ownerUserId, String jamTitle, String jamDescription, String jamTags,
-            String coverImageUrl, LocalDateTime startTime, LocalDateTime endTime) {
+    public Jam(Long ownerUserId, String jamTitle, String jamDescription, String jamDetailedDescription,
+            String jamTags, String coverImageUrl, LocalDateTime startTime, LocalDateTime endTime) {
         this.ownerUserId = ownerUserId;
-        update(jamTitle, jamDescription, jamTags, coverImageUrl, startTime, endTime);
+        update(jamTitle, jamDescription, jamDetailedDescription, jamTags, coverImageUrl, startTime, endTime);
     }
 
-    public void update(String jamTitle, String jamDescription, String jamTags,
+    public void update(String jamTitle, String jamDescription, String jamDetailedDescription, String jamTags,
             String coverImageUrl, LocalDateTime startTime, LocalDateTime endTime) {
         this.jamTitle = jamTitle;
         this.jamDescription = jamDescription;
+        this.jamDetailedDescription = jamDetailedDescription;
         this.jamTags = jamTags;
         this.coverImageUrl = coverImageUrl;
         this.startTime = startTime;
@@ -59,6 +64,7 @@ public class Jam {
     public Long getJamId() { return jamId; }
     public String getJamTitle() { return jamTitle; }
     public String getJamDescription() { return jamDescription; }
+    public String getJamDetailedDescription() { return jamDetailedDescription; }
     public String getJamTags() { return jamTags; }
     public Long getOwnerUserId() { return ownerUserId; }
     public String getCoverImageUrl() { return coverImageUrl; }

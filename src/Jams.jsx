@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
+import useFollowing from './useFollowing';
 import React, { useEffect, useState } from 'react';
+import { useCollabs, CollabPostForm, CollabList } from './Collabs';
 import './style.css';
 
 
@@ -17,7 +20,7 @@ function getPageNumbers(currentPage, totalPages) {
 }
 
 
-function formatSpan(ms) {
+export function formatSpan(ms) {
    const totalMinutes = Math.max(0, Math.floor(ms / 60000));
    const days = Math.floor(totalMinutes / 1440);
    const hours = Math.floor((totalMinutes % 1440) / 60);
@@ -26,7 +29,6 @@ function formatSpan(ms) {
    const parts = [];
    if (days) parts.push(`${days} ${days === 1 ? 'day' : 'days'}`);
    if (hours) parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`);
-   // Minutes are only worth showing when the span is under a day
    if (minutes && !days) parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`);
 
    return parts.length > 0 ? parts.join(' ') : 'less than a minute';
@@ -47,12 +49,10 @@ function formatCountdown(ms) {
 }
 
 
-// Shows date in viewer's time zone
-const formatDate = (date) => date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+export const formatDate = (date) => date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
 
 
-// Jam is upcoming, running, or over
-function getStatus(jam, now) {
+export function getStatus(jam, now) {
    if (!jam.start || !jam.end) return null;
    if (now < jam.start.getTime()) {
        return { label: `Starts in ${formatCountdown(jam.start.getTime() - now)}`, live: false, ended: false };
@@ -64,7 +64,6 @@ function getStatus(jam, now) {
 }
 
 
-// The date picker wants "YYYY-MM-DDTHH:mm" in the viewer's local time
 function toLocalInput(date) {
    if (!date) return '';
    const pad = (n) => String(n).padStart(2, '0');
@@ -72,11 +71,11 @@ function toLocalInput(date) {
 }
 
 
-// Turns a jam from the API into the shape the page uses
-const toJam = (jam) => ({
+export const toJam = (jam) => ({
    id: jam.jamId,
    title: jam.jamTitle,
    description: jam.jamDescription,
+   detailedDescription: jam.jamDetailedDescription || '',
    ownerUserId: jam.ownerUserId,
    tags: jam.jamTags || [],
    coverImageUrl: jam.coverImageUrl || '',
@@ -86,12 +85,13 @@ const toJam = (jam) => ({
 });
 
 
-const EMPTY_FORM = { title: '', description: '', tags: '', coverImageUrl: '', start: '', end: '' };
+const EMPTY_FORM = { title: '', description: '', detailedDescription: '', tags: '', coverImageUrl: '', start: '', end: '' };
 
 
 const jamToForm = (jam) => ({
    title: jam.title,
    description: jam.description,
+   detailedDescription: jam.detailedDescription,
    tags: jam.tags.join(', '),
    coverImageUrl: jam.coverImageUrl,
    start: toLocalInput(jam.start),
@@ -99,10 +99,10 @@ const jamToForm = (jam) => ({
 });
 
 
-// Turns the form back into the body the API expects (times are sent as UTC)
 const formToBody = (form) => ({
    jamTitle: form.title.trim(),
    jamDescription: form.description.trim(),
+   jamDetailedDescription: form.detailedDescription.trim() || null,
    jamTags: form.tags
        .split(',')
        .map((tag) => tag.trim())
@@ -125,7 +125,6 @@ const errorMessage = (status, action = 'save') => {
 };
 
 
-// Form used for both posting a new jam and editing an existing one
 function JamForm({ heading, initial, submitLabel, saving, error, onSave, onCancel }) {
  const [form, setForm] = useState(initial);
  const [localError, setLocalError] = useState('');
@@ -133,7 +132,6 @@ function JamForm({ heading, initial, submitLabel, saving, error, onSave, onCance
 
  const handleSubmit = (event) => {
      event.preventDefault();
-     // Check the dates before sending anything to the server
      if (Boolean(form.start) !== Boolean(form.end)) {
          setLocalError('Enter both a start and an end time, or leave both empty.');
          return;
@@ -156,8 +154,12 @@ function JamForm({ heading, initial, submitLabel, saving, error, onSave, onCance
              <input type="text" value={form.title} onChange={update('title')} maxLength={50} required />
          </label>
          <label>
-             Description
-             <textarea value={form.description} onChange={update('description')} rows={5} required />
+             Short description (shown on the jam card)
+             <textarea value={form.description} onChange={update('description')} rows={3} required />
+         </label>
+         <label>
+             Detailed description (optional, shown on the jam's own page, Markdown supported)
+             <textarea value={form.detailedDescription} onChange={update('detailedDescription')} rows={10} maxLength={20000} placeholder={'## Rules\n- Teams of up to 4\n\n## Prizes\n...'} />
          </label>
          <label>
              Cover image link (optional)
@@ -197,7 +199,6 @@ function Jams() {
 
  const [page, setPage] = useState(0);
 
- // Jams come from the database through the API
  const [jams, setJams] = useState([]);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState('');
@@ -208,14 +209,14 @@ function Jams() {
  const [deletingId, setDeletingId] = useState(null);
  const [actionError, setActionError] = useState('');
 
- // Current user, so Edit and Delete only show on jams they posted
  const [userId, setUserId] = useState(null);
 
- // Ids of the jams the current user has joined, and which jam is mid join/leave request
+ const collab = useCollabs('JAM', userId);
+
+ const { followingIds, busyId: followBusyId, followError, toggleFollow } = useFollowing(userId);
  const [joinedIds, setJoinedIds] = useState([]);
  const [joiningId, setJoiningId] = useState(null);
 
- // The current time, refreshed every second so the countdowns tick
  const [now, setNow] = useState(Date.now());
 
 
@@ -225,7 +226,6 @@ function Jams() {
  }, []);
 
 
- // Load all jams when the page opens
  useEffect(() => {
      let cancelled = false;
      fetch('/api/jams')
@@ -246,7 +246,6 @@ function Jams() {
  }, []);
 
 
- // Find out who's logged in
  useEffect(() => {
      let cancelled = false;
      fetch('/api/auth/me', { credentials: 'include' })
@@ -257,7 +256,6 @@ function Jams() {
  }, []);
 
 
- // Find out which jams user joined
  useEffect(() => {
      if (userId === null) {
          setJoinedIds([]);
@@ -272,7 +270,6 @@ function Jams() {
  }, [userId]);
 
 
- // Go back to first page whenever the search or filters change
  useEffect(() => {
      setPage(0);
  }, [query, selectedTags]);
@@ -285,7 +282,6 @@ function Jams() {
  };
 
 
- // Creates a jam (POST) or updates one (PUT), then updates the list on the page
  const saveJam = async (form) => {
      const isNew = editingId === 'new';
      setSaving(true);
@@ -311,7 +307,6 @@ function Jams() {
  };
 
 
- // Asks first, then deletes the jam and removes its card
  const deleteJam = async (jam) => {
      if (!window.confirm(`Delete "${jam.title}"? This cannot be undone.`)) return;
      setDeletingId(jam.id);
@@ -329,7 +324,6 @@ function Jams() {
  };
 
 
- // Joins the jam (POST) or leaves it (DELETE), then updates the button and the participant count
  const toggleEntry = async (jam) => {
      const joining = !joinedIds.includes(jam.id);
      setJoiningId(jam.id);
@@ -354,7 +348,6 @@ function Jams() {
  };
 
 
- // Adds or removes a tag from the selected list
  const toggleTag = (tag) => {
      setSelectedTags((current) =>
          current.includes(tag)
@@ -364,7 +357,6 @@ function Jams() {
  };
 
 
- // Filter chips are built from the tags that jams actually have
  const allTags = [...new Set(jams.flatMap((jam) => jam.tags))].sort((a, b) => a.localeCompare(b));
 
 
@@ -376,9 +368,7 @@ function Jams() {
  });
 
 
- // Only the jams for the current page get shown
  const totalPages = Math.ceil(visibleJams.length / PAGE_SIZE);
- // Clamp so deleting the last jam on the last page doesn't leave you on an empty page
  const currentPage = Math.min(page, Math.max(0, totalPages - 1));
  const pagedJams = visibleJams.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
  const pageNumbers = getPageNumbers(currentPage, totalPages);
@@ -398,6 +388,7 @@ function Jams() {
              <Link to="/jams">Jams</Link>
              <Link to="/jobs">Jobs</Link>
              <Link to="/profile">Profile</Link>
+             <NotificationBell />
              <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}
                  onFocus={
                      event => {
@@ -419,15 +410,12 @@ function Jams() {
                      }
                  }>
 
-                 {/* React elements for the resource tab and its dropdown*/}
                  <div className="navbar-resources-heading">
                      <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>Resources</Link>
-                     {/* For mobile users who can't "hover" over the taskbar there is a physical button that can be pressed instead*/}
                      <button type="button" className="navbar-dropdown-toggle" aria-label="Resource navigation" aria-expanded={resourceMenuOpen}
                          aria-controls="navbar-resource-links" onClick={() => setResourceMenuOpen(value => !value)}>▾</button>
                  </div>
 
-                 {/* The Dropdown elements */}
                  <div id="navbar-resource-links" className="navbar-dropdown" hidden={!resourceMenuOpen}>
                      <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>All resources</Link>
                      <Link to="/resources/manage" onClick={() => setResourceMenuOpen(false)}>My resources</Link>
@@ -447,14 +435,10 @@ function Jams() {
          <main className="jobs-container">
              <header className="jobs-header">
                  <h1>Game Jams</h1>
-                 <p>
-                     Find game jams to join, or post your own and bring
-                     other developers together.
-                 </p>
+                 <p>Find game jams to join, or post your own and bring other developers together.</p>
              </header>
 
              <section className="jobs-results">
-                 {/* Filter, post, and clear buttons */}
                  <div className="jobs-toolbar">
                      <button
                          type="button"
@@ -472,6 +456,14 @@ function Jams() {
                          disabled={editingId === 'new'}
                      >
                          Post a jam
+                     </button>
+                     <button
+                         type="button"
+                         className="filter-button post-job-button"
+                         onClick={() => collab.openForm('new')}
+                         disabled={collab.editingId === 'new'}
+                     >
+                         Post a collab
                      </button>
                      {selectedTags.length > 0 && (
                          <button
@@ -510,7 +502,8 @@ function Jams() {
                          onCancel={() => setEditingId(null)}
                      />
                  )}
-                 {actionError && <p className="job-form-error" role="alert">{actionError}</p>}
+                 <CollabPostForm collab={collab} />
+                 {(actionError || followError) && <p className="job-form-error" role="alert">{actionError || followError}</p>}
 
                  {/* Shows how many jams are currently being displayed */}
                  {!loading && !error && (
@@ -527,13 +520,12 @@ function Jams() {
                      </div>
                  )}
 
-                 {/* Cards for each jam on the current page */}
                  {pagedJams.map((jam) => {
                      const status = getStatus(jam, now);
                      const isOwner = userId !== null && jam.ownerUserId === userId;
                      const hasJoined = joinedIds.includes(jam.id);
-                     // Joining closes when the jam ends (jams without dates stay open)
                      const canJoin = !(status && status.ended);
+                     const canFollow = userId !== null && jam.ownerUserId != null && !isOwner;
 
                      return editingId === jam.id ? (
                          <JamForm
@@ -548,7 +540,6 @@ function Jams() {
                          />
                      ) : (
                          <article className="job-card" key={jam.id}>
-                             {/* Cover image hides itself if the link is broken */}
                              {jam.coverImageUrl && (
                                  <img
                                      className="jam-cover"
@@ -557,7 +548,7 @@ function Jams() {
                                      onError={(event) => { event.currentTarget.style.display = 'none'; }}
                                  />
                              )}
-                             <h2>{jam.title}</h2>
+                             <h2><Link to={`/jams/${jam.id}`}>{jam.title}</Link></h2>
                              {status && (
                                  <span className={`jam-status ${status.live ? 'live' : ''}`}>{status.label}</span>
                              )}
@@ -575,7 +566,7 @@ function Jams() {
                                  )}
                                  <div><dt>Participants</dt><dd>{jam.entrants}</dd></div>
                              </dl>
-                             {(canJoin || isOwner) && (
+                             {(canJoin || isOwner || canFollow) && (
                                  <div className="job-actions">
                                      {canJoin && (
                                          <button
@@ -585,6 +576,16 @@ function Jams() {
                                              disabled={joiningId === jam.id}
                                          >
                                              {joiningId === jam.id ? 'Saving...' : hasJoined ? 'Leave jam' : 'Join jam'}
+                                         </button>
+                                     )}
+                                     {canFollow && (
+                                         <button
+                                             type="button"
+                                             className="filter-button"
+                                             onClick={() => toggleFollow(jam.ownerUserId)}
+                                             disabled={followBusyId === jam.ownerUserId}
+                                         >
+                                             {followingIds.includes(jam.ownerUserId) ? 'Unfollow host' : 'Follow host'}
                                          </button>
                                      )}
                                      {isOwner && (
@@ -615,7 +616,6 @@ function Jams() {
                      </div>
                  )}
 
-                 {/* Page controls, only shown when there is more than one page */}
                  {!loading && !error && totalPages > 1 && (
                      <nav className="jobs-pagination" aria-label="Jam pages">
                          <button
@@ -650,6 +650,8 @@ function Jams() {
                      </nav>
                  )}
              </section>
+
+             <CollabList collab={collab} />
          </main>
      </>
  );

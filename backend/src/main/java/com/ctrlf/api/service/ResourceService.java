@@ -32,9 +32,13 @@ public class ResourceService {
 
     private final ResourceTagService resourceTagService;
 
-    public ResourceService(ResourceRepository resourceRepository, ResourceTagService resourceTagService) {
+    private final NotificationService notifications;
+
+    public ResourceService(ResourceRepository resourceRepository, ResourceTagService resourceTagService,
+            NotificationService notifications) {
         this.resourceRepository = resourceRepository;
         this.resourceTagService = resourceTagService;
+        this.notifications = notifications;
     }
 
     public ResourceResponse findResources(String query, List<String> tags, int page, String sort) {
@@ -94,7 +98,11 @@ public class ResourceService {
         resource.publish(userId, req.title().trim(), req.overview().trim(), tags, req.body());
         resource = resourceRepository.save(resource);
         resource.setSiteLink("/resources/" + resource.getResourceId());
-        return ResourceDetail.from(resourceRepository.save(resource));
+        Resource saved = resourceRepository.save(resource);
+        if (id == null) {
+            notifications.postPublished(userId, saved.getSiteName(), saved.getSiteLink());
+        }
+        return ResourceDetail.from(saved);
     }
 
     @Transactional

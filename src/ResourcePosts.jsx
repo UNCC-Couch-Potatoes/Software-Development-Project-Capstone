@@ -1,4 +1,5 @@
 import useResourceTags from './useResourceTags';
+import NotificationBell from './NotificationBell';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -48,7 +49,7 @@ function DeleteResourceButton({ post, onDeleted }) {
 }
 
 // for quickly setting up the base structure of the page
-function Shell({ children }) {
+export function Shell({ children }) {
   const [resourceMenuOpen, setResourceMenuOpen] = useState(false);
   return <><nav id="navbar" aria-label="Main navigation">
       <Link to="/">Home</Link>
@@ -56,6 +57,7 @@ function Shell({ children }) {
       <Link to="/jams">Jams</Link>
       <Link to="/jobs">Jobs</Link>
       <Link to="/profile">Profile</Link>
+      <NotificationBell />
       {/* Dropdown feature for resources navbar */}
       {/* Dropdown will appear on hover */}
       <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}
