@@ -1,32 +1,16 @@
-import React, {useState, useEffect } from 'react';
+import React from 'react';
 import Top from './BlogPostComponents/Top.jsx';
 import Content from './BlogPostComponents/Content.jsx';
 import ActionBar from './BlogPostComponents/ActionBar.jsx';
 import './BlogPost.css';
-import blogsData from './blogs.json';
 
 
 function BlogPost({post}) {  
-  //Objects
-  var author = null;
-
-  //Top
-  var name = "";
-  var date = "";
-  var pfpSource = "";
-
-  //Content 
-  var header = "";
-  var content = "";
-
-  if (post != null){
-    author = blogsData.users[parseInt(post.userID)];
-    name = author.name;
-    date = post.datePosted;
-    pfpSource = author.profilePicture;
-    header = post.title;
-    content = post.content
-  }
+  const name = post ? `User ${post.userId}` : '';
+  const date = '';
+  const pfpSource = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23ddd'/%3E%3Ccircle cx='32' cy='23' r='12' fill='%23888'/%3E%3Cpath d='M8 64a24 24 0 0148 0' fill='%23888'/%3E%3C/svg%3E";
+  const header = post?.blogTitle || '';
+  const content = post?.blogContent || '';
 
   return (
     <div className='Post'>

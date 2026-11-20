@@ -1,18 +1,16 @@
 import React from 'react';
 import BlogPost from './PostListComponents/BlogPost.jsx';
 import './PostList.css';
-import blogsData from './PostListComponents/blogs.json';
+import { useBlogs } from '../BlogsContext.js';
 
 
 function PostList({
     userFiltered = null,
     showCreatePost
   }) {
-  //Grab a the length of the posts array, this will be our limit
-  //We will "load" in a handful of posts, if the scroll value reaches
-  //a certain point we will reload?
-  const postCount = blogsData.posts.length;
-  const postsData = blogsData.posts;
+  const { blogs: posts, loading, loadError } = useBlogs();
+  const postsData = userFiltered == null ? posts
+    : posts.filter((post) => String(post.userId) === String(userFiltered));
 
   return (
     <div id="posts">
@@ -27,9 +25,12 @@ function PostList({
           onClick={() => {showCreatePost()}}
         />
       </div>
+      {loading && <p role="status">Loading posts...</p>}
+      {loadError && <p role="alert">{loadError}</p>}
+      {!loading && !loadError && postsData.length === 0 && <p>No posts yet.</p>}
       {/* Populate with posts and ID */}
-      {postsData.map((post, index) => (
-          <div className='postListing' key={index}>
+      {postsData.map((post) => (
+          <div className='postListing' key={post.blogId}>
             <BlogPost 
               post = {post}
             />

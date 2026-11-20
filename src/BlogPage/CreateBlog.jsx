@@ -1,73 +1,55 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './CreateBlog.css'
+import { useBlogs } from './BlogsContext.js';
 
 function CreateBlog({closeCreateBlog}) {
+    const { saveBlog, saving } = useBlogs();
+    const [formError, setFormError] = useState('');
 
-    const formToBody = (form) => ({
-        blogTitle: form.title.value,
-        blogContent: form.content.value
-        // might need userId idk yet tho 
-    });
-
-
-    const saveBlog = async (form) => {
-        //Use context
-        //setSaving(true);
-        //setFormError('');
-        try {
-            const res = await fetch('/api/blogs', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formToBody(form))
-            });
-
-            if (!res.ok) throw new Error(res.statusText);
-            console.log("Blog post created successfully");
-            //Use context here too
-            //const newBlog = toBlog(await res.json());
-            //setJams((current) => [newBlog, ...current]);
-        } catch (err) {
-            console.error(err);
-            //setFormError(err.message === 'Failed to fetch' ? errorMessage() : err.message);
-        } finally {
-            //Using context
-            //setSaving(false);
-        }
-    };
-
-    function handleSubmit(e){
+    async function handleSubmit(e) {
         e.preventDefault();
-        if (e.target.form.title.value === "" || e.target.form.content.value === ""){
-            alert("Please fill out all fields");
+        if (saving) return;
+        const data = new FormData(e.currentTarget);
+        const body = {
+            blogTitle: String(data.get('title') || '').trim(),
+            blogContent: String(data.get('content') || '').trim()
+        };
+        if (!body.blogTitle || !body.blogContent) {
+            setFormError('Please fill out all fields.');
             return;
         }
-        
-        //Submit the form data to the backend
-        saveBlog(e.target.form);
-
-        closeCreateBlog();
+        setFormError('');
+        try {
+            await saveBlog(body);
+            closeCreateBlog();
+        } catch (err) {
+            setFormError(err.message === 'Failed to fetch'
+                ? 'Unable to reach the server. Please try again.' : err.message);
+        }
     }
     return (
         <div>
-            <div className="pop-up-container" onClick={(e) => closeCreateBlog()}></div>
+            <div className="pop-up-container" onClick={() => { if (!saving) closeCreateBlog(); }}></div>
             <div id="blog-creation">
-                <form className="blog-form" onSubmit={(e) => handleSubmit(e)}>
+                <form className="blog-form" onSubmit={handleSubmit}>
                     <div className="HeaderBar">
                         <h1>Create a Blog Post</h1>
                         <input 
                             type="submit" 
-                            value="Submit" 
+                            value={saving ? 'Saving...' : 'Submit'}
+                            disabled={saving}
                             className='button'
                             id="blog-submit"
-                            onClick={(e) => handleSubmit(e)}
                         />
                     </div>
+                    {formError && <p role="alert">{formError}</p>}
                     <label>
                         <input 
                             type="text" 
                             name="title" 
                             placeholder="Title" 
+                            required
+                            disabled={saving}
                             minLength={1}
                             maxLength={50}
                         />
@@ -76,6 +58,8 @@ function CreateBlog({closeCreateBlog}) {
                         <textarea
                             name="content" 
                             placeholder="Content"
+                            required
+                            disabled={saving}
                             minLength={1}
                             maxLength={2000}
                         />
