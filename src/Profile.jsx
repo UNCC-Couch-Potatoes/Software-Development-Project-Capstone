@@ -61,7 +61,13 @@ function Profile() {
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
 
+  // Delete Account
+  const [showDelete, setShowDelete] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  
   const [posts] = useState(defaultPosts);
+
 
     // Resources this user created on the Resources page
   const [myResources, setMyResources] = useState(null);
@@ -108,6 +114,7 @@ function Profile() {
 
     // Load the resources this user has created
   useEffect(() => {
+
     async function loadMyResources() {
       try {
         const response = await fetch('/api/resources/mine', { credentials: 'include' });
@@ -251,6 +258,32 @@ function Profile() {
       });
     } finally {
       navigate('/login');
+    }
+  }
+  async function deleteAccount() {
+    const confirmed = window.confirm(
+      'Are you sure? This permanently deletes your account and cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    setDeleteError('');
+    try {
+      const response = await fetch(`/api/user-profiles/${profile.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: deletePassword })
+      });
+
+      if (response.ok) {
+        navigate('/login');
+        return;
+      }
+
+      const data = await response.json().catch(() => ({}));
+      setDeleteError(data.error || 'Could not delete your account.');
+    } catch {
+      setDeleteError('Unable to connect to the server. Please try again.');
     }
   }
 
@@ -768,7 +801,7 @@ function Profile() {
                 )}
               </section>
 
-            {/* Clear Profile */}
+            {/* Clear Profile / Delete Account */}
             <div className="profile-footer">
               <button
                 type="button"
@@ -778,7 +811,60 @@ function Profile() {
               >
                 Clear Profile
               </button>
+
+              {!showDelete && (
+                <button
+                  type="button"
+                  className="profile-btn profile-btn-danger profile-btn-small"
+                  onClick={() => setShowDelete(true)}
+                >
+                  Delete Account
+                </button>
+              )}
             </div>
+
+            {showDelete && (
+              <section className="profile-card">
+                <span className="profile-kicker">Danger zone</span>
+                <h2>Delete Account</h2>
+                <p>Enter your password to permanently delete your account.</p>
+
+                <div className="profile-field">
+                  <label htmlFor="deletePassword">Password</label>
+                  <input
+                    id="deletePassword"
+                    type="password"
+                    value={deletePassword}
+                    onChange={(event) => setDeletePassword(event.target.value)}
+                  />
+                </div>
+
+                {deleteError && (
+                  <p className="profile-message profile-message-error">{deleteError}</p>
+                )}
+
+                <div className="profile-form-actions">
+                  <button
+                    type="button"
+                    className="profile-btn profile-btn-secondary"
+                    onClick={() => {
+                      setShowDelete(false);
+                      setDeletePassword('');
+                      setDeleteError('');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="profile-btn profile-btn-danger"
+                    onClick={deleteAccount}
+                  >
+                    Permanently Delete
+                  </button>
+                </div>
+              </section>
+            )}
           </>
 
         )}
