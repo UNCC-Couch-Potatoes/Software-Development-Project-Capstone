@@ -10,4 +10,5 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
     @Modifying
     @Query(value = "DELETE FROM BlogLikes WHERE BlogId = :blogId", nativeQuery = true)
     void deleteLikesByBlogId(@Param("blogId") Long blogId);
+        java.util.List<com.ctrlf.api.entity.Blog> findByUserIdOrderByBlogIdDesc(Long userId);
 }

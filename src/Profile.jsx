@@ -6,19 +6,6 @@ import './profile.css';
 import { Link, useNavigate } from 'react-router-dom';
 import useResourceTags from './useResourceTags';
 
-// Example posts until the blog feature is connected to the backend
-const defaultPosts = [
-  {
-    id: 1,
-    title: 'My First Post',
-    content: 'This is an example of a previous post.'
-  },
-  {
-    id: 2,
-    title: 'Welcome!',
-    content: 'This is another example post on my profile.'
-  }
-];
 
 // "2026-10-05" -> "October 2026"
 function formatJoinDate(joinDate) {
@@ -61,12 +48,14 @@ function Profile() {
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
 
+  // Blog posts this user wrote on the Blogs page
+  const [myBlogs, setMyBlogs] = useState(null);
+  const [blogsError, setBlogsError] = useState('');
+
   // Delete Account
   const [showDelete, setShowDelete] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
-  
-  const [posts] = useState(defaultPosts);
 
 
     // Resources this user created on the Resources page
@@ -111,6 +100,26 @@ function Profile() {
 
     loadProfile();
   }, [navigate]);
+
+    // Load the blog posts this user has written
+  useEffect(() => {
+    async function loadMyBlogs() {
+      try {
+        const response = await fetch('/api/blogs/mine', { credentials: 'include' });
+
+        if (!response.ok) {
+          setBlogsError('Could not load your posts.');
+          return;
+        }
+
+        setMyBlogs(await response.json());
+      } catch {
+        setBlogsError('Unable to connect to the server.');
+      }
+    }
+
+    loadMyBlogs();
+  }, []);
 
     // Load the resources this user has created
   useEffect(() => {
@@ -730,20 +739,48 @@ function Profile() {
                 )}
               </section>
 
-              {/* Previous Posts */}
+                            {/* Previous Posts */}
               <section className="profile-card profile-span-2">
                 <span className="profile-kicker">Activity</span>
                 <h2>Previous Posts</h2>
-                {posts.length > 0 ? (
-                  posts.map((post) => (
-                    <article className="profile-post" key={post.id}>
-                      <h3>{post.title}</h3>
-                      <p>{post.content}</p>
-                    </article>
-                  ))
-                ) : (
-                  <p className="profile-empty">No posts yet.</p>
+
+                {blogsError && (
+                  <p className="profile-message profile-message-error">{blogsError}</p>
                 )}
+
+                {!myBlogs && !blogsError && (
+                  <p className="profile-empty">Loading your posts...</p>
+                )}
+
+                {myBlogs?.length === 0 && (
+                  <p className="profile-empty">
+                    You haven't written any posts yet.{' '}
+                    <Link
+                      to="/blogs"
+                      style={{ color: '#a99cf5', textDecoration: 'underline' }}
+                    >
+                      Write one
+                    </Link>
+                  </p>
+                )}
+
+                {myBlogs?.map((blog) => (
+                  <article className="profile-post" key={blog.blogId}>
+                    <h3>
+                      <Link
+                        to={`/blogs/${blog.blogId}`}
+                        style={{ color: '#a99cf5', textDecoration: 'underline' }}
+                      >
+                        {blog.blogTitle}
+                      </Link>
+                    </h3>
+                    <p>
+                      {blog.blogContent.length > 150
+                        ? blog.blogContent.slice(0, 150) + '...'
+                        : blog.blogContent}
+                    </p>
+                  </article>
+                ))}
               </section>
 
             </div>
