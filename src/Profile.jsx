@@ -268,7 +268,7 @@ function Profile() {
 
     setDeleteError('');
     try {
-      const response = await fetch(`/api/user-profiles/${profile.id}`, {
+      const response = await fetch(`/api/user-profiles/${profile.userId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
