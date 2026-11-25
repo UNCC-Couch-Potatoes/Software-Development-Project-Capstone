@@ -272,6 +272,21 @@ function Home() {
         </aside>
 
         <main className="home-main">
+
+            <section className="home-hero">
+            <div>
+              <span className="home-kicker">CtrlF · Game dev community</span>
+              <h1>Find, share, and build together.</h1>
+              <p>
+                Discover resources, join game jams, find jobs, and share what
+                you're building with other game developers.
+              </p>
+            </div>
+            <div className="home-hero-actions">
+              <Link className="home-primary-action" to="/resources">Browse resources</Link>
+              <Link className="home-secondary-action" to="/jams">Find a jam</Link>
+            </div>
+          </section>
           
 
           <DiscoveryRow eyebrow="Popular this week" title="Trending blogs" route="/blogs"
