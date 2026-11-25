@@ -275,7 +275,7 @@ function Home() {
 
             <section className="home-hero">
             <div>
-              <span className="home-kicker">CtrlF · Game dev community</span>
+              <span className="home-kicker">Ctrl+F · Game dev community</span>
               <h1>Find, share, and build together.</h1>
               <p>
                 Discover resources, join game jams, find jobs, and share what

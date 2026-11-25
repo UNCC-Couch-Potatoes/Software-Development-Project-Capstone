@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { useCollabs, CollabPostForm, CollabList } from './Collabs';
 import './style.css';
 // Link imported so website isn't reloaded between pages
-
+import './listings.css';
 
 const FILTER_GROUPS = [
    {
@@ -358,82 +358,66 @@ function Jobs() {
  };
 
 
- return (
-          <>
+  return (
+     <>
          {/* Navbar */}
          <nav id="navbar" aria-label="Main navigation">
-     <Link to="/">Home</Link>
-     <Link to="/blogs">Blogs</Link>
-     <Link to="/jams">Jams</Link>
-     <Link to="/jobs">Jobs</Link>
-     <Link to="/profile">Profile</Link>
-     <NotificationBell />
-     <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}
-     onFocus={
-       event => {
-         if (event.target.tagName === 'A')
-           setResourceMenuOpen(true);
-         }
-       }
-     onBlur={
-       event => {
-         if (!event.currentTarget.contains(event.relatedTarget))
-           setResourceMenuOpen(false);
-         }
-       }
-     onKeyDown={
-       event => {
-         if (event.key === 'Escape'){
-             setResourceMenuOpen(false); event.stopPropagation();
-           }
-         }
-       }>
+             <Link to="/">Home</Link>
+             <Link to="/blogs">Blogs</Link>
+             <Link to="/jams">Jams</Link>
+             <Link to="/jobs">Jobs</Link>
+             <Link to="/profile">Profile</Link>
+             <NotificationBell />
+             <div className="navbar-resources" onMouseEnter={() => setResourceMenuOpen(true)} onMouseLeave={() => setResourceMenuOpen(false)}
+                 onFocus={
+                     event => {
+                         if (event.target.tagName === 'A')
+                             setResourceMenuOpen(true);
+                     }
+                 }
+                 onBlur={
+                     event => {
+                         if (!event.currentTarget.contains(event.relatedTarget))
+                             setResourceMenuOpen(false);
+                     }
+                 }
+                 onKeyDown={
+                     event => {
+                         if (event.key === 'Escape') {
+                             setResourceMenuOpen(false); event.stopPropagation();
+                         }
+                     }
+                 }>
 
+                 <div className="navbar-resources-heading">
+                     <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>Resources</Link>
+                     <button type="button" className="navbar-dropdown-toggle" aria-label="Resource navigation" aria-expanded={resourceMenuOpen}
+                         aria-controls="navbar-resource-links" onClick={() => setResourceMenuOpen(value => !value)}>▾</button>
+                 </div>
 
-     <div className="navbar-resources-heading">
-       <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>Resources</Link>
-       <button type="button" className="navbar-dropdown-toggle" aria-label="Resource navigation" aria-expanded={resourceMenuOpen}
-         aria-controls="navbar-resource-links" onClick={() => setResourceMenuOpen(value => !value)}>▾</button>
-     </div>
-
-
-     <div id="navbar-resource-links" className="navbar-dropdown" hidden={!resourceMenuOpen}>
-       <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>All resources</Link>
-       <Link to="/resources/manage" onClick={() => setResourceMenuOpen(false)}>My resources</Link>
-       <Link to="/resources/new" onClick={() => setResourceMenuOpen(false)}>Create a post</Link>
-     </div>
-   </div>
-     <div className="navbar-search">
-                 <input
-                     type="search"
-                     placeholder="Search jobs..."
-                     value={query}
-                     onChange={(event) => setQuery(event.target.value)}
-                 />
+                 <div id="navbar-resource-links" className="navbar-dropdown" hidden={!resourceMenuOpen}>
+                     <Link to="/resources" onClick={() => setResourceMenuOpen(false)}>All resources</Link>
+                     <Link to="/resources/manage" onClick={() => setResourceMenuOpen(false)}>My resources</Link>
+                     <Link to="/resources/new" onClick={() => setResourceMenuOpen(false)}>Create a post</Link>
+                 </div>
              </div>
          </nav>
-         <main className="jobs-container">
-             <header className="jobs-header">
-                 <h1>Jobs</h1>
-                 <p>
-                     Find jobs and opportunities in game development,
-                     art, design, audio, and more.
-                 </p>
-             </header>
-             <section className="jobs-results">
-                 <div className="jobs-toolbar">
+
+         <main className="listing-page">
+             {/* Header banner */}
+             <header className="listing-hero">
+                 <div>
+                     <span className="listing-kicker">Ctrl+F · Opportunities</span>
+                     <h1>Find your next game dev role.</h1>
+                     <p>
+                         Find jobs and opportunities in game development,
+                         art, design, audio, and more.
+                     </p>
+                 </div>
+                 <div className="listing-hero-actions">
                      <button
                          type="button"
-                         className="filter-button"
-                         aria-expanded={filterOpen}
-                         aria-controls="jobs-filter-panel"
-                         onClick={() => setFilterOpen((value) => !value)}
-                     >
-                         Filter{selectedFilters.length > 0 && ` (${selectedFilters.length})`}
-                     </button>
-                     <button
-                         type="button"
-                         className="filter-button post-job-button"
+                         className="listing-btn listing-btn-primary"
                          onClick={() => openForm('new')}
                          disabled={editingId === 'new'}
                      >
@@ -441,88 +425,125 @@ function Jobs() {
                      </button>
                      <button
                          type="button"
-                         className="filter-button post-job-button"
+                         className="listing-btn"
                          onClick={() => collab.openForm('new')}
                          disabled={collab.editingId === 'new'}
                      >
                          Post a collab
                      </button>
-                     {selectedFilters.length > 0 && (
-                         <button
-                             type="button"
-                             className="filter-clear"
-                             onClick={() => setSelectedFilters([])}
-                         >
-                             Clear filters
-                         </button>
-                     )}
                  </div>
+             </header>
 
-
-                 <div id="jobs-filter-panel" className="filter-panel" hidden={!filterOpen}>
-                     {FILTER_GROUPS.map((group) => (
-                         <div className="filter-group" key={group.name}>
-                             <span className="filter-group-label">{group.name}</span>
-                             <div className="filter-group-chips">
-                                 {group.options.map((option) => (
-                                     <button
-                                         type="button"
-                                         key={option.label}
-                                         className={`filter-chip ${selectedFilters.includes(option.label) ? 'active' : ''}`}
-                                         aria-pressed={selectedFilters.includes(option.label)}
-                                         onClick={() => toggleFilter(option.label)}
-                                     >
-                                         {option.label}
-                                     </button>
-                                 ))}
-                             </div>
-                         </div>
-                     ))}
-                 </div>
-
-
-                 {editingId === 'new' && (
-                     <JobForm
-                         heading="Post a job"
-                         initial={EMPTY_FORM}
-                         submitLabel="Post job"
-                         saving={saving}
-                         error={formError}
-                         onSave={saveJob}
-                         onCancel={() => setEditingId(null)}
+             {/* Search and filters */}
+             <section className="listing-toolbar" aria-label="Search and filters">
+                 <div className="listing-search">
+                     <label htmlFor="jobs-search">Search jobs</label>
+                     <input
+                         id="jobs-search"
+                         type="search"
+                         placeholder="Title, skill, or tag"
+                         value={query}
+                         onChange={(event) => setQuery(event.target.value)}
                      />
+                 </div>
+                 <button
+                     type="button"
+                     className="listing-btn"
+                     aria-expanded={filterOpen}
+                     aria-controls="jobs-filter-panel"
+                     onClick={() => setFilterOpen((value) => !value)}
+                 >
+                     Filter{selectedFilters.length > 0 && ` (${selectedFilters.length})`}
+                 </button>
+                 {selectedFilters.length > 0 && (
+                     <button
+                         type="button"
+                         className="listing-btn"
+                         onClick={() => setSelectedFilters([])}
+                     >
+                         Clear filters
+                     </button>
                  )}
-                 <CollabPostForm collab={collab} />
-                 {(actionError || followError) && <p className="job-form-error" role="alert">{actionError || followError}</p>}
+             </section>
 
+             <div id="jobs-filter-panel" className="filter-panel" hidden={!filterOpen}>
+                 {FILTER_GROUPS.map((group) => (
+                     <div className="listing-filter-group" key={group.name}>
+                         <span className="listing-filter-label">{group.name}</span>
+                         <div className="listing-filter-chips">
+                             {group.options.map((option) => (
+                                 <button
+                                     type="button"
+                                     key={option.label}
+                                     className={`filter-chip ${selectedFilters.includes(option.label) ? 'active' : ''}`}
+                                     aria-pressed={selectedFilters.includes(option.label)}
+                                     onClick={() => toggleFilter(option.label)}
+                                 >
+                                     {option.label}
+                                 </button>
+                             ))}
+                         </div>
+                     </div>
+                 ))}
+             </div>
 
-                 {!loading && !error && (
-                     <p className="jobs-count">
-                         {visibleJobs.length}{' '}
-                         {visibleJobs.length === 1 ? 'job' : 'jobs'} found
-                     </p>
-                 )}
-                 {loading && <p className="jobs-count">Loading jobs...</p>}
+             {editingId === 'new' && (
+                 <JobForm
+                     heading="Post a job"
+                     initial={EMPTY_FORM}
+                     submitLabel="Post job"
+                     saving={saving}
+                     error={formError}
+                     onSave={saveJob}
+                     onCancel={() => setEditingId(null)}
+                 />
+             )}
+             <CollabPostForm collab={collab} />
+             {(actionError || followError) && <p className="listing-error" role="alert">{actionError || followError}</p>}
+
+             {!loading && !error && (
+                 <p className="listing-count">
+                     {visibleJobs.length}{' '}
+                     {visibleJobs.length === 1 ? 'job' : 'jobs'} found
+                     {selectedFilters.length > 0 && ` · ${selectedFilters.join(', ')}`}
+                 </p>
+             )}
+             {loading && <p className="listing-count">Loading jobs...</p>}
+
+             {/* Job cards */}
+             <div className="listing-grid">
                  {error && (
-                     <div className="job-card">
+                     <div className="listing-card listing-full">
                          <h2>Something went wrong</h2>
-                         <p>{error}</p>
+                         <p className="listing-description">{error}</p>
                      </div>
                  )}
-                 {pagedJobs.map((job) => (
-                     editingId === job.id ? (
-                         <JobForm
-                             key={job.id}
-                             heading="Edit job"
-                             initial={jobToForm(job)}
-                             submitLabel="Save changes"
-                             saving={saving}
-                             error={formError}
-                             onSave={saveJob}
-                             onCancel={() => setEditingId(null)}
-                         />
-                     ) : (
-                         <article className="job-card" key={job.id}>
+
+                 {pagedJobs.map((job) => {
+                     if (editingId === job.id) {
+                         return (
+                             <JobForm
+                                 key={job.id}
+                                 heading="Edit job"
+                                 initial={jobToForm(job)}
+                                 submitLabel="Save changes"
+                                 saving={saving}
+                                 error={formError}
+                                 onSave={saveJob}
+                                 onCancel={() => setEditingId(null)}
+                             />
+                         );
+                     }
+
+                     const meta = [job.link ? getDomain(job.link) : '', job.type, job.location]
+                         .filter(Boolean)
+                         .join(' · ');
+                     const otherTags = job.tags.filter((tag) => tag !== job.type && tag !== job.location);
+                     const isOwner = userId !== null && job.ownerUserId === userId;
+                     const canApply = userId !== null && job.ownerUserId !== null && job.ownerUserId !== undefined && !isOwner;
+
+                     return (
+                         <article className="listing-card" key={job.id}>
                              <h2>
                                  {job.link ? (
                                      <a href={job.link} target="_blank" rel="noopener noreferrer">
@@ -532,14 +553,21 @@ function Jobs() {
                                      </a>
                                  ) : job.title}
                              </h2>
-                             {job.link && <span className="job-domain">{getDomain(job.link)}</span>}
-                             <h3>{[job.type, job.location].filter(Boolean).join(' · ')}</h3>
-                             <p>{job.description}</p>
-                             {userId !== null && job.ownerUserId !== null && job.ownerUserId !== undefined && job.ownerUserId !== userId && (
-                                 <div className="job-actions">
+                             {meta && <p className="listing-meta">{meta}</p>}
+                             <p className="listing-description">{job.description}</p>
+                             {otherTags.length > 0 && (
+                                 <div className="listing-tags">
+                                     {otherTags.map((tag) => (
+                                         <span className="listing-tag" key={tag}>{tag}</span>
+                                     ))}
+                                 </div>
+                             )}
+
+                             {canApply && (
+                                 <div className="listing-footer">
                                      <button
                                          type="button"
-                                         className="filter-button"
+                                         className="listing-btn listing-btn-primary"
                                          onClick={() => applyToJob(job)}
                                          disabled={applyingId === job.id || appliedIds.includes(job.id)}
                                      >
@@ -547,7 +575,7 @@ function Jobs() {
                                      </button>
                                      <button
                                          type="button"
-                                         className="filter-button"
+                                         className="listing-btn"
                                          onClick={() => toggleFollow(job.ownerUserId)}
                                          disabled={followBusyId === job.ownerUserId}
                                      >
@@ -555,14 +583,16 @@ function Jobs() {
                                      </button>
                                  </div>
                              )}
-                             {userId !== null && job.ownerUserId === userId && (
-                                 <div className="job-actions">
-                                     <button type="button" className="filter-button" onClick={() => openForm(job.id)}>
+
+                             {isOwner && (
+                                 <div className="listing-footer">
+                                     <span className="listing-footer-note">You posted this</span>
+                                     <button type="button" className="listing-btn" onClick={() => openForm(job.id)}>
                                          Edit
                                      </button>
                                      <button
                                          type="button"
-                                         className="filter-button job-delete-button"
+                                         className="listing-btn listing-btn-danger"
                                          onClick={() => deleteJob(job)}
                                          disabled={deletingId === job.id}
                                      >
@@ -571,49 +601,57 @@ function Jobs() {
                                  </div>
                              )}
                          </article>
-                     )
-                 ))}
+                     );
+                 })}
+
                  {!loading && !error && visibleJobs.length === 0 && (
-                     <div className="job-card">
+                     <div className="listing-card listing-full">
                          <h2>No jobs found</h2>
-                         <p>Try searching for another position or clearing your filters.</p>
+                         <p className="listing-description">Try searching for another position or clearing your filters.</p>
+                         {selectedFilters.length > 0 && (
+                             <div>
+                                 <button type="button" className="listing-btn" onClick={() => setSelectedFilters([])}>
+                                     Clear filters
+                                 </button>
+                             </div>
+                         )}
                      </div>
                  )}
+             </div>
 
-                 {!loading && !error && totalPages > 1 && (
-                     <nav className="jobs-pagination" aria-label="Job pages">
+             {!loading && !error && totalPages > 1 && (
+                 <nav className="jobs-pagination" aria-label="Job pages">
+                     <button
+                         type="button"
+                         className="listing-btn"
+                         disabled={currentPage === 0}
+                         onClick={() => goToPage(currentPage - 1)}
+                     >
+                         ← Previous
+                     </button>
+
+                     {pageNumbers.map((pageNumber) => (
                          <button
                              type="button"
-                             className="filter-button"
-                             disabled={currentPage === 0}
-                             onClick={() => goToPage(currentPage - 1)}
+                             className={`listing-btn ${pageNumber === currentPage ? 'listing-btn-primary' : ''}`}
+                             aria-current={pageNumber === currentPage ? 'page' : undefined}
+                             key={pageNumber}
+                             onClick={() => goToPage(pageNumber)}
                          >
-                             Previous
+                             {pageNumber + 1}
                          </button>
+                     ))}
 
-                         {pageNumbers.map((pageNumber) => (
-                             <button
-                                 type="button"
-                                 className="filter-button jobs-page-button"
-                                 aria-current={pageNumber === currentPage ? 'page' : undefined}
-                                 key={pageNumber}
-                                 onClick={() => goToPage(pageNumber)}
-                             >
-                                 {pageNumber + 1}
-                             </button>
-                         ))}
-
-                         <button
-                             type="button"
-                             className="filter-button"
-                             disabled={currentPage >= totalPages - 1}
-                             onClick={() => goToPage(currentPage + 1)}
-                         >
-                             Next
-                         </button>
-                     </nav>
-                 )}
-             </section>
+                     <button
+                         type="button"
+                         className="listing-btn"
+                         disabled={currentPage >= totalPages - 1}
+                         onClick={() => goToPage(currentPage + 1)}
+                     >
+                         Next →
+                     </button>
+                 </nav>
+             )}
 
              <CollabList collab={collab} />
          </main>
