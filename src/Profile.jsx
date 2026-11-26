@@ -5,6 +5,9 @@ import './resources.css';
 import './profile.css';
 import { Link, useNavigate } from 'react-router-dom';
 import useResourceTags from './useResourceTags';
+import useFollowing from './useFollowing';
+import { getStatus, toJam } from './Jams';
+import './profile-bento.css';
 
 
 // "2026-10-05" -> "October 2026"
@@ -22,6 +25,23 @@ function getInitials(firstName, lastName) {
   const last = (lastName || '').trim()[0] || '';
   return (first + last).toUpperCase() || '?';
 }
+
+// "Nov 22"
+const shortDate = (date) => date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+// Badge text and "when" line for a jam card on the profile
+function jamStatus(jam, now) {
+  const status = getStatus(jam, now);
+  if (!status) return { label: '', className: '', when: 'Dates not set' };
+  if (status.live) return { label: 'Live', className: 'pb-status-live', when: `Ends ${shortDate(jam.end)}` };
+  if (status.ended) return { label: 'Ended', className: 'pb-status-ended', when: `Ended ${shortDate(jam.end)}` };
+  return { label: 'Upcoming', className: 'pb-status-upcoming', when: `Starts ${shortDate(jam.start)}` };
+}
+
+const isWebLink = (link) => /^https?:\/\//i.test(link || '');
+
+// Colors that skill pills cycle through
+const TAG_TONES = ['', 'pb-tag-blue', 'pb-tag-green'];
 
 function Profile() {
   const [resourceMenuOpen, setResourceMenuOpen] = useState(false);
@@ -61,6 +81,14 @@ function Profile() {
     // Resources this user created on the Resources page
   const [myResources, setMyResources] = useState(null);
   const [resourcesError, setResourcesError] = useState('');
+
+  // Jams and jobs, used for the stats, "Jams I've joined", and "Posted by me" cards
+  const [allJams, setAllJams] = useState([]);
+  const [enteredIds, setEnteredIds] = useState([]);
+  const [allJobs, setAllJobs] = useState([]);
+
+  // People this user follows (for the Following count)
+  const { followingIds } = useFollowing(profile ? profile.userId : null);
 
   // Official tags from the database (same list the Resources page uses).
   // "User Made" is only for resource posts, so it's left out here.
@@ -140,6 +168,28 @@ function Profile() {
     }
 
     loadMyResources();
+  }, []);
+
+  // Load jams, the jams this user joined, and jobs
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch('/api/jams')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => { if (!cancelled) setAllJams(data.map(toJam)); })
+      .catch(() => {});
+
+    fetch('/api/jams/entered', { credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((ids) => { if (!cancelled) setEnteredIds(ids); })
+      .catch(() => {});
+
+    fetch('/api/jobs')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => { if (!cancelled) setAllJobs(data); })
+      .catch(() => {});
+
+    return () => { cancelled = true; };
   }, []);
 
   function fillFormFrom(source) {
@@ -446,62 +496,160 @@ function Profile() {
 
   const fullName = `${profile.firstName} ${profile.lastName}`.trim();
 
+  // ---------- Numbers for the bento cards ----------
+  const now = Date.now();
+  const joinedJams = allJams.filter((jam) => enteredIds.includes(jam.id));
+  const hostedJams = allJams.filter((jam) => jam.ownerUserId === profile.userId);
+  const postedJobs = allJobs.filter((job) => job.ownerUserId === profile.userId);
+  const postCount = myBlogs?.length ?? 0;
+  const resourceCount = myResources?.length ?? 0;
+
+  const stats = [
+    { label: 'Posts', value: postCount },
+    { label: 'Resources', value: resourceCount },
+    { label: 'Jams joined', value: joinedJams.length },
+    { label: 'Jams hosted', value: hostedJams.length },
+    { label: 'Jobs posted', value: postedJobs.length },
+    { label: 'Following', value: (followingIds || []).length }
+  ];
+
+  // Profile completeness: bio, picture, skills, interests
+  const checklist = [
+    { done: Boolean(profile.bio), label: 'a bio' },
+    { done: Boolean(profile.profilePicture), label: 'a picture' },
+    { done: profile.skills.length > 0, label: 'skills' },
+    { done: profile.interests.length > 0, label: 'interests' }
+  ];
+  const completeness = Math.round(
+    (checklist.filter((item) => item.done).length / checklist.length) * 100
+  );
+  const missing = checklist.filter((item) => !item.done).map((item) => item.label);
+
+  // Badges earned from activity (locked ones are shown faded)
+  const badges = [
+    { name: 'Writer', detail: 'Wrote a blog post', earned: postCount >= 1, tone: '' },
+    { name: 'First resource', detail: 'Shared a resource', earned: resourceCount >= 1, tone: '' },
+    { name: 'Community helper', detail: 'Shared 5+ resources', earned: resourceCount >= 5, tone: 'amber' },
+    { name: 'Jam participant', detail: 'Joined a jam', earned: joinedJams.length >= 1, tone: 'green' },
+    { name: 'Jam host', detail: 'Hosted a jam', earned: hostedJams.length >= 1, tone: 'blue' },
+    { name: 'Job poster', detail: 'Posted a job', earned: postedJobs.length >= 1, tone: 'blue' }
+  ].sort((a, b) => Number(b.earned) - Number(a.earned));
+
+  // Most-used tags across this user's resources
+  const tagCounts = {};
+  (myResources || []).forEach((resource) => {
+    (resource.tags || []).forEach((tag) => {
+      if (tag !== 'User Made') tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    });
+  });
+  const topTags = Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([tag]) => tag);
+
+  // Jams this user hosts and jobs they posted, in one list
+  const postedItems = [
+    ...hostedJams.map((jam) => ({
+      key: `jam-${jam.id}`,
+      title: jam.title,
+      detail: jam.start
+        ? `Starts ${shortDate(jam.start)} · ${jam.entrants} joined`
+        : `${jam.entrants} joined`,
+      kind: 'Jam',
+      to: `/jams/${jam.id}`
+    })),
+    ...postedJobs.map((job) => ({
+      key: `job-${job.jobId}`,
+      title: job.jobTitle,
+      detail: (job.jobTags || []).slice(0, 3).join(' · ') || 'Job posting',
+      kind: 'Job',
+      to: '/jobs'
+    }))
+  ];
+
   return (
     <div className="profile-page-bg">
       {navbar}
 
-      <main className="profile-page">
+      <main className="profile-page pb-page">
 
-        {/* Profile Header */}
-        <section className="profile-header">
-          <div className="profile-avatar">
-            {profilePicture ? (
-              <img src={profilePicture} alt="Profile" />
-            ) : (
-              <span aria-hidden="true">
-                {getInitials(profile.firstName, profile.lastName)}
+        {/* ---------- Identity card ---------- */}
+        <section className="pb-card pb-identity">
+          <div className="pb-cover" aria-hidden="true"></div>
+
+          <div className="pb-identity-row">
+            <div className="pb-avatar">
+              {profilePicture ? (
+                <img src={profilePicture} alt="Profile" />
+              ) : (
+                <span aria-hidden="true">
+                  {getInitials(profile.firstName, profile.lastName)}
+                </span>
+              )}
+            </div>
+
+            <div className="pb-name">
+              <span className="pb-kicker">CtrlF · Profile</span>
+              <h1>{fullName}</h1>
+              <span className="pb-handle">
+                @{profile.username} · Member since {formatJoinDate(profile.joinDate)}
               </span>
+            </div>
+
+            {!isEditing && (
+              <div className="pb-actions">
+                <button type="button" className="pb-btn pb-btn-primary" onClick={startEditing}>
+                  Edit profile
+                </button>
+                <button type="button" className="pb-btn" onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
             )}
           </div>
 
-          <span className="profile-kicker">Profile</span>
-          <h1>{fullName}</h1>
-          <p className="profile-joined">
-            @{profile.username} · Member since {formatJoinDate(profile.joinDate)}
-          </p>
+          <div className="pb-stats">
+            {stats.map((stat) => (
+              <div className="pb-stat" key={stat.label}>
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
+              </div>
+            ))}
+          </div>
 
-          {!isEditing && (
-            <div className="profile-actions">
-              <button
-                type="button"
-                className="profile-btn profile-btn-primary"
-                onClick={startEditing}
-              >
-                Edit Profile
-              </button>
-
-              <button
-                type="button"
-                className="profile-btn profile-btn-secondary"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
+          <div className="pb-complete">
+            <div className="pb-complete-text">
+              <strong>Profile {completeness}% complete</strong>
+              {missing.length > 0 ? (
+                <span>Add {missing.join(', ')} to finish your profile</span>
+              ) : (
+                <span>Nice, your profile is all set</span>
+              )}
             </div>
-          )}
+            <div
+              className="pb-progress"
+              role="progressbar"
+              aria-label="Profile completeness"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={completeness}
+            >
+              <span style={{ width: `${completeness}%` }} />
+            </div>
+          </div>
         </section>
 
         {saveSuccess && !isEditing && (
-          <p className="profile-message profile-message-success">{saveSuccess}</p>
+          <p className="profile-message profile-message-success pb-message">{saveSuccess}</p>
         )}
         {saveError && !isEditing && (
-          <p className="profile-message profile-message-error">{saveError}</p>
+          <p className="profile-message profile-message-error pb-message">{saveError}</p>
         )}
 
         {isEditing ? (
 
           /* EDIT PROFILE */
-          <section className="profile-card">
+          <section className="profile-card" style={{ marginTop: '18px' }}>
             <span className="profile-kicker">Edit</span>
             <h2>Edit Profile</h2>
 
@@ -690,178 +838,284 @@ function Profile() {
 
         ) : (
 
-          /* VIEW PROFILE */
-          <>
-            <div className="profile-grid">
+          /* VIEW PROFILE: bento grid */
+          <div className="pb-grid">
 
-              {/* Bio */}
-              <section className="profile-card profile-span-2">
-                <span className="profile-kicker">About</span>
-                <h2>Bio</h2>
-                {profile.bio ? (
-                  <p className="profile-bio">{profile.bio}</p>
-                ) : (
-                  <p className="profile-empty">Tell people about yourself.</p>
-                )}
-              </section>
+            {/* About */}
+            <section className="pb-card pb-span2">
+              <div>
+                <span className="pb-kicker">About</span>
+                <h2 className="pb-title">Bio</h2>
+              </div>
+              {profile.bio ? (
+                <p className="pb-text">{profile.bio}</p>
+              ) : (
+                <p className="pb-empty">Tell people about yourself. Click Edit profile to add a bio.</p>
+              )}
+            </section>
 
-              {/* Skills */}
-              <section className="profile-card">
-                <span className="profile-kicker">What I do</span>
-                <h2>Skills / Expertise</h2>
-                {profile.skills.length > 0 ? (
-                  <div className="profile-tags">
-                    {profile.skills.map((skill) => (
-                      <span className="profile-tag" key={skill}>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="profile-empty">No skills added yet.</p>
-                )}
-              </section>
+            {/* Skills */}
+            <section className="pb-card pb-span1">
+              <div>
+                <span className="pb-kicker">What I do</span>
+                <h2 className="pb-title">Skills</h2>
+              </div>
+              {profile.skills.length > 0 ? (
+                <div className="pb-tags">
+                  {profile.skills.map((skill, index) => (
+                    <span className={`pb-tag ${TAG_TONES[index % TAG_TONES.length]}`} key={skill}>
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="pb-empty">No skills added yet.</p>
+              )}
+            </section>
 
-              {/* Interests */}
-              <section className="profile-card">
-                <span className="profile-kicker">What I like</span>
-                <h2>Interests</h2>
-                {profile.interests.length > 0 ? (
-                  <div className="profile-tags">
-                    {profile.interests.map((interest) => (
-                      <span className="profile-tag" key={interest}>
-                        {interest}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="profile-empty">No interests added yet.</p>
-                )}
-              </section>
+            {/* Interests */}
+            <section className="pb-card pb-span1">
+              <div>
+                <span className="pb-kicker">What I like</span>
+                <h2 className="pb-title">Interests</h2>
+              </div>
+              {profile.interests.length > 0 ? (
+                <div className="pb-tags">
+                  {profile.interests.map((interest) => (
+                    <span className="pb-tag" key={interest}>{interest}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="pb-empty">No interests added yet.</p>
+              )}
+            </section>
 
-                            {/* Previous Posts */}
-              <section className="profile-card profile-span-2">
-                <span className="profile-kicker">Activity</span>
-                <h2>Previous Posts</h2>
-
-                {blogsError && (
-                  <p className="profile-message profile-message-error">{blogsError}</p>
-                )}
-
-                {!myBlogs && !blogsError && (
-                  <p className="profile-empty">Loading your posts...</p>
-                )}
-
-                {myBlogs?.length === 0 && (
-                  <p className="profile-empty">
-                    You haven't written any posts yet.{' '}
-                    <Link
-                      to="/blogs"
-                      style={{ color: '#a99cf5', textDecoration: 'underline' }}
-                    >
-                      Write one
-                    </Link>
-                  </p>
-                )}
-
-                {myBlogs?.map((blog) => (
-                  <article className="profile-post" key={blog.blogId}>
-                    <h3>
-                      <Link
-                        to={`/blogs/${blog.blogId}`}
-                        style={{ color: '#a99cf5', textDecoration: 'underline' }}
-                      >
-                        {blog.blogTitle}
+            {/* Jams joined */}
+            <section className="pb-card pb-span2">
+              <div className="pb-card-head">
+                <div>
+                  <span className="pb-kicker">Jams</span>
+                  <h2 className="pb-title">Jams I've joined</h2>
+                </div>
+                <Link className="pb-link" to="/jams">Find jams →</Link>
+              </div>
+              {joinedJams.length > 0 ? (
+                <div className="pb-jams">
+                  {joinedJams.slice(0, 4).map((jam) => {
+                    const status = jamStatus(jam, now);
+                    return (
+                      <Link className="pb-jam" to={`/jams/${jam.id}`} key={jam.id}>
+                        <div className="pb-jam-cover">
+                          <span aria-hidden="true">{(jam.title || '?').trim().charAt(0).toUpperCase()}</span>
+                          {jam.coverImageUrl && (
+                            <img
+                              src={jam.coverImageUrl}
+                              alt=""
+                              onError={(event) => { event.currentTarget.style.display = 'none'; }}
+                            />
+                          )}
+                          {status.label && (
+                            <span className={`pb-status ${status.className}`}>{status.label}</span>
+                          )}
+                        </div>
+                        <div className="pb-jam-body">
+                          <strong>{jam.title}</strong>
+                          <span>{status.when}</span>
+                        </div>
                       </Link>
-                    </h3>
-                    <p>
-                      {blog.blogContent.length > 150
-                        ? blog.blogContent.slice(0, 150) + '...'
-                        : blog.blogContent}
-                    </p>
-                  </article>
-                ))}
-              </section>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="pb-empty">You haven't joined any jams yet.</p>
+              )}
+            </section>
 
-            </div>
-              {/* Resources this user created */}
-              <section className="profile-card profile-span-2">
-                <span className="profile-kicker">Contributions</span>
-                <h2>My Resources</h2>
-
-                {resourcesError && (
-                  <p className="profile-message profile-message-error">{resourcesError}</p>
-                )}
-
-                {!myResources && !resourcesError && (
-                  <p className="profile-empty">Loading your resources...</p>
-                )}
-
-                {myResources?.length === 0 && (
-                  <p className="profile-empty">
-                    You haven't created any resources yet.{' '}
-                    <Link
-                      to="/resources/new"
-                      style={{ color: '#a99cf5', textDecoration: 'underline' }}
-                    >
-                      Create one
-                    </Link>
-                  </p>
-                )}
-
-                {myResources?.map((resource) => (
-                  <article className="profile-post" key={resource.resourceId}>
-                    <h3>
-                      <Link
-                        to={resource.siteLink}
-                        style={{ color: '#a99cf5', textDecoration: 'underline' }}
-                      >
-                        {resource.siteName}
-                      </Link>
-                    </h3>
-                    <p>{resource.overview}</p>
-                    <div className="profile-tags">
-                      {resource.tags.map((tag) => (
-                        <span className="profile-tag" key={tag}>{tag}</span>
-                      ))}
+            {/* Badges */}
+            <section className="pb-card pb-span1">
+              <div>
+                <span className="pb-kicker">Achievements</span>
+                <h2 className="pb-title">Badges</h2>
+              </div>
+              <div className="pb-badges">
+                {badges.map((badge) => (
+                  <div className={`pb-badge ${badge.earned ? '' : 'pb-badge-locked'}`} key={badge.name}>
+                    <span className={`pb-badge-icon ${badge.tone}`} aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="9" r="6" />
+                        <path d="m8.5 14-1.5 7 5-3 5 3-1.5-7" />
+                      </svg>
+                    </span>
+                    <div className="pb-badge-text">
+                      <strong>{badge.name}</strong>
+                      <span>{badge.earned ? badge.detail : `Locked · ${badge.detail}`}</span>
                     </div>
-                  </article>
+                  </div>
                 ))}
+              </div>
+            </section>
 
-                {myResources?.length > 0 && (
-                  <Link
-                    to="/resources/manage"
-                    style={{ color: '#a99cf5', textDecoration: 'underline' }}
-                  >
-                    Manage my resources →
-                  </Link>
-                )}
-              </section>
+            {/* Top tags */}
+            <section className="pb-card pb-span1">
+              <div>
+                <span className="pb-kicker">Most used</span>
+                <h2 className="pb-title">Top tags</h2>
+              </div>
+              {topTags.length > 0 ? (
+                <div className="pb-tags">
+                  {topTags.map((tag, index) => (
+                    <span
+                      className={`pb-tag ${index === 0 ? 'pb-tag-big' : index === 1 ? 'pb-tag-medium' : ''}`}
+                      key={tag}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="pb-empty">Share resources to see your top tags here.</p>
+              )}
+            </section>
+
+            {/* Blog posts */}
+            <section className="pb-card pb-span2">
+              <div className="pb-card-head">
+                <div>
+                  <span className="pb-kicker">Activity</span>
+                  <h2 className="pb-title">My posts</h2>
+                </div>
+                <Link className="pb-link" to="/blogs">Write a post →</Link>
+              </div>
+
+              {blogsError && <p className="pb-empty">{blogsError}</p>}
+              {!myBlogs && !blogsError && <p className="pb-empty">Loading your posts...</p>}
+              {myBlogs?.length === 0 && <p className="pb-empty">You haven't written any posts yet.</p>}
+
+              {myBlogs?.length > 0 && (
+                <div className="pb-list">
+                  {myBlogs.slice(0, 4).map((blog) => (
+                    <Link className="pb-item" to={`/blogs/${blog.blogId}`} key={blog.blogId}>
+                      <span className="pb-icon" aria-hidden="true">
+                        {(blog.blogTitle || '?').trim().charAt(0).toUpperCase()}
+                      </span>
+                      <span className="pb-item-text">
+                        <strong>{blog.blogTitle}</strong>
+                        <span>
+                          {blog.blogContent.length > 110
+                            ? blog.blogContent.slice(0, 110) + '...'
+                            : blog.blogContent}
+                        </span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Resources */}
+            <section className="pb-card pb-span2">
+              <div className="pb-card-head">
+                <div>
+                  <span className="pb-kicker">Contributions</span>
+                  <h2 className="pb-title">My resources</h2>
+                </div>
+                <Link className="pb-link" to="/resources/manage">Manage →</Link>
+              </div>
+
+              {resourcesError && <p className="pb-empty">{resourcesError}</p>}
+              {!myResources && !resourcesError && <p className="pb-empty">Loading your resources...</p>}
+              {myResources?.length === 0 && (
+                <p className="pb-empty">
+                  You haven't shared any resources yet.{' '}
+                  <Link className="pb-link" to="/resources/new">Share one</Link>
+                </p>
+              )}
+
+              {myResources?.length > 0 && (
+                <div className="pb-list">
+                  {myResources.slice(0, 4).map((resource) => {
+                    const content = (
+                      <>
+                        <span className="pb-icon" aria-hidden="true">
+                          {(resource.siteName || '?').trim().charAt(0).toUpperCase()}
+                        </span>
+                        <span className="pb-item-text">
+                          <strong>{resource.siteName}</strong>
+                          <span>{(resource.tags || []).filter((tag) => tag !== 'User Made').slice(0, 3).join(' · ')}</span>
+                        </span>
+                      </>
+                    );
+                    return isWebLink(resource.siteLink) ? (
+                      <a
+                        className="pb-item"
+                        href={resource.siteLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        key={resource.resourceId}
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <Link className="pb-item" to={resource.siteLink || '/resources'} key={resource.resourceId}>
+                        {content}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
+            {/* Hosting and posting */}
+            <section className="pb-card pb-span4">
+              <div>
+                <span className="pb-kicker">Posted by me</span>
+                <h2 className="pb-title">Jams I'm hosting &amp; jobs I've posted</h2>
+              </div>
+              {postedItems.length > 0 ? (
+                <div className="pb-list-grid">
+                  {postedItems.map((item) => (
+                    <Link className="pb-item" to={item.to} key={item.key}>
+                      <span className="pb-item-text">
+                        <strong>{item.title}</strong>
+                        <span>{item.detail}</span>
+                      </span>
+                      <span className="pb-kind">{item.kind}</span>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="pb-empty">
+                  You haven't hosted a jam or posted a job yet.{' '}
+                  <Link className="pb-link" to="/jams">Host a jam</Link>{' '}
+                  or <Link className="pb-link" to="/jobs">post a job</Link>.
+                </p>
+              )}
+            </section>
 
             {/* Clear Profile / Delete Account */}
-            <div className="profile-footer">
+            <div className="pb-footer pb-span4">
               <button
                 type="button"
-                className="profile-btn profile-btn-danger profile-btn-small"
+                className="pb-btn pb-btn-danger"
                 onClick={clearProfile}
                 disabled={saving}
               >
-                Clear Profile
+                Clear profile
               </button>
 
               {!showDelete && (
                 <button
                   type="button"
-                  className="profile-btn profile-btn-danger profile-btn-small"
+                  className="pb-btn pb-btn-danger"
                   onClick={() => setShowDelete(true)}
                 >
-                  Delete Account
+                  Delete account
                 </button>
               )}
             </div>
 
             {showDelete && (
-              <section className="profile-card">
+              <section className="profile-card pb-span4">
                 <span className="profile-kicker">Danger zone</span>
                 <h2>Delete Account</h2>
                 <p>Enter your password to permanently delete your account.</p>
@@ -902,7 +1156,7 @@ function Profile() {
                 </div>
               </section>
             )}
-          </>
+          </div>
 
         )}
 
