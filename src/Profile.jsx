@@ -464,7 +464,7 @@ function Profile() {
             )}
           </div>
 
-          <span className="profile-kicker">Profile</span>
+          <span className="page-kicker">Ctrl+F · Profile Page</span>
           <h1>{fullName}</h1>
           <p className="profile-joined">
             @{profile.username} · Member since {formatJoinDate(profile.joinDate)}

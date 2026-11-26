@@ -1,0 +1,567 @@
+/* =========================
+  JOBS AND JAMS PAGES (shared listing layout)
+  Colors are written out here so this file works on its own.
+  ========================= */
+
+.listing-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  box-sizing: border-box;
+  color: #f7f7fb;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---------- Header banner ---------- */
+
+.listing-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 32px;
+  border: 1px solid #4a4a5a;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(137, 125, 255, 0.26), transparent 35%),
+    linear-gradient(135deg, #333340, #292933);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.listing-kicker {
+  display: block;
+  color: #bdb7ff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.listing-hero h1 {
+  margin: 8px 0 10px;
+  color: #ffffff;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.listing-hero p {
+  max-width: 640px;
+  margin: 0;
+  color: #d0d0da;
+  line-height: 1.6;
+}
+
+.listing-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ---------- Buttons ---------- */
+
+.listing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 1px solid #5a5a6c;
+  border-radius: 8px;
+  background: transparent;
+  color: #e4e2ff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.listing-btn:hover:not(:disabled) {
+  border-color: #8a85c9;
+  background: rgba(222, 219, 255, 0.06);
+}
+
+.listing-btn-primary {
+  border-color: #dedbff;
+  background: #dedbff;
+  color: #24242d;
+  font-weight: 700;
+}
+
+.listing-btn-primary:hover:not(:disabled) {
+  border-color: #efedff;
+  background: #efedff;
+}
+
+.listing-btn-danger {
+  border-color: #7f3a45;
+  color: #ffb3bd;
+}
+
+.listing-btn-danger:hover:not(:disabled) {
+  border-color: #a94a58;
+  background: #3d2a2f;
+}
+
+.listing-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.listing-hero .listing-btn {
+  min-height: 46px;
+  padding: 0 18px;
+  font-size: 15px;
+}
+
+.listing-btn:focus-visible,
+.listing-tab:focus-visible,
+.listing-search input:focus-visible,
+.listing-card a:focus-visible {
+  outline: 2px solid #d2ceff;
+  outline-offset: 2px;
+}
+
+/* ---------- Search and filter bar ---------- */
+
+.listing-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.listing-search {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.listing-search label {
+  color: #d0d0da;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.listing-search input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #4a4a5a;
+  border-radius: 10px;
+  background: #2b2b35;
+  color: #f7f7fb;
+  font: inherit;
+  font-size: 15px;
+}
+
+.listing-search input::placeholder {
+  color: #8f8fa0;
+}
+
+.listing-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-basis: 100%;
+}
+
+.listing-filter-label {
+  color: #a9a9b8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.listing-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.listing-count {
+  margin: 0;
+  color: #a9a9b8;
+  font-size: 14px;
+}
+
+.listing-error {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #7f3a45;
+  border-radius: 9px;
+  background: #3d2a2f;
+  color: #ffb3bd;
+}
+
+/* ---------- Tabs (Jams) ---------- */
+
+.listing-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid #414150;
+  border-radius: 12px;
+  background: #24242d;
+}
+
+.listing-tab {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #bdbdca;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.listing-tab:hover {
+  color: #ffffff;
+}
+
+.listing-tab[aria-selected="true"] {
+  background: #dedbff;
+  color: #24242d;
+}
+
+/* ---------- Card grid ---------- */
+
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr));
+  gap: 18px;
+}
+
+.listing-grid-jams {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+}
+
+/* Forms and messages take the full width of the grid */
+.listing-grid > .job-form,
+.listing-grid > .listing-full {
+  grid-column: 1 / -1;
+}
+
+.listing-section-title {
+  margin: 8px 0 0;
+  color: #ffffff;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Cards ---------- */
+
+.listing-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #4a4a5a;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #333340, #292933);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.listing-card:hover {
+  border-color: #8a85c9;
+  transform: translateY(-2px);
+}
+
+.listing-card h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.listing-card h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.listing-card h2 a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.listing-meta {
+  margin: 0;
+  color: #a9a9b8;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.listing-description {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: #d0d0da;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.listing-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.listing-tag {
+  padding: 5px 10px;
+  border: 1px solid #4f4b7a;
+  border-radius: 999px;
+  background: rgba(137, 125, 255, 0.14);
+  color: #e4e2ff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.listing-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid #3b3b48;
+}
+
+.listing-footer-note {
+  margin-right: auto;
+  color: #a9a9b8;
+  font-size: 13px;
+}
+
+/* ---------- Jam cards ---------- */
+
+.listing-card-jam {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.listing-cover {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  border-bottom: 1px solid #4a4a5a;
+  background: #34324a;
+}
+
+.listing-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.listing-card-jam:hover .listing-cover img {
+  transform: scale(1.04);
+}
+
+.listing-cover-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: #bdb7ff;
+  font-size: 48px;
+  font-weight: 800;
+}
+
+.listing-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+  padding: 18px;
+}
+
+.listing-dates {
+  color: #bdb7ff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.listing-countdown {
+  color: #d0d0da;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Status badge on the cover */
+.listing-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.listing-badge-live {
+  border: 1px solid #3a7f5a;
+  background: #2a3d33;
+  color: #b3ffd1;
+}
+
+.listing-badge-live::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6ee7a8;
+  box-shadow: 0 0 0 4px rgba(110, 231, 168, 0.18);
+}
+
+.listing-badge-upcoming {
+  border: 1px solid #4f4b7a;
+  background: #2e2b45;
+  color: #dedbff;
+}
+
+.listing-badge-ended {
+  border: 1px solid #5a5a6c;
+  background: #2b2b35;
+  color: #d0d0da;
+}
+
+/* Progress bar for live jams */
+.listing-progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #3b3b48;
+}
+
+.listing-progress span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #bdb7ff;
+}
+
+/* ---------- Featured jam ---------- */
+
+.listing-featured {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.listing-featured:hover {
+  transform: none;
+}
+
+.listing-featured .listing-cover {
+  flex: 1 1 420px;
+  height: auto;
+  min-height: 260px;
+  border-bottom: 0;
+  border-right: 1px solid #4a4a5a;
+}
+
+.listing-featured .listing-body {
+  flex: 1 1 420px;
+  gap: 14px;
+  padding: 28px;
+}
+
+.listing-featured h2 {
+  font-size: 28px;
+}
+
+.listing-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.listing-stats div {
+  padding: 10px 12px;
+  border: 1px solid #414150;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.listing-stats dt {
+  color: #a9a9b8;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.listing-stats dd {
+  margin: 4px 0 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 600px) {
+  .listing-page {
+    padding: 24px 16px 48px;
+  }
+
+  .listing-hero {
+    padding: 24px;
+  }
+
+  .listing-hero-actions .listing-btn {
+    flex: 1 1 100%;
+  }
+
+  .listing-featured .listing-cover {
+    min-height: 180px;
+    border-right: 0;
+    border-bottom: 1px solid #4a4a5a;
+  }
+
+  .listing-featured .listing-body {
+    padding: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .listing-card,
+  .listing-cover img {
+    transition: none;
+  }
+
+  .listing-card:hover,
+  .listing-card-jam:hover .listing-cover img {
+    transform: none;
+  }
+}

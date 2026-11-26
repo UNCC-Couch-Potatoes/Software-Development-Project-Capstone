@@ -4,6 +4,7 @@ import useFollowing from './useFollowing';
 import React, { useEffect, useState } from 'react';
 import { useCollabs, CollabPostForm, CollabList } from './Collabs';
 import './style.css';
+import './listings.css';
 
 
 const PAGE_SIZE = 20;
@@ -191,6 +192,65 @@ function JamForm({ heading, initial, submitLabel, saving, error, onSave, onCance
 }
 
 
+// "Nov 22"
+const shortDate = (date) => date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+
+// How far through a live jam we are, from 0 to 100
+function getProgress(jam, now) {
+   if (!jam.start || !jam.end) return 0;
+   const total = jam.end.getTime() - jam.start.getTime();
+   if (total <= 0) return 100;
+   return Math.min(100, Math.max(0, ((now - jam.start.getTime()) / total) * 100));
+}
+
+
+// Badge shown on the jam's cover
+function getBadge(status) {
+   if (!status) return null;
+   if (status.live) return { label: 'Live', className: 'listing-badge-live' };
+   if (status.ended) return { label: 'Ended', className: 'listing-badge-ended' };
+   return { label: 'Upcoming', className: 'listing-badge-upcoming' };
+}
+
+
+// Short countdown line on each card
+function getCountdown(jam, status, now) {
+   if (!status) return '';
+   if (status.live) return `Ends in ${formatCountdown(jam.end.getTime() - now)}`;
+   if (status.ended) return `Ended ${shortDate(jam.end)}`;
+   return `Starts in ${formatCountdown(jam.start.getTime() - now)}`;
+}
+
+
+const JAM_TABS = [
+   { id: 'all', label: 'All' },
+   { id: 'live', label: 'Live now' },
+   { id: 'upcoming', label: 'Upcoming' },
+   { id: 'past', label: 'Past' }
+];
+
+
+// Cover image with a status badge. Shows the first letter of the title if there is no image.
+function JamCover({ jam, status }) {
+ const [failed, setFailed] = useState(false);
+ const badge = getBadge(status);
+
+ return (
+     <div className="listing-cover">
+         {jam.coverImageUrl && !failed ? (
+             <img src={jam.coverImageUrl} alt={`Cover for ${jam.title}`} onError={() => setFailed(true)} />
+         ) : (
+             <div className="listing-cover-fallback" aria-hidden="true">
+                 {(jam.title || '?').trim().charAt(0).toUpperCase()}
+             </div>
+         )}
+         {badge && <span className={`listing-badge ${badge.className}`}>{badge.label}</span>}
+     </div>
+ );
+}
+
+
 function Jams() {
  const [resourceMenuOpen, setResourceMenuOpen] = useState(false);
  const [query, setQuery] = useState('');
@@ -198,6 +258,8 @@ function Jams() {
  const [selectedTags, setSelectedTags] = useState([]);
 
  const [page, setPage] = useState(0);
+ // Which tab is open: all, live, upcoming, or past
+ const [tab, setTab] = useState('all');
 
  const [jams, setJams] = useState([]);
  const [loading, setLoading] = useState(true);
@@ -272,7 +334,7 @@ function Jams() {
 
  useEffect(() => {
      setPage(0);
- }, [query, selectedTags]);
+ }, [query, selectedTags, tab]);
 
 
  const openForm = (id) => {
@@ -360,23 +422,100 @@ function Jams() {
  const allTags = [...new Set(jams.flatMap((jam) => jam.tags))].sort((a, b) => a.localeCompare(b));
 
 
+ const matchesTab = (jam) => {
+     if (tab === 'all') return true;
+     const status = getStatus(jam, now);
+     if (!status) return false;
+     if (tab === 'live') return status.live;
+     if (tab === 'upcoming') return !status.live && !status.ended;
+     return status.ended;
+ };
+
+
  const visibleJams = jams.filter((jam) => {
      const searchable = `${jam.title} ${jam.tags.join(' ')} ${jam.description}`.toLowerCase();
      const matchesQuery = searchable.includes(query.toLowerCase());
      const matchesTags = selectedTags.length === 0 || selectedTags.some((tag) => jam.tags.includes(tag));
-     return matchesQuery && matchesTags;
+     return matchesQuery && matchesTags && matchesTab(jam);
  });
 
 
- const totalPages = Math.ceil(visibleJams.length / PAGE_SIZE);
+ // Featured jam: the live jam with the most participants (shown on All and Live now)
+ const featuredJam = (tab === 'all' || tab === 'live')
+     ? visibleJams
+         .filter((jam) => jam.id !== editingId && getStatus(jam, now)?.live)
+         .sort((a, b) => b.entrants - a.entrants)[0] || null
+     : null;
+ const listJams = featuredJam ? visibleJams.filter((jam) => jam.id !== featuredJam.id) : visibleJams;
+
+
+ const totalPages = Math.ceil(listJams.length / PAGE_SIZE);
  const currentPage = Math.min(page, Math.max(0, totalPages - 1));
- const pagedJams = visibleJams.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+ const pagedJams = listJams.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
  const pageNumbers = getPageNumbers(currentPage, totalPages);
 
  const goToPage = (nextPage) => {
      setPage(nextPage);
      window.scrollTo({ top: 0, behavior: 'smooth' });
  };
+
+
+ // Buttons at the bottom of a jam card (join, follow, edit, delete)
+ const renderActions = (jam, status) => {
+     const isOwner = userId !== null && jam.ownerUserId === userId;
+     const hasJoined = joinedIds.includes(jam.id);
+     const canJoin = !(status && status.ended);
+     const canFollow = userId !== null && jam.ownerUserId != null && !isOwner;
+
+     return (
+         <>
+             {canJoin && (
+                 <button
+                     type="button"
+                     className={`listing-btn ${hasJoined ? '' : 'listing-btn-primary'}`}
+                     onClick={() => toggleEntry(jam)}
+                     disabled={joiningId === jam.id}
+                 >
+                     {joiningId === jam.id ? 'Saving...' : hasJoined ? 'Leave jam' : 'Join jam'}
+                 </button>
+             )}
+             {canFollow && (
+                 <button
+                     type="button"
+                     className="listing-btn"
+                     onClick={() => toggleFollow(jam.ownerUserId)}
+                     disabled={followBusyId === jam.ownerUserId}
+                 >
+                     {followingIds.includes(jam.ownerUserId) ? 'Unfollow host' : 'Follow host'}
+                 </button>
+             )}
+             {isOwner && (
+                 <>
+                     <button type="button" className="listing-btn" onClick={() => openForm(jam.id)}>
+                         Edit
+                     </button>
+                     <button
+                         type="button"
+                         className="listing-btn listing-btn-danger"
+                         onClick={() => deleteJam(jam)}
+                         disabled={deletingId === jam.id}
+                     >
+                         {deletingId === jam.id ? 'Deleting...' : 'Delete'}
+                     </button>
+                 </>
+             )}
+         </>
+     );
+ };
+
+ const renderTags = (jam) => jam.tags.length > 0 && (
+     <div className="listing-tags">
+         {jam.tags.map((tag) => <span className="listing-tag" key={tag}>{tag}</span>)}
+     </div>
+ );
+
+ const featuredStatus = featuredJam ? getStatus(featuredJam, now) : null;
+ const showFeatured = featuredJam && currentPage === 0;
 
 
  return (
@@ -422,36 +561,20 @@ function Jams() {
                      <Link to="/resources/new" onClick={() => setResourceMenuOpen(false)}>Create a post</Link>
                  </div>
              </div>
-             <div className="navbar-search">
-                 <input
-                     type="search"
-                     placeholder="Search jams..."
-                     value={query}
-                     onChange={(event) => setQuery(event.target.value)}
-                 />
-             </div>
          </nav>
 
-         <main className="jobs-container">
-             <header className="jobs-header">
-                 <h1>Game Jams</h1>
-                 <p>Find game jams to join, or post your own and bring other developers together.</p>
-             </header>
-
-             <section className="jobs-results">
-                 <div className="jobs-toolbar">
+         <main className="listing-page">
+             {/* Header banner */}
+             <header className="listing-hero">
+                 <div>
+                     <span className="listing-kicker">Ctrl+F · Game Jams</span>
+                     <h1>Make a game. Fast.</h1>
+                     <p>Find game jams to join, or post your own and bring other developers together.</p>
+                 </div>
+                 <div className="listing-hero-actions">
                      <button
                          type="button"
-                         className="filter-button"
-                         aria-expanded={filterOpen}
-                         aria-controls="jams-filter-panel"
-                         onClick={() => setFilterOpen((value) => !value)}
-                     >
-                         Filter{selectedTags.length > 0 && ` (${selectedTags.length})`}
-                     </button>
-                     <button
-                         type="button"
-                         className="filter-button post-job-button"
+                         className="listing-btn listing-btn-primary"
                          onClick={() => openForm('new')}
                          disabled={editingId === 'new'}
                      >
@@ -459,197 +582,240 @@ function Jams() {
                      </button>
                      <button
                          type="button"
-                         className="filter-button post-job-button"
+                         className="listing-btn"
                          onClick={() => collab.openForm('new')}
                          disabled={collab.editingId === 'new'}
                      >
                          Post a collab
                      </button>
-                     {selectedTags.length > 0 && (
-                         <button
-                             type="button"
-                             className="filter-clear"
-                             onClick={() => setSelectedTags([])}
-                         >
-                             Clear filters
-                         </button>
-                     )}
                  </div>
+             </header>
 
-                 <div id="jams-filter-panel" className="filter-panel" hidden={!filterOpen}>
-                     {allTags.length === 0 && <span className="jobs-count">No tags yet.</span>}
-                     {allTags.map((tag) => (
-                         <button
-                             type="button"
-                             key={tag}
-                             className={`filter-chip ${selectedTags.includes(tag) ? 'active' : ''}`}
-                             aria-pressed={selectedTags.includes(tag)}
-                             onClick={() => toggleTag(tag)}
-                         >
-                             {tag}
-                         </button>
-                     ))}
-                 </div>
-
-                 {editingId === 'new' && (
-                     <JamForm
-                         heading="Post a jam"
-                         initial={EMPTY_FORM}
-                         submitLabel="Post jam"
-                         saving={saving}
-                         error={formError}
-                         onSave={saveJam}
-                         onCancel={() => setEditingId(null)}
+             {/* Search and filters */}
+             <section className="listing-toolbar" aria-label="Search and filters">
+                 <div className="listing-search">
+                     <label htmlFor="jams-search">Search jams</label>
+                     <input
+                         id="jams-search"
+                         type="search"
+                         placeholder="Title, theme, or tag"
+                         value={query}
+                         onChange={(event) => setQuery(event.target.value)}
                      />
+                 </div>
+                 <button
+                     type="button"
+                     className="listing-btn"
+                     aria-expanded={filterOpen}
+                     aria-controls="jams-filter-panel"
+                     onClick={() => setFilterOpen((value) => !value)}
+                 >
+                     Filter by tag{selectedTags.length > 0 && ` (${selectedTags.length})`}
+                 </button>
+                 {selectedTags.length > 0 && (
+                     <button
+                         type="button"
+                         className="listing-btn"
+                         onClick={() => setSelectedTags([])}
+                     >
+                         Clear filters
+                     </button>
                  )}
-                 <CollabPostForm collab={collab} />
-                 {(actionError || followError) && <p className="job-form-error" role="alert">{actionError || followError}</p>}
+             </section>
 
-                 {/* Shows how many jams are currently being displayed */}
-                 {!loading && !error && (
-                     <p className="jobs-count">
-                         {visibleJams.length}{' '}
-                         {visibleJams.length === 1 ? 'jam' : 'jams'} found
-                     </p>
-                 )}
-                 {loading && <p className="jobs-count">Loading jams...</p>}
+             <div id="jams-filter-panel" className="filter-panel" hidden={!filterOpen}>
+                 {allTags.length === 0 && <span className="listing-count">No tags yet.</span>}
+                 {allTags.map((tag) => (
+                     <button
+                         type="button"
+                         key={tag}
+                         className={`filter-chip ${selectedTags.includes(tag) ? 'active' : ''}`}
+                         aria-pressed={selectedTags.includes(tag)}
+                         onClick={() => toggleTag(tag)}
+                     >
+                         {tag}
+                     </button>
+                 ))}
+             </div>
+
+             {/* All / Live / Upcoming / Past */}
+             <div className="listing-tabs" role="tablist" aria-label="Show jams">
+                 {JAM_TABS.map((item) => (
+                     <button
+                         type="button"
+                         role="tab"
+                         key={item.id}
+                         className="listing-tab"
+                         aria-selected={tab === item.id}
+                         onClick={() => setTab(item.id)}
+                     >
+                         {item.label}
+                     </button>
+                 ))}
+             </div>
+
+             {editingId === 'new' && (
+                 <JamForm
+                     heading="Post a jam"
+                     initial={EMPTY_FORM}
+                     submitLabel="Post jam"
+                     saving={saving}
+                     error={formError}
+                     onSave={saveJam}
+                     onCancel={() => setEditingId(null)}
+                 />
+             )}
+             <CollabPostForm collab={collab} />
+             {(actionError || followError) && <p className="listing-error" role="alert">{actionError || followError}</p>}
+
+             {!loading && !error && (
+                 <p className="listing-count">
+                     {visibleJams.length}{' '}
+                     {visibleJams.length === 1 ? 'jam' : 'jams'} found
+                 </p>
+             )}
+             {loading && <p className="listing-count">Loading jams...</p>}
+
+             {/* Featured jam: the live jam with the most participants */}
+             {showFeatured && (
+                 <article className="listing-card listing-card-jam listing-featured">
+                     <JamCover key={featuredJam.coverImageUrl} jam={featuredJam} status={featuredStatus} />
+                     <div className="listing-body">
+                         <span className="listing-kicker">Featured jam</span>
+                         <h2><Link to={`/jams/${featuredJam.id}`}>{featuredJam.title}</Link></h2>
+                         <p className="listing-description">{featuredJam.description}</p>
+                         <span className="listing-countdown">{getCountdown(featuredJam, featuredStatus, now)}</span>
+                         <div
+                             className="listing-progress"
+                             role="progressbar"
+                             aria-label="Jam progress"
+                             aria-valuemin={0}
+                             aria-valuemax={100}
+                             aria-valuenow={Math.round(getProgress(featuredJam, now))}
+                         >
+                             <span style={{ width: `${getProgress(featuredJam, now)}%` }} />
+                         </div>
+                         <dl className="listing-stats">
+                             <div><dt>Participants</dt><dd>{featuredJam.entrants}</dd></div>
+                             <div><dt>Started</dt><dd>{shortDate(featuredJam.start)}</dd></div>
+                             <div><dt>Ends</dt><dd>{shortDate(featuredJam.end)}</dd></div>
+                         </dl>
+                         {renderTags(featuredJam)}
+                         <div className="listing-footer">
+                             {renderActions(featuredJam, featuredStatus)}
+                             <Link className="listing-btn" to={`/jams/${featuredJam.id}`}>View details</Link>
+                         </div>
+                     </div>
+                 </article>
+             )}
+
+             {showFeatured && pagedJams.length > 0 && <h2 className="listing-section-title">More jams</h2>}
+
+             {/* Jam cards */}
+             <div className="listing-grid listing-grid-jams">
                  {error && (
-                     <div className="job-card">
+                     <div className="listing-card listing-full">
                          <h2>Something went wrong</h2>
-                         <p>{error}</p>
+                         <p className="listing-description">{error}</p>
                      </div>
                  )}
 
                  {pagedJams.map((jam) => {
-                     const status = getStatus(jam, now);
-                     const isOwner = userId !== null && jam.ownerUserId === userId;
-                     const hasJoined = joinedIds.includes(jam.id);
-                     const canJoin = !(status && status.ended);
-                     const canFollow = userId !== null && jam.ownerUserId != null && !isOwner;
+                     if (editingId === jam.id) {
+                         return (
+                             <JamForm
+                                 key={jam.id}
+                                 heading="Edit jam"
+                                 initial={jamToForm(jam)}
+                                 submitLabel="Save changes"
+                                 saving={saving}
+                                 error={formError}
+                                 onSave={saveJam}
+                                 onCancel={() => setEditingId(null)}
+                             />
+                         );
+                     }
 
-                     return editingId === jam.id ? (
-                         <JamForm
-                             key={jam.id}
-                             heading="Edit jam"
-                             initial={jamToForm(jam)}
-                             submitLabel="Save changes"
-                             saving={saving}
-                             error={formError}
-                             onSave={saveJam}
-                             onCancel={() => setEditingId(null)}
-                         />
-                     ) : (
-                         <article className="job-card" key={jam.id}>
-                             {jam.coverImageUrl && (
-                                 <img
-                                     className="jam-cover"
-                                     src={jam.coverImageUrl}
-                                     alt={`Cover for ${jam.title}`}
-                                     onError={(event) => { event.currentTarget.style.display = 'none'; }}
-                                 />
-                             )}
-                             <h2><Link to={`/jams/${jam.id}`}>{jam.title}</Link></h2>
-                             {status && (
-                                 <span className={`jam-status ${status.live ? 'live' : ''}`}>{status.label}</span>
-                             )}
-                             {jam.tags.length > 0 && <h3>{jam.tags.join(' · ')}</h3>}
-                             <p>{jam.description}</p>
-                             <dl className="jam-meta">
-                                 {jam.start && jam.end ? (
-                                     <>
-                                         <div><dt>Starts</dt><dd>{formatDate(jam.start)}</dd></div>
-                                         <div><dt>Ends</dt><dd>{formatDate(jam.end)}</dd></div>
-                                         <div><dt>Duration</dt><dd>{formatSpan(jam.end.getTime() - jam.start.getTime())}</dd></div>
-                                     </>
-                                 ) : (
-                                     <div><dt>When</dt><dd>Dates not set</dd></div>
+                     const status = getStatus(jam, now);
+                     const progress = getProgress(jam, now);
+
+                     return (
+                         <article className="listing-card listing-card-jam" key={jam.id}>
+                             <JamCover key={jam.coverImageUrl} jam={jam} status={status} />
+                             <div className="listing-body">
+                                 <h2><Link to={`/jams/${jam.id}`}>{jam.title}</Link></h2>
+                                 <span className="listing-dates">
+                                     {jam.start && jam.end ? `${shortDate(jam.start)} – ${shortDate(jam.end)}` : 'Dates not set'}
+                                 </span>
+                                 {status && <span className="listing-countdown">{getCountdown(jam, status, now)}</span>}
+                                 {status && status.live && (
+                                     <div
+                                         className="listing-progress"
+                                         role="progressbar"
+                                         aria-label="Jam progress"
+                                         aria-valuemin={0}
+                                         aria-valuemax={100}
+                                         aria-valuenow={Math.round(progress)}
+                                     >
+                                         <span style={{ width: `${progress}%` }} />
+                                     </div>
                                  )}
-                                 <div><dt>Participants</dt><dd>{jam.entrants}</dd></div>
-                             </dl>
-                             {(canJoin || isOwner || canFollow) && (
-                                 <div className="job-actions">
-                                     {canJoin && (
-                                         <button
-                                             type="button"
-                                             className="filter-button"
-                                             onClick={() => toggleEntry(jam)}
-                                             disabled={joiningId === jam.id}
-                                         >
-                                             {joiningId === jam.id ? 'Saving...' : hasJoined ? 'Leave jam' : 'Join jam'}
-                                         </button>
-                                     )}
-                                     {canFollow && (
-                                         <button
-                                             type="button"
-                                             className="filter-button"
-                                             onClick={() => toggleFollow(jam.ownerUserId)}
-                                             disabled={followBusyId === jam.ownerUserId}
-                                         >
-                                             {followingIds.includes(jam.ownerUserId) ? 'Unfollow host' : 'Follow host'}
-                                         </button>
-                                     )}
-                                     {isOwner && (
-                                         <>
-                                             <button type="button" className="filter-button" onClick={() => openForm(jam.id)}>
-                                                 Edit
-                                             </button>
-                                             <button
-                                                 type="button"
-                                                 className="filter-button job-delete-button"
-                                                 onClick={() => deleteJam(jam)}
-                                                 disabled={deletingId === jam.id}
-                                             >
-                                                 {deletingId === jam.id ? 'Deleting...' : 'Delete'}
-                                             </button>
-                                         </>
-                                     )}
+                                 <p className="listing-description">{jam.description}</p>
+                                 {renderTags(jam)}
+                                 <div className="listing-footer">
+                                     <span className="listing-footer-note">
+                                         {jam.entrants} {jam.entrants === 1 ? 'participant' : 'participants'}
+                                     </span>
+                                     {renderActions(jam, status)}
                                  </div>
-                             )}
+                             </div>
                          </article>
                      );
                  })}
 
                  {!loading && !error && visibleJams.length === 0 && (
-                     <div className="job-card">
+                     <div className="listing-card listing-full">
                          <h2>No jams found</h2>
-                         <p>Try searching for something else, clearing your filters, or post the first one.</p>
+                         <p className="listing-description">
+                             Try another tab, search for something else, clear your filters, or post the first one.
+                         </p>
                      </div>
                  )}
+             </div>
 
-                 {!loading && !error && totalPages > 1 && (
-                     <nav className="jobs-pagination" aria-label="Jam pages">
+             {!loading && !error && totalPages > 1 && (
+                 <nav className="jobs-pagination" aria-label="Jam pages">
+                     <button
+                         type="button"
+                         className="listing-btn"
+                         disabled={currentPage === 0}
+                         onClick={() => goToPage(currentPage - 1)}
+                     >
+                         ← Previous
+                     </button>
+
+                     {pageNumbers.map((pageNumber) => (
                          <button
                              type="button"
-                             className="filter-button"
-                             disabled={currentPage === 0}
-                             onClick={() => goToPage(currentPage - 1)}
+                             className={`listing-btn ${pageNumber === currentPage ? 'listing-btn-primary' : ''}`}
+                             aria-current={pageNumber === currentPage ? 'page' : undefined}
+                             key={pageNumber}
+                             onClick={() => goToPage(pageNumber)}
                          >
-                             Previous
+                             {pageNumber + 1}
                          </button>
+                     ))}
 
-                         {pageNumbers.map((pageNumber) => (
-                             <button
-                                 type="button"
-                                 className="filter-button jobs-page-button"
-                                 aria-current={pageNumber === currentPage ? 'page' : undefined}
-                                 key={pageNumber}
-                                 onClick={() => goToPage(pageNumber)}
-                             >
-                                 {pageNumber + 1}
-                             </button>
-                         ))}
-
-                         <button
-                             type="button"
-                             className="filter-button"
-                             disabled={currentPage >= totalPages - 1}
-                             onClick={() => goToPage(currentPage + 1)}
-                         >
-                             Next
-                         </button>
-                     </nav>
-                 )}
-             </section>
+                     <button
+                         type="button"
+                         className="listing-btn"
+                         disabled={currentPage >= totalPages - 1}
+                         onClick={() => goToPage(currentPage + 1)}
+                     >
+                         Next →
+                     </button>
+                 </nav>
+             )}
 
              <CollabList collab={collab} />
          </main>
