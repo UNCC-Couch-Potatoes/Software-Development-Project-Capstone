@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './style.css';
 import './resources.css';
+import './listings.css';
+import './resources-ui.css';
 
 //shortening website link 
 function getDomain(siteLink) {
@@ -25,6 +27,23 @@ function getPageNumbers(currentPage, totalPages) {
     (_, index) => firstPage + index
   );
 }
+
+// Sort options shown as tabs
+const SORT_TABS = [
+  { value: 'featured', label: 'Featured' },
+  { value: 'az', label: 'A–Z' },
+  { value: 'za', label: 'Z–A' }
+];
+
+// Picks one of 4 icon colors based on the resource name, so each resource keeps the same color
+function iconTone(name) {
+  let total = 0;
+  for (const char of name || '') total += char.charCodeAt(0);
+  return `res-icon-${total % 4}`;
+}
+
+// Resources posted on this site start with /resources/
+const isInternal = (resource) => resource.siteLink.startsWith('/resources/');
 
 
 function Resources() {
@@ -55,6 +74,9 @@ function Resources() {
   // storing loading and error logic
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // which resource's link was just copied (shows "Copied!" for a moment)
+  const [copiedId, setCopiedId] = useState(null);
 
   // loading resources from spring boot
   // used when page first opens, when we move to a new page number, or when query, tags, or sorting changes
@@ -109,9 +131,9 @@ function Resources() {
     setPage(0);
   }
 
-// whenver sort method is changed
-  function handleSortChange(event) {
-    setSort(event.target.value);
+// whenever sort method is changed
+  function changeSort(value) {
+    setSort(value);
     setPage(0);
   }
 
@@ -131,6 +153,20 @@ function Resources() {
     setQuery('');
     setSelectedTags([]);
     setPage(0);
+  }
+
+  // copies a resource's link and shows "Copied!" for 2 seconds
+  async function copyLink(resource) {
+    const link = isInternal(resource)
+      ? `${window.location.origin}${resource.siteLink}`
+      : resource.siteLink;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopiedId(resource.resourceId);
+      setTimeout(() => setCopiedId((current) => (current === resource.resourceId ? null : current)), 2000);
+    } catch {
+      window.prompt('Copy this link:', link);
+    }
   }
 
   // getting the total amt of page nums based on resources and pages
@@ -184,30 +220,38 @@ function Resources() {
         <Link to="/resources/new" onClick={() => setResourceMenuOpen(false)}>Create a post</Link>
       </div>
     </div>
-      <div className="navbar-search">
-           <input
-               type="search"
-               placeholder="Search tools, topics, or skills..."
-               value={query}
-               onChange={handleQueryChange}
-           />
-       </div>
       </nav>
 
-      {/*Making the initial resources title card */}
-      <main className="resources-container">
-        <header className="profile-header resources-header">
-          <h1>Resources</h1>
-          <p>A little help for your next big idea.</p>
-          <p>Discover tools, assets, and guides for every stage of making a game.</p>
+      <main className="listing-page">
+        {/* Header banner */}
+        <header className="listing-hero">
+          <div>
+            <span className="listing-kicker">CtrlF · Resource Library</span>
+            <h1>A little help for your next big idea.</h1>
+            <p>Discover tools, assets, and guides for every stage of making a game.</p>
+          </div>
+          <div className="listing-hero-actions">
+            <Link className="listing-btn listing-btn-primary" to="/resources/new">Share a resource</Link>
+            <Link className="listing-btn" to="/resources/manage">My resources</Link>
+          </div>
         </header>
 
-        <div className="resources-toolbar">
-          <Link className="resources-button" to="/resources/manage">Create a post</Link>
-          {/*button to toggle filters */}
+        {/* Search, filter toggle, and sort tabs */}
+        <section className="listing-toolbar" aria-label="Search and sort">
+          <div className="listing-search">
+            <label htmlFor="resource-search">Search resources</label>
+            <input
+              id="resource-search"
+              type="search"
+              placeholder="Tools, topics, or skills"
+              value={query}
+              onChange={handleQueryChange}
+            />
+          </div>
+
           <button
             type="button"
-            className="resources-button"
+            className="listing-btn"
             aria-expanded={filtersOpen}
             aria-controls="resource-filters"
             onClick={() => setFiltersOpen((open) => !open)}
@@ -216,26 +260,31 @@ function Resources() {
             {selectedTags.length > 0 && ` (${selectedTags.length})`}
           </button>
 
-          {/* Sorting tab thing */}
-          <div className="resources-sort">
-            <label htmlFor="resource-sort">Sort by</label>
-            <select id="resource-sort" value={sort} onChange={handleSortChange}>
-              <option value="featured">Featured</option>
-              <option value="az">Name: A–Z</option>
-              <option value="za">Name: Z–A</option>
-            </select>
+          <div className="listing-tabs" role="tablist" aria-label="Sort resources">
+            {SORT_TABS.map((tab) => (
+              <button
+                type="button"
+                role="tab"
+                key={tab.value}
+                className="listing-tab"
+                aria-selected={sort === tab.value}
+                onClick={() => changeSort(tab.value)}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
-        </div>
+        </section>
 
         {/* Filter tags sidebar (collapsable) */}
-        <div className={`resources-layout${filtersOpen ? '' : ' resources-layout-collapsed'}`}>
+        <div className={`resources-layout res-layout${filtersOpen ? '' : ' resources-layout-collapsed'}`}>
           <aside
             id="resource-filters"
-            className="resources-sidebar"
+            className="resources-sidebar res-sidebar"
             hidden={!filtersOpen}
             aria-label="Resource filters"
           >
-            <h2>Browse by tag</h2>
+            <h2>Filter by tag</h2>
             <p>Find resources matching any selected tag.</p>
 
             <section className="resource-user-made-filter" aria-label="User made resources">
@@ -252,7 +301,7 @@ function Resources() {
             {/* gives user easy way to clear all filters instead of untoggling one by one */}
             <button
               type="button"
-              className="resources-button"
+              className="listing-btn"
               disabled={!selectedTags.length && !query}
               onClick={clearFilters}
             >
@@ -261,83 +310,135 @@ function Resources() {
           </aside>
 
           {/*for the actual resources */}
-          <section className="resources-results" aria-label="Resources" aria-busy={loading}>
-          {!loading && !error && (
-            <p className="resources-count" role="status">
-              Showing {resources.length} of {pageInfo.totalElements} resources
-            </p>
-          )}
-          {/* displays which tags are currently active*/}
-          {!loading && !error && selectedTags.length > 0 && (
-            <div className="tag-container resources-selected" aria-label="Selected tags">
-              {selectedTags.map((tag) => (
-                <span className="tag" key={tag}>
-                  {tag}
+          <section className="resources-results res-results" aria-label="Resources" aria-busy={loading}>
+
+          {/* Active filters and result count */}
+          <div className="res-active">
+            {selectedTags.length > 0 && (
+              <>
+                <span className="res-active-label">Active:</span>
+                {selectedTags.map((tag) => (
                   <button
                     type="button"
+                    className="res-chip"
+                    key={tag}
                     aria-label={`Remove ${tag} filter`}
                     onClick={() => toggleTag(tag)}
                   >
-                    ×
+                    {tag} <span aria-hidden="true">×</span>
                   </button>
-                </span>
-              ))}
-            </div>
-          )}
+                ))}
+                <button type="button" className="res-clear" onClick={clearFilters}>Clear all</button>
+              </>
+            )}
+            {!loading && !error && (
+              <p className="listing-count res-count" role="status">
+                Showing {resources.length} of {pageInfo.totalElements} resources
+              </p>
+            )}
+          </div>
 
-          {loading && <p className="resources-message" role="status">Loading resources…</p>}
+          {loading && <p className="listing-count" role="status">Loading resources…</p>}
 
-          {!loading && error && (
-            <div className="profile-section resources-empty" role="alert">
-              <h2>Resources could not be loaded</h2>
-              <p>{error} Make sure the Spring Boot API and MySQL database are running.</p>
-            </div>
-          )}
-          {/* Generating resources that meet criteria */}
-          {!loading && !error && resources.map((resource) => (
-            <article className="profile-section resource-card" key={resource.resourceId}>
-              <h2>
-                {resource.siteLink.startsWith('/resources/') ? <Link to={resource.siteLink}>{resource.siteName}</Link> : <a href={resource.siteLink} target="_blank" rel="noopener noreferrer">
-                  {resource.siteName}
-                  <span className="resources-sr-only"> (opens in a new tab)</span>{' '}
-                  <span aria-hidden="true">↗</span>
-                </a>}
-              </h2>
-              <span className="resource-domain" aria-hidden={resource.siteLink.startsWith('/resources/') ? true : undefined}>
-                {resource.siteLink.startsWith('/resources/') ? '\u00a0' : getDomain(resource.siteLink)}
-              </span>
-              <p>{resource.overview}</p>
-              <div className="tag-container">
-                {resource.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}
+          <div className="res-grid">
+            {!loading && error && (
+              <div className="listing-card listing-full res-full" role="alert">
+                <h2>Resources could not be loaded</h2>
+                <p className="listing-description">{error} Make sure the Spring Boot API and MySQL database are running.</p>
               </div>
-            </article>
-          ))}
-          {/* If no resources match current criteria letting the user know */}
-          {!loading && !error && resources.length === 0 && (
-            <div className="profile-section resources-empty">
-              <h2>No resources found</h2>
-              <p>Try another search or clear your search to see all resources.</p>
-              <button type="button" className="resources-button" onClick={clearFilters}>
-                Show all resources
-              </button>
-            </div>
-          )}
-          {/* If there is more than one page we acn set that up*/}
+            )}
+
+            {/* Generating resources that meet criteria */}
+            {!loading && !error && resources.map((resource) => {
+              const internal = isInternal(resource);
+              const userMade = resource.tags.includes('User Made');
+              const otherTags = resource.tags.filter((tag) => tag !== 'User Made');
+
+              return (
+                <article className="listing-card res-card" key={resource.resourceId}>
+                  <div className="res-card-head">
+                    <span className={`res-icon ${iconTone(resource.siteName)}`} aria-hidden="true">
+                      {(resource.siteName || '?').trim().charAt(0).toUpperCase()}
+                    </span>
+                    <div className="res-card-title">
+                      <h2>
+                        {internal ? (
+                          <Link to={resource.siteLink}>{resource.siteName}</Link>
+                        ) : (
+                          <a href={resource.siteLink} target="_blank" rel="noopener noreferrer">
+                            {resource.siteName}
+                            <span className="resources-sr-only"> (opens in a new tab)</span>
+                          </a>
+                        )}
+                      </h2>
+                      <span className="listing-meta">
+                        {internal ? 'Posted on CtrlF' : getDomain(resource.siteLink)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {userMade && <span className="res-badge">User made</span>}
+
+                  <p className="listing-description">{resource.overview}</p>
+
+                  {otherTags.length > 0 && (
+                    <div className="listing-tags">
+                      {otherTags.map((tag) => <span className="listing-tag" key={tag}>{tag}</span>)}
+                    </div>
+                  )}
+
+                  <div className="listing-footer">
+                    {internal ? (
+                      <Link className="listing-btn listing-btn-primary" to={resource.siteLink}>Open</Link>
+                    ) : (
+                      <a
+                        className="listing-btn listing-btn-primary"
+                        href={resource.siteLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Open <span aria-hidden="true">↗</span>
+                        <span className="resources-sr-only"> {resource.siteName} (opens in a new tab)</span>
+                      </a>
+                    )}
+                    <button type="button" className="listing-btn" onClick={() => copyLink(resource)}>
+                      {copiedId === resource.resourceId ? 'Copied!' : 'Copy link'}
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+
+            {/* If no resources match current criteria letting the user know */}
+            {!loading && !error && resources.length === 0 && (
+              <div className="listing-card listing-full res-full">
+                <h2>No resources found</h2>
+                <p className="listing-description">Try another search or clear your filters to see all resources.</p>
+                <div>
+                  <button type="button" className="listing-btn" onClick={clearFilters}>
+                    Show all resources
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* If there is more than one page we can set that up*/}
           {!loading && !error && pageInfo.totalPages > 1 && (
-            <nav className="resources-pagination" aria-label="Resource pages">
+            <nav className="jobs-pagination res-pagination" aria-label="Resource pages">
               <button
                 type="button"
-                className="resources-button"
+                className="listing-btn"
                 disabled={pageInfo.first}
                 onClick={() => setPage((currentPage) => currentPage - 1)}
               >
-                Previous
+                ← Previous
               </button>
 
               {pageNumbers.map((pageNumber) => (
                 <button
                   type="button"
-                  className="resources-button resources-page-button"
+                  className={`listing-btn ${pageNumber === pageInfo.page ? 'listing-btn-primary' : ''}`}
                   aria-current={pageNumber === pageInfo.page ? 'page' : undefined}
                   key={pageNumber}
                   onClick={() => setPage(pageNumber)}
@@ -348,11 +449,11 @@ function Resources() {
 
               <button
                 type="button"
-                className="resources-button"
+                className="listing-btn"
                 disabled={pageInfo.last}
                 onClick={() => setPage((currentPage) => currentPage + 1)}
               >
-                Next
+                Next →
               </button>
             </nav>
           )}
