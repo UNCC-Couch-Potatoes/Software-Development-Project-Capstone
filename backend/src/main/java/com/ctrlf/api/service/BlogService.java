@@ -1,17 +1,19 @@
 package com.ctrlf.api.service;
 
+import java.util.List;
 import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.ctrlf.api.dto.BlogRequest;
 import com.ctrlf.api.dto.BlogResponse;
+import com.ctrlf.api.entity.Blog;
 import com.ctrlf.api.repository.BlogRepository;
 import com.ctrlf.api.repository.CommentRepository;
 import com.ctrlf.api.repository.CommentThreadRepository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.stereotype.Service;
-import org.springframework.http.HttpStatus;
-import com.ctrlf.api.dto.BlogRequest;
-import com.ctrlf.api.entity.Blog;  
-import java.util.List;
-import org.springframework.web.server.ResponseStatusException;
 
 
 @Service
@@ -41,7 +43,14 @@ public class BlogService {
 
     public BlogResponse create(Long userId, BlogRequest body) {
         //No likes currently as the feature does not work with current database.
-        Blog blog = new Blog(cleanTitle(body.blogTitle()), cleanContent(body.blogContent()), "", 0, 0, userId);
+        Blog blog = new Blog(cleanTitle(body.blogTitle()),
+            cleanContent(body.blogContent()),
+            body.datePosted(),
+            "",
+            0, 
+            0, 
+            body.userId()
+        );
         return BlogResponse.from(repository.save(blog));
     }
 
@@ -78,4 +87,6 @@ public class BlogService {
 
         return newContent;
     }
+
+    
 }

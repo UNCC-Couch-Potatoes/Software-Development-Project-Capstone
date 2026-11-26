@@ -1,5 +1,7 @@
 package com.ctrlf.api.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +23,9 @@ public class Blog {
     @Column(name = "BlogContent", nullable = false, columnDefinition = "TEXT")
     private String blogContent;
 
+    @Column(name = "DatePosted", nullable = false)
+    private LocalDateTime datePosted;
+
     @Column(name = "Tags", nullable = false, length = 1000)
     private String tags;
 
@@ -35,9 +40,10 @@ public class Blog {
 
     protected Blog() {}
 
-    public Blog(String blogTitle, String blogContent, String tags, int views, int likes, Long userId) {
+    public Blog(String blogTitle, String blogContent, LocalDateTime datePosted, String tags, int views, int likes, Long userId) {
         this.blogTitle = blogTitle;
         this.blogContent = blogContent;
+        this.datePosted = datePosted;
         this.tags = tags;
         this.views = views;
         this.likes = likes;
@@ -47,6 +53,7 @@ public class Blog {
     public Long getBlogId() { return blogId; }
     public String getBlogTitle() { return blogTitle; }
     public String getBlogContent() { return blogContent; }
+    public LocalDateTime getDatePosted() {return datePosted;}
     public String getTags() { return tags; }
     public int getViews() { return views; }
     public int getLikes() { return likes; }

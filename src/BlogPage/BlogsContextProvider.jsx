@@ -13,8 +13,19 @@ function BlogsContextProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState('');
     const [saving, setSaving] = useState(false);
+    const [userId, setUserId] = useState(null);
     const savingRef = useRef(false);
     const createdBlogs = useRef(new Map());
+
+    //Make a call to set the current user id, no user id it is set to null
+    useEffect(() => {
+     let cancelled = false;
+     fetch('/api/auth/me', { credentials: 'include' })
+         .then((res) => (res.ok ? res.json() : null))
+         .then((user) => { if (!cancelled && user) setUserId(user.userId); })
+         .catch(() => {});
+     return () => { cancelled = true; };
+    }, []);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -44,8 +55,11 @@ function BlogsContextProvider({ children }) {
         if (savingRef.current) throw new Error('A post is already being saved.');
         const body = {
             blogTitle: String(blogTitle || '').trim(),
-            blogContent: String(blogContent || '').trim()
+            blogContent: String(blogContent || '').trim(),
+            datePosted: new Date(),
+            userId: userId
         };
+        
         if (!body.blogTitle || !body.blogContent) throw new Error('Please fill out all fields.');
         if (body.blogTitle.length > 50) throw new Error('Title must be 1 to 50 characters.');
         savingRef.current = true;

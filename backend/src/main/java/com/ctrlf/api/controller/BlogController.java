@@ -1,12 +1,8 @@
 package com.ctrlf.api.controller;
 
-import com.ctrlf.api.dto.BlogRequest;
-import com.ctrlf.api.dto.BlogResponse;
-import com.ctrlf.api.repository.BlogRepository;
-import com.ctrlf.api.service.BlogService;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.ctrlf.api.dto.BlogRequest;
+import com.ctrlf.api.dto.BlogResponse;
+import com.ctrlf.api.repository.BlogRepository;
+import com.ctrlf.api.service.BlogService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/blogs")
@@ -41,7 +44,9 @@ public class BlogController {
             .map(blog -> Map.<String, Object>of(
                 "blogId", blog.getBlogId(),
                 "blogTitle", blog.getBlogTitle(),
-                "blogContent", blog.getBlogContent()))
+                "blogContent", blog.getBlogContent(),
+                "datePosted", blog.getDatePosted(),
+                "userId", blog.getUserId()))
             .toList();
     }
 

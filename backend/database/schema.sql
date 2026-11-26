@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS Blogs (
     BlogId BIGINT NOT NULL AUTO_INCREMENT,
     BlogTitle varchar(100) NOT NULL,
     BlogContent TEXT NOT NULL,
+    DatePosted DATETIME NULL,  
     Tags VARCHAR(1000) NOT NULL,
     Views INT NOT NULL,
     Likes INT NOT NULL,
