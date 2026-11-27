@@ -56,9 +56,11 @@ function BlogsContextProvider({ children }) {
         const body = {
             blogTitle: String(blogTitle || '').trim(),
             blogContent: String(blogContent || '').trim(),
-            datePosted: new Date(),
+            datePosted: new Date().toISOString(),
             userId: userId
         };
+
+        console.log(body.datePosted);
         
         if (!body.blogTitle || !body.blogContent) throw new Error('Please fill out all fields.');
         if (body.blogTitle.length > 50) throw new Error('Title must be 1 to 50 characters.');

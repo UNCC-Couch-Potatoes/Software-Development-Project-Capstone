@@ -1,5 +1,7 @@
 package com.ctrlf.api.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +47,7 @@ public class BlogService {
         //No likes currently as the feature does not work with current database.
         Blog blog = new Blog(cleanTitle(body.blogTitle()),
             cleanContent(body.blogContent()),
-            body.datePosted(),
+            LocalDateTime.ofInstant(body.datePosted(), ZoneOffset.UTC),
             "",
             0, 
             0, 

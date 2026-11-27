@@ -1,25 +1,26 @@
 package com.ctrlf.api.controller;
 
-import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import com.ctrlf.api.dto.BlogResponse;
-import com.ctrlf.api.service.BlogService;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.ctrlf.api.dto.BlogResponse;
+import com.ctrlf.api.service.BlogService;
 
 @WebMvcTest(BlogController.class)
 class BlogControllerTest {
@@ -34,7 +35,7 @@ class BlogControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("userId", 2L);
         when(blogService.create(eq(2L), any())).thenReturn(new BlogResponse(
-            7L, "Devlog", "Week one", List.of(), 0, 0, 2L
+            7L, "Devlog", "Week one", Instant.now(), List.of(), 0, 0, 2L
         ));
 
         mockMvc.perform(post("/api/blogs")
@@ -48,7 +49,7 @@ class BlogControllerTest {
     @Test
     void returnsOneBlogById() throws Exception {
         when(blogService.findById(7L)).thenReturn(Optional.of(new BlogResponse(
-            7L, "Devlog", "Week one", List.of("Godot"), 12, 3, 2L
+            7L, "Devlog", "Week one", Instant.now(),List.of("Godot"), 12, 3, 2L
         )));
 
         mockMvc.perform(get("/api/blogs/7"))
